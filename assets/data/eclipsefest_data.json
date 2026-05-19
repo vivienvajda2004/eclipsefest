@@ -11,6 +11,14 @@
     },
     {
       "id": "2",
+      "name": "LUNA DORÉ",
+      "stage": "Electronic Stage",
+      "startTime": "16:30",
+      "endTime": "17:30",
+      "description": "Deep house vibes."
+    },
+    {
+      "id": "3",
       "name": "Neon Vibes",
       "stage": "Electronic Stage",
       "startTime": "22:45",
