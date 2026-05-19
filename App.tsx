@@ -24,6 +24,8 @@ const translations = {
 	en: {
 		home: "Home",
 		schedule: "Schedule",
+		map: "Map",
+		tickets: "Tickets",
 		sponsors: "Sponsors",
 		sponsorsTitle: "OUR PROUD SPONSORS",
 		festivalInfo: "FESTIVAL INFO",
@@ -31,13 +33,15 @@ const translations = {
 	hu: {
 		home: "Kezdőlap",
 		schedule: "Program",
+		map: "Térkép",
+		tickets: "Jegyek",
 		sponsors: "Támogatók",
 		sponsorsTitle: "BÜSZKE TÁMOGATÓINK",
 		festivalInfo: "FESZTIVÁL INFÓ",
 	},
 };
-import FestivalMapCanvas from "./components/FestivalMapCanvas";
-import type { FestivalMapCanvasRef } from "./components/FestivalMapCanvas.types";
+
+type TabKey = "Home" | "Schedule" | "Map" | "Tickets" | "Sponsors";
 
 // ─── Adatmodell ───────────────────────────────────────────────────────────────
 interface Performer {
@@ -46,7 +50,8 @@ interface Performer {
 	stage: string;
 	startTime: string;
 	endTime: string;
-	description: string;
+	description_en: string;
+	description_hu: string;
 }
 
 interface Sponsor {
@@ -65,8 +70,6 @@ interface Ticket {
 	features: string[];
 	popular?: boolean;
 }
-
-type TabKey = "Home" | "Schedule" | "Tickets" | "Map";
 
 type MapCategory =
 	| "stage"
@@ -312,7 +315,9 @@ function TicketCard({
 					<Text style={styles.popularBadgeText}>NÉPSZERŰ</Text>
 				</View>
 			)}
-			<View style={[styles.cardAccent, selected && styles.ticketAccentSelected]} />
+			<View
+				style={[styles.cardAccent, selected && styles.ticketAccentSelected]}
+			/>
 			<View style={styles.ticketCardBody}>
 				<View style={styles.ticketCardHeader}>
 					<View style={styles.ticketTitleRow}>
@@ -501,7 +506,6 @@ function TicketsScreen({
 
 // ─── Térkép képernyő ─────────────────────────────────────────────────────────────
 function MapScreen({ map }: { map: FestivalMap }) {
-	const mapRef = useRef<FestivalMapCanvasRef>(null);
 	const [filter, setFilter] = useState<MapFilter>("all");
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -513,19 +517,7 @@ function MapScreen({ map }: { map: FestivalMap }) {
 	const selected = map.points.find((p) => p.id === selectedId) ?? null;
 
 	const selectPoint = (id: string) => {
-		const point = map.points.find((p) => p.id === id);
-		if (!point) return;
-
 		setSelectedId(id);
-		mapRef.current?.animateToRegion(
-			{
-				latitude: point.latitude,
-				longitude: point.longitude,
-				latitudeDelta: 0.002,
-				longitudeDelta: 0.002,
-			},
-			450,
-		);
 	};
 
 	const renderDetailCard = (point: MapPoint) => (
@@ -546,17 +538,22 @@ function MapScreen({ map }: { map: FestivalMap }) {
 					</View>
 				</View>
 				<Text style={styles.mapDetailDescription}>{point.description}</Text>
-				{Platform.OS === "web" && (
+				{Platform.OS !== "web" && (
 					<TouchableOpacity
 						style={styles.mapOpenExternalBtn}
 						onPress={() => openInGoogleMaps(point)}
 					>
 						<Ionicons name="open-outline" size={14} color="#c084fc" />
-						<Text style={styles.mapOpenExternalText}>Megnyitás Google Maps-ben</Text>
+						<Text style={styles.mapOpenExternalText}>
+							Megnyitás Google Maps-ben
+						</Text>
 					</TouchableOpacity>
 				)}
 			</View>
-			<TouchableOpacity style={styles.mapDetailClose} onPress={() => setSelectedId(null)}>
+			<TouchableOpacity
+				style={styles.mapDetailClose}
+				onPress={() => setSelectedId(null)}
+			>
 				<Ionicons name="close" size={18} color="#888" />
 			</TouchableOpacity>
 		</View>
@@ -579,11 +576,13 @@ function MapScreen({ map }: { map: FestivalMap }) {
 					return (
 						<TouchableOpacity
 							key={item.key}
-							style={[styles.mapFilterChip, active && styles.mapFilterChipActive]}
+							style={[
+								styles.mapFilterChip,
+								active && styles.mapFilterChipActive,
+							]}
 							onPress={() => {
 								setFilter(item.key);
 								setSelectedId(null);
-								mapRef.current?.animateToRegion(map.center, 450);
 							}}
 						>
 							<Text
@@ -599,15 +598,34 @@ function MapScreen({ map }: { map: FestivalMap }) {
 				})}
 			</ScrollView>
 
-			<View style={styles.mapViewWrap}>
-				<FestivalMapCanvas
-					ref={mapRef}
-					center={map.center}
-					visiblePoints={visiblePoints}
-					selectedId={selectedId}
-					categoryMeta={MAP_CATEGORY_META}
-					onSelectPoint={selectPoint}
-					onClearSelection={() => setSelectedId(null)}
+			<View style={styles.mapPointsList}>
+				<FlatList
+					data={visiblePoints}
+					keyExtractor={(item) => item.id}
+					renderItem={({ item }) => (
+						<TouchableOpacity
+							style={[
+								styles.mapPointItem,
+								selectedId === item.id && styles.mapPointItemSelected,
+							]}
+							onPress={() => selectPoint(item.id)}
+						>
+							<Ionicons
+								name={
+									MAP_CATEGORY_META[item.category]
+										.icon as keyof typeof Ionicons.glyphMap
+								}
+								size={20}
+								color={MAP_CATEGORY_META[item.category].color}
+							/>
+							<View style={styles.mapPointItemText}>
+								<Text style={styles.mapPointItemName}>{item.name}</Text>
+								<Text style={styles.mapPointItemCategory}>
+									{MAP_CATEGORY_META[item.category].label}
+								</Text>
+							</View>
+						</TouchableOpacity>
+					)}
 				/>
 			</View>
 
@@ -731,10 +749,12 @@ function ScheduleScreen({
 	performers,
 	favorites,
 	onToggleFavorite,
+	lang,
 }: {
 	performers: Performer[];
 	favorites: string[];
 	onToggleFavorite: (id: string) => void;
+	lang: "en" | "hu";
 }) {
 	const [viewMode, setViewMode] = useState<ScheduleViewMode>("list");
 	const sorted = sortPerformersByTime(performers);
@@ -835,7 +855,7 @@ function ScheduleScreen({
 								<Text style={styles.performerName}>{item.name}</Text>
 								<Text style={styles.performerDetails}>{item.stage}</Text>
 								<Text style={styles.timelineDescription} numberOfLines={2}>
-									{item.description}
+									{lang === "en" ? item.description_en : item.description_hu}
 								</Text>
 							</View>
 							{renderFavoriteBtn(item.id)}
@@ -980,9 +1000,7 @@ function SponsorsScreen({ t }: { t: typeof translations.en }) {
 
 // ─── Fő App komponens ─────────────────────────────────────────────────────────
 export default function App() {
-	const [activeTab, setActiveTab] = useState<"Home" | "Schedule" | "Sponsors">(
-		"Home",
-	);
+	const [activeTab, setActiveTab] = useState<TabKey>("Home");
 	const [favorites, setFavorites] = useState<string[]>([]);
 	const [lang, setLang] = useState<"en" | "hu">("en");
 
@@ -1023,13 +1041,10 @@ export default function App() {
 	};
 
 	const navTabs: { key: TabKey; icon: string; label: string }[] = [
-		{ key: "Home", icon: "home", label: "Home" },
-		{ key: "Schedule", icon: "calendar", label: "Schedule" },
-		{ key: "Map", icon: "map", label: "Térkép" },
-		{ key: "Tickets", icon: "ticket", label: "Jegyek" },
-	const navTabs = [
 		{ key: "Home", icon: "home", label: t.home },
 		{ key: "Schedule", icon: "calendar", label: t.schedule },
+		{ key: "Map", icon: "map", label: t.map },
+		{ key: "Tickets", icon: "ticket", label: t.tickets },
 		{ key: "Sponsors", icon: "star", label: t.sponsors },
 	];
 
@@ -1063,15 +1078,19 @@ export default function App() {
 
 			{/* Tartalom */}
 			<View style={styles.mainArea}>
-				{activeTab === "Home" && <HomeScreen onGoToTickets={() => setActiveTab("Tickets")} />}
-				{activeTab === "Schedule" && activeTab === "Schedule" ? (
+				{activeTab === "Home" && (
+					<HomeScreen onGoToTickets={() => setActiveTab("Tickets")} />
+				)}
+				{activeTab === "Schedule" && (
 					<ScheduleScreen
 						performers={festivalData.performers as Performer[]}
 						favorites={favorites}
 						onToggleFavorite={toggleFavorite}
+						lang={lang}
 					/>
-				) : activeTab === "Map" ? (
-					festivalMap ? (
+				)}
+				{activeTab === "Map" &&
+					(festivalMap ? (
 						<MapScreen map={festivalMap} />
 					) : (
 						<View style={styles.mapScreen}>
@@ -1080,8 +1099,8 @@ export default function App() {
 								A térkép adatai nem érhetők el.
 							</Text>
 						</View>
-					)
-				) : (
+					))}
+				{activeTab === "Tickets" && (
 					<TicketsScreen
 						tickets={tickets}
 						selectedId={selectedTicketId}
@@ -1095,7 +1114,6 @@ export default function App() {
 						onReset={handleResetOrder}
 					/>
 				)}
-				{/* Itt már a SponsorsScreen-t hívjuk meg */}
 				{activeTab === "Sponsors" && <SponsorsScreen t={t} />}
 			</View>
 
@@ -2066,5 +2084,37 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		fontWeight: "500",
 		textAlign: "center",
+	},
+	// Map képernyő
+	mapPointsList: {
+		flex: 1,
+		backgroundColor: "rgba(120,60,200,0.03)",
+		borderTopWidth: 0.5,
+		borderTopColor: "rgba(120,60,200,0.2)",
+	},
+	mapPointItem: {
+		flexDirection: "row",
+		alignItems: "center",
+		padding: 16,
+		borderBottomWidth: 0.5,
+		borderBottomColor: "rgba(120,60,200,0.1)",
+		gap: 12,
+	},
+	mapPointItemSelected: {
+		backgroundColor: "rgba(168,85,247,0.1)",
+	},
+	mapPointItemText: {
+		flex: 1,
+	},
+	mapPointItemName: {
+		color: "#e8d8ff",
+		fontSize: 14,
+		fontWeight: "600",
+		marginBottom: 2,
+	},
+	mapPointItemCategory: {
+		color: "rgba(168,85,247,0.55)",
+		fontSize: 11,
+		letterSpacing: 0.3,
 	},
 });
