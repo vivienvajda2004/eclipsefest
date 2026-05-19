@@ -1194,7 +1194,6 @@ const styles = StyleSheet.create({
 	homeScreen: { flex: 1, backgroundColor: "#06020f", position: "relative", overflow: "hidden" },
 	homeScroll: { alignItems: "center", paddingBottom: 32 },
 	star: { position: "absolute", backgroundColor: "#ffffff", borderRadius: 99 },
-
 	// Következő kedvenc chip
 	nextFavChip: {
 		flexDirection: "row",
