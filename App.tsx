@@ -14,6 +14,24 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import festivalData from "./assets/data/eclipsefest_data.json";
 
+// ─── Nyelvi szótár (i18n) ─────────────────────────────────────────────────────
+const translations = {
+	en: {
+		home: "Home",
+		schedule: "Schedule",
+		sponsors: "Sponsors",
+		sponsorsTitle: "OUR PROUD SPONSORS",
+		festivalInfo: "FESTIVAL INFO",
+	},
+	hu: {
+		home: "Kezdőlap",
+		schedule: "Program",
+		sponsors: "Támogatók",
+		sponsorsTitle: "BÜSZKE TÁMOGATÓINK",
+		festivalInfo: "FESZTIVÁL INFÓ",
+	},
+};
+
 // ─── Adatmodell ───────────────────────────────────────────────────────────────
 interface Performer {
 	id: string;
@@ -295,18 +313,13 @@ function PerformerCard({
 }
 
 // ─── Sponsors képernyő ────────────────────────────────────────────────
-function SponsorsScreen() {
+function SponsorsScreen({ t }: { t: typeof translations.en }) {
 	const sponsors = festivalData.sponsors as Sponsor[];
 
 	return (
 		<View style={styles.infoScreenContainer}>
-			<Text
-				style={[
-					styles.sectionTitle,
-					{ textAlign: "center", marginTop: 10, marginBottom: 20 },
-				]}
-			>
-				OUR PROUD SPONSORS
+			<Text style={[styles.sectionTitle, { textAlign: "center" }]}>
+				{t.sponsorsTitle}
 			</Text>
 
 			{/* Szponzorok Grid */}
@@ -337,6 +350,9 @@ export default function App() {
 		"Home",
 	);
 	const [favorites, setFavorites] = useState<string[]>([]);
+	const [lang, setLang] = useState<"en" | "hu">("en");
+
+	const t = translations[lang];
 
 	const toggleFavorite = (id: string) => {
 		setFavorites((prev) =>
@@ -344,14 +360,10 @@ export default function App() {
 		);
 	};
 
-	const navTabs: {
-		key: "Home" | "Schedule" | "Sponsors";
-		icon: string;
-		label: string;
-	}[] = [
-		{ key: "Home", icon: "home", label: "Home" },
-		{ key: "Schedule", icon: "calendar", label: "Schedule" },
-		{ key: "Sponsors", icon: "people", label: "Sponsors" },
+	const navTabs = [
+		{ key: "Home", icon: "home", label: t.home },
+		{ key: "Schedule", icon: "calendar", label: t.schedule },
+		{ key: "Sponsors", icon: "star", label: t.sponsors },
 	];
 
 	return (
@@ -359,8 +371,27 @@ export default function App() {
 			<StatusBar barStyle="light-content" backgroundColor="#06020f" />
 
 			{/* Fejléc */}
-			<View style={styles.header}>
+			<View
+				style={[
+					styles.header,
+					{ flexDirection: "row", justifyContent: "space-between" },
+				]}
+			>
 				<Text style={styles.headerBadge}>ECLIPSEFEST · 2026</Text>
+
+				{/* Egyedi nyelvválasztó "legördülő" / gomb */}
+				<TouchableOpacity
+					style={{
+						padding: 5,
+						backgroundColor: "rgba(124,58,237,0.2)",
+						borderRadius: 8,
+					}}
+					onPress={() => setLang(lang === "en" ? "hu" : "en")}
+				>
+					<Text style={{ color: "#a855f7", fontWeight: "bold" }}>
+						{lang === "en" ? "EN 🔄" : "HU 🔄"}
+					</Text>
+				</TouchableOpacity>
 			</View>
 
 			{/* Tartalom */}
@@ -381,7 +412,7 @@ export default function App() {
 					/>
 				)}
 				{/* Itt már a SponsorsScreen-t hívjuk meg */}
-				{activeTab === "Sponsors" && <SponsorsScreen />}
+				{activeTab === "Sponsors" && <SponsorsScreen t={t} />}
 			</View>
 
 			{/* Alsó navigáció */}

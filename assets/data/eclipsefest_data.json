@@ -7,7 +7,8 @@
 			"stage": "Main Stage",
 			"startTime": "15:00",
 			"endTime": "16:00",
-			"description": "Opening the festival with great energy."
+			"description_en": "Opening the festival with great energy.",
+			"description_hu": "Hatalmas energiával nyitják meg a fesztivált."
 		},
 		{
 			"id": "2",
@@ -15,7 +16,8 @@
 			"stage": "Electronic Stage",
 			"startTime": "16:30",
 			"endTime": "17:30",
-			"description": "Deep house vibes."
+			"description_en": "Deep house vibes.",
+			"description_hu": "Mély house hangulat."
 		},
 		{
 			"id": "3",
@@ -23,7 +25,8 @@
 			"stage": "Electronic Stage",
 			"startTime": "22:45",
 			"endTime": "00:00",
-			"description": "Late night electronic session."
+			"description_en": "Late night electronic session.",
+			"description_hu": "Késői éjszakai elektronikus műsor."
 		}
 	],
 	"sponsors": [
