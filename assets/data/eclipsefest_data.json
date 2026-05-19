@@ -1,0 +1,29 @@
+{
+  "festivalName": "EclipseFest 2026",
+  "performers": [
+    {
+      "id": "1",
+      "name": "The Roamers",
+      "stage": "Main Stage",
+      "startTime": "15:00",
+      "endTime": "16:00",
+      "description": "Opening the festival with great energy."
+    },
+    {
+      "id": "2",
+      "name": "LUNA DORÉ",
+      "stage": "Electronic Stage",
+      "startTime": "16:30",
+      "endTime": "17:30",
+      "description": "Deep house vibes."
+    },
+    {
+      "id": "3",
+      "name": "Neon Vibes",
+      "stage": "Electronic Stage",
+      "startTime": "22:45",
+      "endTime": "00:00",
+      "description": "Late night electronic session."
+    }
+  ]
+}
