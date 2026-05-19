@@ -11,8 +11,29 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import festivalData from "./assets/data/eclipsefest_data.json";
 
+// Adatmodell a fellépőkhöz
+interface Performer {
+  id: string;
+  name: string;
+  stage: string;
+  startTime: string;
+  endTime: string;
+  description: string;
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState("Home");
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  const toggleFavorite = (id: string) => {
+    if (favorites.includes(id)) {
+      // Ha már benne van, kivesszük
+      setFavorites(favorites.filter((favId) => favId !== id));
+    } else {
+      // Ha nincs benne, betesszük
+      setFavorites([...favorites, id]);
+    }
+  };
 
   const renderContent = () => {
     if (activeTab === "Home") {
@@ -30,22 +51,32 @@ export default function App() {
     } else {
       return (
         <FlatList
-          data={festivalData.performers}
+          data={festivalData.performers as Performer[]} // Itt használjuk a modellt!
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 10 }}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={styles.cardInfo}>
-                <Text style={styles.performerName}>{item.name}</Text>
-                <Text style={styles.performerDetails}>
-                  {item.stage} | {item.startTime} - {item.endTime}
-                </Text>
+          renderItem={({ item }) => {
+            // Megnézzük, hogy ez a fellépő benne van-e a kedvencek listájában
+            const isFavorite = favorites.includes(item.id);
+
+            return (
+              <View style={styles.card}>
+                <View style={styles.cardInfo}>
+                  <Text style={styles.performerName}>{item.name}</Text>
+                  <Text style={styles.performerDetails}>
+                    {item.stage} | {item.startTime} - {item.endTime}
+                  </Text>
+                </View>
+                {/* Itt a varázslat: rákötjük a gombot a logikára */}
+                <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
+                  <Ionicons
+                    name={isFavorite ? "heart" : "heart-outline"}
+                    size={24}
+                    color="#bb86fc"
+                  />
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity>
-                <Ionicons name="heart-outline" size={24} color="#bb86fc" />
-              </TouchableOpacity>
-            </View>
-          )}
+            );
+          }}
         />
       );
     }
