@@ -24,6 +24,12 @@ interface Performer {
 	description: string;
 }
 
+interface Sponsor {
+	id: string;
+	name: string;
+	logoUrl: string;
+}
+
 // ─── Animált csillag komponens ────────────────────────────────────────────────
 function Star({ style }: { style: object }) {
 	const opacity = useRef(new Animated.Value(Math.random())).current;
@@ -288,9 +294,48 @@ function PerformerCard({
 	);
 }
 
+// ─── Sponsors képernyő ────────────────────────────────────────────────
+function SponsorsScreen() {
+	const sponsors = festivalData.sponsors as Sponsor[];
+
+	return (
+		<View style={styles.infoScreenContainer}>
+			<Text
+				style={[
+					styles.sectionTitle,
+					{ textAlign: "center", marginTop: 10, marginBottom: 20 },
+				]}
+			>
+				OUR PROUD SPONSORS
+			</Text>
+
+			{/* Szponzorok Grid */}
+			<FlatList
+				data={sponsors}
+				keyExtractor={(item) => item.id}
+				numColumns={2}
+				contentContainerStyle={styles.sponsorListContent}
+				columnWrapperStyle={styles.sponsorColumnWrapper}
+				renderItem={({ item }) => (
+					<View style={styles.sponsorCard}>
+						<Image
+							source={{ uri: item.logoUrl }}
+							style={styles.sponsorLogo}
+							resizeMode="contain"
+						/>
+						<Text style={styles.sponsorName}>{item.name}</Text>
+					</View>
+				)}
+			/>
+		</View>
+	);
+}
+
 // ─── Fő App komponens ─────────────────────────────────────────────────────────
 export default function App() {
-	const [activeTab, setActiveTab] = useState<"Home" | "Schedule">("Home");
+	const [activeTab, setActiveTab] = useState<"Home" | "Schedule" | "Sponsors">(
+		"Home",
+	);
 	const [favorites, setFavorites] = useState<string[]>([]);
 
 	const toggleFavorite = (id: string) => {
@@ -299,9 +344,14 @@ export default function App() {
 		);
 	};
 
-	const navTabs: { key: "Home" | "Schedule"; icon: string; label: string }[] = [
+	const navTabs: {
+		key: "Home" | "Schedule" | "Sponsors";
+		icon: string;
+		label: string;
+	}[] = [
 		{ key: "Home", icon: "home", label: "Home" },
 		{ key: "Schedule", icon: "calendar", label: "Schedule" },
+		{ key: "Sponsors", icon: "people", label: "Sponsors" },
 	];
 
 	return (
@@ -315,9 +365,8 @@ export default function App() {
 
 			{/* Tartalom */}
 			<View style={styles.mainArea}>
-				{activeTab === "Home" ? (
-					<HomeScreen />
-				) : (
+				{activeTab === "Home" && <HomeScreen />}
+				{activeTab === "Schedule" && (
 					<FlatList
 						data={festivalData.performers as Performer[]}
 						keyExtractor={(item) => item.id}
@@ -331,6 +380,8 @@ export default function App() {
 						)}
 					/>
 				)}
+				{/* Itt már a SponsorsScreen-t hívjuk meg */}
+				{activeTab === "Sponsors" && <SponsorsScreen />}
 			</View>
 
 			{/* Alsó navigáció */}
@@ -651,5 +702,60 @@ const styles = StyleSheet.create({
 	},
 	navTextActive: {
 		color: "#a855f7",
+	},
+	// Info & Sponsors képernyő stílusok
+	infoScreenContainer: {
+		flex: 1,
+		paddingTop: 16,
+	},
+	contactCard: {
+		backgroundColor: "rgba(120,60,200,0.07)",
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.2)",
+		borderRadius: 14,
+		padding: 20,
+		marginHorizontal: 24,
+		marginBottom: 10,
+	},
+	sectionTitle: {
+		color: "#a855f7",
+		fontSize: 14,
+		fontWeight: "600",
+		letterSpacing: 2,
+		marginBottom: 12,
+	},
+	infoText: {
+		color: "#d8c8f0",
+		fontSize: 14,
+		marginBottom: 8,
+		letterSpacing: 0.5,
+	},
+	sponsorListContent: {
+		paddingHorizontal: 16,
+		paddingBottom: 32,
+	},
+	sponsorColumnWrapper: {
+		justifyContent: "space-between",
+		marginBottom: 16,
+	},
+	sponsorCard: {
+		backgroundColor: "#120a26", // Kicsit sötétebb, hogy a logók kiugorjanak
+		borderWidth: 0.5,
+		borderColor: "rgba(168,85,247,0.15)",
+		borderRadius: 12,
+		padding: 16,
+		width: "48%", // Hogy kettő elférjen egymás mellett
+		alignItems: "center",
+	},
+	sponsorLogo: {
+		width: 60,
+		height: 40,
+		marginBottom: 12,
+	},
+	sponsorName: {
+		color: "rgba(232,216,255,0.8)",
+		fontSize: 12,
+		fontWeight: "500",
+		textAlign: "center",
 	},
 });

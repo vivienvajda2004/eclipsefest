@@ -1,29 +1,56 @@
 {
-  "festivalName": "EclipseFest 2026",
-  "performers": [
-    {
-      "id": "1",
-      "name": "The Roamers",
-      "stage": "Main Stage",
-      "startTime": "15:00",
-      "endTime": "16:00",
-      "description": "Opening the festival with great energy."
-    },
-    {
-      "id": "2",
-      "name": "LUNA DORÉ",
-      "stage": "Electronic Stage",
-      "startTime": "16:30",
-      "endTime": "17:30",
-      "description": "Deep house vibes."
-    },
-    {
-      "id": "3",
-      "name": "Neon Vibes",
-      "stage": "Electronic Stage",
-      "startTime": "22:45",
-      "endTime": "00:00",
-      "description": "Late night electronic session."
-    }
-  ]
+	"festivalName": "EclipseFest 2026",
+	"performers": [
+		{
+			"id": "1",
+			"name": "The Roamers",
+			"stage": "Main Stage",
+			"startTime": "15:00",
+			"endTime": "16:00",
+			"description": "Opening the festival with great energy."
+		},
+		{
+			"id": "2",
+			"name": "LUNA DORÉ",
+			"stage": "Electronic Stage",
+			"startTime": "16:30",
+			"endTime": "17:30",
+			"description": "Deep house vibes."
+		},
+		{
+			"id": "3",
+			"name": "Neon Vibes",
+			"stage": "Electronic Stage",
+			"startTime": "22:45",
+			"endTime": "00:00",
+			"description": "Late night electronic session."
+		}
+	],
+	"sponsors": [
+		{
+			"id": "s1",
+			"name": "Nebula Energy",
+			"logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/FIAT_logo_%282006%29.svg/120px-FIAT_logo_%282006%29.svg.png"
+		},
+		{
+			"id": "s2",
+			"name": "Wavora Water",
+			"logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/120px-Coca-Cola_logo.svg.png"
+		},
+		{
+			"id": "s3",
+			"name": "Lumen Lighting",
+			"logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/120px-Google_2015_logo.svg.png"
+		},
+		{
+			"id": "s4",
+			"name": "Pulse Sound",
+			"logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tesla_logo.png/120px-Tesla_logo.png"
+		},
+		{
+			"id": "s5",
+			"name": "Vibes Tech",
+			"logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/120px-Apple_logo_black.svg.png"
+		}
+	]
 }
