@@ -1,5 +1,44 @@
 {
   "festivalName": "EclipseFest 2026",
+  "tickets": [
+    {
+      "id": "day-pass",
+      "name": "Napijegy",
+      "price": 18500,
+      "currency": "HUF",
+      "badge": "1 nap",
+      "description": "Egy nap teljes belépés mind a 4 színpadra.",
+      "features": ["Minden színpad", "18:00 – 02:00", "Mobil app hozzáférés"]
+    },
+    {
+      "id": "weekend-pass",
+      "name": "Bérlet",
+      "price": 42900,
+      "currency": "HUF",
+      "badge": "3 nap",
+      "description": "Teljes hétvége: július 18–20., minden színpad.",
+      "features": ["3 nap belépés", "Prioritásos bejárat", "Exkluzív merch 10%"],
+      "popular": true
+    },
+    {
+      "id": "vip-pass",
+      "name": "VIP Bérlet",
+      "price": 89900,
+      "currency": "HUF",
+      "badge": "VIP",
+      "description": "Prémium élmény a teljes fesztivál idejére.",
+      "features": ["VIP lounge", "Külön mosdó & bár", "Meet & greet lehetőség"]
+    },
+    {
+      "id": "camping-addon",
+      "name": "Kemping kiegészítő",
+      "price": 12000,
+      "currency": "HUF",
+      "badge": "Add-on",
+      "description": "Sátorhely a fesztivál területén, 3 éjszaka.",
+      "features": ["Zuhanyzó & WC", "24 órás biztonság", "Csak bérlettel"]
+    }
+  ],
   "performers": [
     {
       "id": "1",
