@@ -36,6 +36,7 @@ import Svg, {
 	Text as SvgText,
 } from "react-native-svg";
 import festivalData from "./assets/data/eclipsefest_data.json";
+import { performerImages } from "./assets/data/imageMap";
 
 // Extra prémium / holdfényes event-app irány – mély fekete, lila glow, üveges kártyák
 const THEME = {
@@ -1454,6 +1455,13 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 					</View>
 					<TouchableOpacity style={styles.timelineCard} activeOpacity={0.86} onPress={() => setSelectedPerformer(item)}>
 						<View style={styles.timelineCardHeader}>
+							{/* --- ÚJ KÉP A TIMELINE-BAN --- */}
+							<Image
+								source={performerImages[item.id]}
+								style={styles.timelineImage}
+								resizeMode="cover"
+							/>
+							{/* ----------------------------- */}
 							<View style={styles.timelineCardInfo}>
 								<Text style={styles.performerName}>{item.name}</Text>
 								<Text style={styles.performerDetails}>{item.stage}</Text>
@@ -1548,30 +1556,19 @@ function PerformerDetailModal({ performer, lang, isFavorite, onClose, onToggleFa
 				<TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={onClose} />
 				<View style={styles.performerModalCard}>
 					<View style={styles.performerModalHero}>
-						<Svg width="100%" height="100%" viewBox="0 0 320 150">
+						<Image
+							source={performerImages[performer.id]}
+							style={StyleSheet.absoluteFillObject}
+							resizeMode="cover"
+						/>
+						<Svg width="100%" height="100%" style={StyleSheet.absoluteFillObject}>
 							<Defs>
-								<LinearGradient id="artistHero" x1="0" y1="0" x2="1" y2="1">
-									<Stop offset="0" stopColor="#7c3aed" stopOpacity="0.95" />
-									<Stop offset="0.55" stopColor="#26113f" stopOpacity="1" />
-									<Stop offset="1" stopColor="#05020a" stopOpacity="1" />
+								<LinearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+									<Stop offset="0.4" stopColor="#10091c" stopOpacity="0" />
+									<Stop offset="1" stopColor="#10091c" stopOpacity="1" />
 								</LinearGradient>
-								<RadialGradient id="artistGlow" cx="0.62" cy="0.34" r="0.55">
-									<Stop offset="0" stopColor="#f0abfc" stopOpacity="0.8" />
-									<Stop offset="1" stopColor="#7c3aed" stopOpacity="0" />
-								</RadialGradient>
 							</Defs>
-							<Rect width="320" height="150" rx="22" fill="url(#artistHero)" />
-							<Rect width="320" height="150" rx="22" fill="url(#artistGlow)" />
-							{Array.from({ length: 14 }).map((_, i) => (
-								<Line key={`beam-${i}`} x1={18 + i * 22} y1="150" x2={40 + i * 18} y2={36 + (i % 4) * 12} stroke="#d8b4fe" strokeOpacity="0.16" strokeWidth="2" />
-							))}
-							{Array.from({ length: 16 }).map((_, i) => (
-								<Circle key={`light-${i}`} cx={18 + i * 20} cy={36 + (i % 3) * 11} r={i % 4 === 0 ? 3 : 2} fill="#f5d0fe" opacity={0.28 + (i % 5) * 0.08} />
-							))}
-							<Path d="M0 120 C45 92 88 126 130 94 C174 62 218 104 258 72 C286 50 304 54 320 42 L320 150 L0 150 Z" fill="#06020f" opacity="0.72" />
-							{Array.from({ length: 22 }).map((_, i) => (
-								<Path key={`crowd-${i}`} d={`M${8 + i * 15} 150 L${12 + i * 15} ${126 + (i % 5) * 4} L${16 + i * 15} 150 Z`} fill="#030108" opacity="0.92" />
-							))}
+							<Rect width="100%" height="100%" fill="url(#fade)" />
 						</Svg>
 					</View>
 					<View style={styles.performerModalContent}>
@@ -1621,6 +1618,15 @@ function PerformerCard({ item, isFavorite, onToggle, conflictNames, onPress }: {
 	return (
 		<TouchableOpacity activeOpacity={0.86} onPress={onPress} style={[styles.card, conflictNames && conflictNames.length > 0 && styles.cardConflict]}>
 			<View style={[styles.cardAccent, conflictNames && conflictNames.length > 0 && styles.cardAccentConflict]} />
+			
+			{/* --- ÚJ KÉP KONTÉNER --- */}
+			<Image
+				source={performerImages[item.id]}
+				style={styles.performerImage}
+				resizeMode="cover"
+			/>
+			{/* ----------------------- */}
+
 			<View style={styles.cardInfo}>
 				<Text style={styles.performerName}>{item.name}</Text>
 				<Text style={styles.performerDetails}>
@@ -3095,4 +3101,24 @@ const styles = StyleSheet.create({
 	},
 	gastroCategoryChipTextActive: { color: THEME.text },
 	gastroIconBox: { width: 52, height: 52, borderRadius: 16, alignItems: "center", justifyContent: "center", borderWidth: 1.2 },
+
+	// Kép a sima listában
+	performerImage: {
+		width: 64,
+		height: 64,
+		borderRadius: 10,
+		marginLeft: 12,
+		marginVertical: 12,
+		backgroundColor: "rgba(120,60,200,0.1)",
+	},
+
+	// Kép a timeline nézetben
+	timelineImage: {
+		width: 52,
+		height: 52,
+		borderRadius: 8,
+		margin: 12,
+		marginRight: 0,
+		backgroundColor: "rgba(120,60,200,0.1)",
+	},
 });
