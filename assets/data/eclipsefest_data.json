@@ -1,249 +1,1222 @@
 {
-	"festivalName": "EclipseFest 2026",
-	"tickets": [
-		{
-			"id": "day-pass",
-			"name": "Napijegy",
-			"price": 18500,
-			"currency": "HUF",
-			"badge": "1 nap",
-			"description": "Egy nap teljes belépés mind a 4 színpadra.",
-			"features": ["Minden színpad", "18:00 – 02:00", "Mobil app hozzáférés"]
-		},
-		{
-			"id": "weekend-pass",
-			"name": "Bérlet",
-			"price": 42900,
-			"currency": "HUF",
-			"badge": "3 nap",
-			"description": "Teljes hétvége: július 18–20., minden színpad.",
-			"features": [
-				"3 nap belépés",
-				"Prioritásos bejárat",
-				"Exkluzív merch 10%"
-			],
-			"popular": true
-		},
-		{
-			"id": "vip-pass",
-			"name": "VIP Bérlet",
-			"price": 89900,
-			"currency": "HUF",
-			"badge": "VIP",
-			"description": "Prémium élmény a teljes fesztivál idejére.",
-			"features": ["VIP lounge", "Külön mosdó & bár", "Meet & greet lehetőség"]
-		},
-		{
-			"id": "camping-addon",
-			"name": "Kemping kiegészítő",
-			"price": 12000,
-			"currency": "HUF",
-			"badge": "Add-on",
-			"description": "Sátorhely a fesztivál területén, 3 éjszaka.",
-			"features": ["Zuhanyzó & WC", "24 órás biztonság", "Csak bérlettel"]
-		}
-	],
-	"map": {
-		"venueName": "Budapest Park · Fesztiválterület",
-		"center": {
-			"latitude": 47.4734,
-			"longitude": 19.0822,
-			"latitudeDelta": 0.005,
-			"longitudeDelta": 0.005
-		},
-		"points": [
-			{
-				"id": "main-stage",
-				"name": "Main Stage",
-				"category": "stage",
-				"latitude": 47.4745,
-				"longitude": 19.0826,
-				"description": "Főszínpad – headlinerek és nagy show-k."
-			},
-			{
-				"id": "electronic-stage",
-				"name": "Electronic Stage",
-				"category": "stage",
-				"latitude": 47.4736,
-				"longitude": 19.0804,
-				"description": "Elektronikus és house műfajok."
-			},
-			{
-				"id": "acoustic-stage",
-				"name": "Acoustic Stage",
-				"category": "stage",
-				"latitude": 47.4736,
-				"longitude": 19.0842,
-				"description": "Akusztikus és intim előadások."
-			},
-			{
-				"id": "sunrise-stage",
-				"name": "Sunrise Stage",
-				"category": "stage",
-				"latitude": 47.4721,
-				"longitude": 19.0824,
-				"description": "Hajnalig tartó afterparty szekció."
-			},
-			{
-				"id": "entrance",
-				"name": "Főbejárat",
-				"category": "entrance",
-				"latitude": 47.4713,
-				"longitude": 19.0821,
-				"description": "Belépés jeggyel és karszalaggal."
-			},
-			{
-				"id": "info-desk",
-				"name": "Infópont",
-				"category": "service",
-				"latitude": 47.4716,
-				"longitude": 19.0816,
-				"description": "Térkép, elveszett tárgyak, segítség."
-			},
-			{
-				"id": "food-court",
-				"name": "Food Court",
-				"category": "food",
-				"latitude": 47.4731,
-				"longitude": 19.082,
-				"description": "Étel- és italstandok a piactér közepén."
-			},
-			{
-				"id": "street-food",
-				"name": "Street Food sáv",
-				"category": "food",
-				"latitude": 47.4729,
-				"longitude": 19.0801,
-				"description": "Gyors ételek, burger, taco, desszert."
-			},
-			{
-				"id": "bar-center",
-				"name": "Bárközpont",
-				"category": "food",
-				"latitude": 47.4729,
-				"longitude": 19.084,
-				"description": "Koktélok, sör és üdítők."
-			},
-			{
-				"id": "merch-village",
-				"name": "Merch Village",
-				"category": "merch",
-				"latitude": 47.4739,
-				"longitude": 19.0834,
-				"description": "Hivatalos pólók, sapkák, emléktárgyak."
-			},
-			{
-				"id": "artist-merch",
-				"name": "Előadói stand",
-				"category": "merch",
-				"latitude": 47.4741,
-				"longitude": 19.0839,
-				"description": "Turné merch és limitált kiadások."
-			},
-			{
-				"id": "photo-booth",
-				"name": "Fotópont",
-				"category": "merch",
-				"latitude": 47.4748,
-				"longitude": 19.0848,
-				"description": "Fesztivál fotózás és azonnali nyomat."
-			},
-			{
-				"id": "vip-lounge",
-				"name": "VIP Lounge",
-				"category": "service",
-				"latitude": 47.475,
-				"longitude": 19.0831,
-				"description": "Exkluzív pihenőtér VIP jeggyel."
-			},
-			{
-				"id": "camping",
-				"name": "Kemping",
-				"category": "camping",
-				"latitude": 47.4754,
-				"longitude": 19.0796,
-				"description": "Sátorhelyek, zuhany és WC a zónában."
-			},
-			{
-				"id": "wc-north",
-				"name": "Mosdó (észak)",
-				"category": "service",
-				"latitude": 47.474,
-				"longitude": 19.0814,
-				"description": "Nyilvános mosdó és ivókút."
-			},
-			{
-				"id": "wc-south",
-				"name": "Mosdó (dél)",
-				"category": "service",
-				"latitude": 47.4723,
-				"longitude": 19.0831,
-				"description": "Nyilvános mosdó a piactér mellett."
-			},
-			{
-				"id": "first-aid",
-				"name": "Elsősegély",
-				"category": "service",
-				"latitude": 47.4719,
-				"longitude": 19.0823,
-				"description": "Orvosi ügyelet és pihenőágyak."
-			}
-		]
-	},
-	"performers": [
-		{
-			"id": "1",
-			"name": "The Roamers",
-			"stage": "Main Stage",
-			"startTime": "15:00",
-			"endTime": "16:00",
-			"description_en": "Opening the festival with great energy.",
-			"description_hu": "Hatalmas energiával nyitják meg a fesztivált."
-		},
-		{
-			"id": "2",
-			"name": "LUNA DORÉ",
-			"stage": "Electronic Stage",
-			"startTime": "16:30",
-			"endTime": "17:30",
-			"description_en": "Deep house vibes.",
-			"description_hu": "Mély house hangulat."
-		},
-		{
-			"id": "3",
-			"name": "Neon Vibes",
-			"stage": "Electronic Stage",
-			"startTime": "22:45",
-			"endTime": "00:00",
-			"description_en": "Late night electronic session.",
-			"description_hu": "Késői éjszakai elektronikus műsor."
-		}
-	],
-	"sponsors": [
-		{
-			"id": "s1",
-			"name": "Nebula Energy",
-			"logoUrl": "https://placehold.co/240x120/png?text=Nebula%20Energy&font=roboto"
-		},
-		{
-			"id": "s2",
-			"name": "Wavora Water",
-			"logoUrl": "https://placehold.co/240x120/png?text=Wavora%20Water&font=roboto"
-		},
-		{
-			"id": "s3",
-			"name": "Lumen Lighting",
-			"logoUrl": "https://placehold.co/240x120/png?text=Lumen%20Lighting&font=roboto"
-		},
-		{
-			"id": "s4",
-			"name": "Pulse Sound",
-			"logoUrl": "https://placehold.co/240x120/png?text=Pulse%20Sound&font=roboto"
-		},
-		{
-			"id": "s5",
-			"name": "Vibes Tech",
-			"logoUrl": "https://placehold.co/240x120/png?text=Vibes%20Tech&font=roboto"
-		}
-	]
+  "festivalName": "EclipseFest 2026",
+  "tickets": [
+    {
+      "id": "day-pass",
+      "name": "Napijegy",
+      "price": 18500,
+      "currency": "HUF",
+      "badge": "1 nap",
+      "description": "Egy nap teljes belépés mind a 4 színpadra.",
+      "features": ["Minden színpad", "18:00 – 02:00", "Mobil app hozzáférés"]
+    },
+    {
+      "id": "weekend-pass",
+      "name": "Bérlet",
+      "price": 42900,
+      "currency": "HUF",
+      "badge": "3 nap",
+      "description": "Teljes hétvége: július 18–20., minden színpad.",
+      "features": [
+        "3 nap belépés",
+        "Prioritásos bejárat",
+        "Exkluzív merch 10%"
+      ],
+      "popular": true
+    },
+    {
+      "id": "vip-pass",
+      "name": "VIP Bérlet",
+      "price": 89900,
+      "currency": "HUF",
+      "badge": "VIP",
+      "description": "Prémium élmény a teljes fesztivál idejére.",
+      "features": ["VIP lounge", "Külön mosdó & bár", "Meet & greet lehetőség"]
+    },
+    {
+      "id": "camping-addon",
+      "name": "Kemping kiegészítő",
+      "price": 12000,
+      "currency": "HUF",
+      "badge": "Add-on",
+      "description": "Sátorhely a fesztivál területén, 3 éjszaka.",
+      "features": ["Zuhanyzó & WC", "24 órás biztonság", "Csak bérlettel"]
+    }
+  ],
+  "map": {
+    "venueName": "Budapest Park · Fesztiválterület",
+    "center": {
+      "latitude": 47.4734,
+      "longitude": 19.0822,
+      "latitudeDelta": 0.005,
+      "longitudeDelta": 0.005
+    },
+    "points": [
+      {
+        "id": "main-stage",
+        "name": "Main Stage",
+        "category": "stage",
+        "latitude": 47.4745,
+        "longitude": 19.0826,
+        "description": "Főszínpad – headlinerek és nagy show-k."
+      },
+      {
+        "id": "electronic-stage",
+        "name": "Electronic Stage",
+        "category": "stage",
+        "latitude": 47.4736,
+        "longitude": 19.0804,
+        "description": "Elektronikus és house műfajok."
+      },
+      {
+        "id": "acoustic-stage",
+        "name": "Acoustic Stage",
+        "category": "stage",
+        "latitude": 47.4736,
+        "longitude": 19.0842,
+        "description": "Akusztikus és intim előadások."
+      },
+      {
+        "id": "sunrise-stage",
+        "name": "Sunrise Stage",
+        "category": "stage",
+        "latitude": 47.4721,
+        "longitude": 19.0824,
+        "description": "Hajnalig tartó afterparty szekció."
+      },
+      {
+        "id": "entrance",
+        "name": "Főbejárat",
+        "category": "entrance",
+        "latitude": 47.4713,
+        "longitude": 19.0821,
+        "description": "Belépés jeggyel és karszalaggal."
+      },
+      {
+        "id": "info-desk",
+        "name": "Infópont",
+        "category": "service",
+        "latitude": 47.4716,
+        "longitude": 19.0816,
+        "description": "Térkép, elveszett tárgyak, segítség."
+      },
+      {
+        "id": "food-court",
+        "name": "Food Court",
+        "category": "food",
+        "latitude": 47.4731,
+        "longitude": 19.082,
+        "description": "Étel- és italstandok a piactér közepén."
+      },
+      {
+        "id": "street-food",
+        "name": "Street Food sáv",
+        "category": "food",
+        "latitude": 47.4729,
+        "longitude": 19.0801,
+        "description": "Gyors ételek, burger, taco, desszert."
+      },
+      {
+        "id": "bar-center",
+        "name": "Bárközpont",
+        "category": "food",
+        "latitude": 47.4729,
+        "longitude": 19.084,
+        "description": "Koktélok, sör és üdítők."
+      },
+      {
+        "id": "merch-village",
+        "name": "Merch Village",
+        "category": "merch",
+        "latitude": 47.4739,
+        "longitude": 19.0834,
+        "description": "Hivatalos pólók, sapkák, emléktárgyak."
+      },
+      {
+        "id": "artist-merch",
+        "name": "Előadói stand",
+        "category": "merch",
+        "latitude": 47.4741,
+        "longitude": 19.0839,
+        "description": "Turné merch és limitált kiadások."
+      },
+      {
+        "id": "photo-booth",
+        "name": "Fotópont",
+        "category": "merch",
+        "latitude": 47.4748,
+        "longitude": 19.0848,
+        "description": "Fesztivál fotózás és azonnali nyomat."
+      },
+      {
+        "id": "vip-lounge",
+        "name": "VIP Lounge",
+        "category": "service",
+        "latitude": 47.475,
+        "longitude": 19.0831,
+        "description": "Exkluzív pihenőtér VIP jeggyel."
+      },
+      {
+        "id": "camping",
+        "name": "Kemping",
+        "category": "camping",
+        "latitude": 47.4754,
+        "longitude": 19.0796,
+        "description": "Sátorhelyek, zuhany és WC a zónában."
+      },
+      {
+        "id": "wc-north",
+        "name": "Mosdó (észak)",
+        "category": "service",
+        "latitude": 47.474,
+        "longitude": 19.0814,
+        "description": "Nyilvános mosdó és ivókút."
+      },
+      {
+        "id": "wc-south",
+        "name": "Mosdó (dél)",
+        "category": "service",
+        "latitude": 47.4723,
+        "longitude": 19.0831,
+        "description": "Nyilvános mosdó a piactér mellett."
+      },
+      {
+        "id": "first-aid",
+        "name": "Elsősegély",
+        "category": "service",
+        "latitude": 47.4719,
+        "longitude": 19.0823,
+        "description": "Orvosi ügyelet és pihenőágyak."
+      }
+    ]
+  },
+  "performers": [
+    {
+      "id": "1",
+      "name": "Taylor Swift",
+      "stage": "Main Stage",
+      "day": 18,
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "description_en": "The inescapable pop icon and master songwriter of modern music, who enchants the audience with her chart-topping hits and unmatched stage presence.",
+      "description_hu": "A modern zene megkerülhetetlen popikonja és mesteri dalszerzője, aki slágerlistavezető dalaival és páratlan színpadi jelenlétével varázsolja el a közönséget."
+    },
+    {
+      "id": "2",
+      "name": "Lady Gaga",
+      "stage": "Main Stage",
+      "day": 18,
+      "startTime": "20:00",
+      "endTime": "21:30",
+      "description_en": "A pop superstar known for her spectacular, theatrical productions and amazing voice, who constantly pushes the boundaries of music and avant-garde art.",
+      "description_hu": "Látványos, teátrális produkcióiról és elképesztő hangjáról ismert pop szupersztár, aki folyamatosan feszegeti a zene és az avantgárd művészet határait."
+    },
+    {
+      "id": "3",
+      "name": "Imagine Dragons",
+      "stage": "Main Stage",
+      "day": 18,
+      "startTime": "22:00",
+      "endTime": "23:30",
+      "description_en": "A world-famous pop-rock group who arrive with massive, arena-filling anthems, catchy melodies, and sweeping emotional energy.",
+      "description_hu": "Világhírű pop-rock formáció, akik hatalmas, arénákat megtöltő himnuszokkal, fülbemászó dallamokkal és elsöprő érzelmes energiával érkeznek."
+    },
+    {
+      "id": "4",
+      "name": "Depache Mode",
+      "stage": "Main Stage",
+      "day": 18,
+      "startTime": "00:00",
+      "endTime": "01:30",
+      "description_en": "The pioneers of synth-pop and electronic rock, who invite you on a decades-long, dark, atmospheric, and deeply inspiring musical journey.",
+      "description_hu": "A szintipop és az elektronikus rock úttörői, akik évtizedek óta tartó, sötét, atmoszferikus és mélyen inspiráló zenei utazásra hívnak."
+    },
+    {
+      "id": "5",
+      "name": "Skillet",
+      "stage": "Main Stage",
+      "day": 19,
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "description_en": "A legendary hard rock band who guarantee an intense, guitar-centric sound, rebellious energy, and an unforgettably crushing live performance.",
+      "description_hu": "Legendás hard rock zenekar, akik intenzív, gitárközpontú hangzást, lázadó energiát és egy felejthetetlenül zúzós élő fellépést garantálnak."
+    },
+    {
+      "id": "6",
+      "name": "Powerwolf",
+      "stage": "Main Stage",
+      "day": 19,
+      "startTime": "20:00",
+      "endTime": "21:30",
+      "description_en": "German power metal band, who conquer with their gothic, werewolf-themed, darkly theatrical concerts and epic songs.",
+      "description_hu": "Német power metal zenekar, akik gótikus, vérfarkasos tematikájú, sötéten teátrális koncertjeikkel és epikus dalaikkal hódítanak."
+    },
+    {
+      "id": "7",
+      "name": "Sabaton",
+      "stage": "Main Stage",
+      "day": 19,
+      "startTime": "22:00",
+      "endTime": "23:30",
+      "description_en": "Swedish power metal band covering historical themes, who arrive on the stage with a realistic tank, massive energy, and amazing pyrotechnics.",
+      "description_hu": "Történelmi témákat feldolgozó svéd power metal zenekar, akik egy valósághű tankkal, hatalmas energiával és elképesztő pirotechnikával érkeznek a színpadra."
+    },
+    {
+      "id": "8",
+      "name": "Nightwish",
+      "stage": "Main Stage",
+      "day": 19,
+      "startTime": "00:00",
+      "endTime": "01:30",
+      "description_en": "The inescapable icons of symphonic metal, who crown the festival with magical vocals, grandiose orchestral elements, and an epic atmosphere.",
+      "description_hu": "A szimfonikus metal megkerülhetetlen ikonjai, akik varázslatos énekhanggal, grandiózus nagyzenekari elemekkel és epikus hangulattal koronázzák meg a fesztivált."
+    },
+    {
+      "id": "9",
+      "name": "Gyuris",
+      "stage": "Main Stage",
+      "day": 20,
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "description_en": "An outstanding figure of Hungarian new-wave trap music, who conquers the young audience with his uniquely atmospheric songs and modern sound.",
+      "description_hu": "A magyar újhullámos trap zene egy kiemelkedő alakja, aki egyedi atmoszférájú dalaival és modern hangzásával hódítja meg a fiatal közönséget."
+    },
+    {
+      "id": "10",
+      "name": "Beton.Hofi",
+      "stage": "Main Stage",
+      "day": 20,
+      "startTime": "20:00",
+      "endTime": "21:30",
+      "description_en": "One of the most important voices of the domestic hip-hop scene, who enchants the fans with his smart wordplays, deep message, and sweeping stage presence.",
+      "description_hu": "A hazai hip-hop szcéna egyik legfontosabb hangja, aki okos szójátékaival, mély mondanivalójával és elsöprő színpadi jelenlétével varázsolja el a rajongókat."
+    },
+    {
+      "id": "11",
+      "name": "Dzsúdló",
+      "stage": "Main Stage",
+      "day": 20,
+      "startTime": "22:00",
+      "endTime": "23:30",
+      "description_en": "Fonogram award-winning Hungarian pop-rap artist, who creates a huge party with his honest, self-reflective lyrics and catchy, electronic beats.",
+      "description_hu": "Fonogram-díjas magyar pop-rap előadó, aki őszinte, önreflexív szövegeivel és fülbemászó, elektronikus alapjaival teremt hatalmas bulit."
+    },
+    {
+      "id": "12",
+      "name": "Azahriah",
+      "stage": "Main Stage",
+      "day": 20,
+      "startTime": "00:00",
+      "endTime": "01:30",
+      "description_en": "The absolute record holder and phenomenon of the Hungarian music industry, who gives unforgettable, arena-filling concerts by combining pop, reggae, and trap style elements.",
+      "description_hu": "A magyar zeneipar abszolút rekordere és jelensége, aki a pop, a reggae és a trap stílusjegyeket ötvözve ad felejthetetlen, arénákat megtöltő koncerteket."
+    },
+    {
+      "id": "13",
+      "name": "Anyma",
+      "stage": "Electronic Stage",
+      "day": 18,
+      "startTime": "13:00",
+      "endTime": "13:45",
+      "description_en": "The pioneer of melodic techno, who creates a new dimension with an amazing, futuristic visual show and a deep, electronic sound.",
+      "description_hu": "A melodikus techno úttörője, aki elképesztő, futurisztikus vizuális show-val és mély, elektronikus hangzással teremt új dimenziót."
+    },
+    {
+      "id": "14",
+      "name": "Boris Brejcha",
+      "stage": "Electronic Stage",
+      "day": 18,
+      "startTime": "14:15",
+      "endTime": "15:00",
+      "description_en": "The German pioneer of high-tech minimal techno, who dominates the electronic stage in his characteristic Venetian mask and with his pulsating, dark beats.",
+      "description_hu": "A high-tech minimal techno német úttörője, aki jellegzetes velencei maszkjában és lüktető, sötét ütemeivel uralja az elektronikus színpadot."
+    },
+    {
+      "id": "15",
+      "name": "Charlotte de Witte",
+      "stage": "Electronic Stage",
+      "day": 18,
+      "startTime": "15:30",
+      "endTime": "16:30",
+      "description_en": "The Belgian queen of techno, who dominates the night with her dark, hypnotic beats and overwhelming energy.",
+      "description_hu": "A belga techno királynője, aki sötét, hipnotikus ütemeivel és letaglózó energiájával uralja az éjszakát."
+    },
+    {
+      "id": "16",
+      "name": "Martin Garrix",
+      "stage": "Electronic Stage",
+      "day": 18,
+      "startTime": "17:00",
+      "endTime": "18:00",
+      "description_en": "One of the most known DJs in the world, who arrives with stadium-filling EDM anthems and a brutal visual world.",
+      "description_hu": "A világ egyik legismertebb DJ-je, aki stadionokat megtöltő EDM himnuszokkal és brutális látványvilággal érkezik."
+    },
+    {
+      "id": "17",
+      "name": "AWS",
+      "stage": "Acoustic Stage",
+      "day": 18,
+      "startTime": "13:00",
+      "endTime": "13:45",
+      "description_en": "The popular Hungarian modern metal band, who step on the stage this time with a special, acoustic instrumentation and a deep, emotional atmosphere.",
+      "description_hu": "A népszerű magyar modern metal zenekar, akik ezúttal különleges, akusztikus hangszereléssel és mély, érzelmes atmoszférával lépnek színpadra."
+    },
+    {
+      "id": "18",
+      "name": "Road",
+      "stage": "Acoustic Stage",
+      "day": 18,
+      "startTime": "14:15",
+      "endTime": "15:00",
+      "description_en": "One of the cornerstones of the domestic rock and metal scene, who now show the more emotional side of their songs with a more intimate, acoustic concert.",
+      "description_hu": "A hazai rock és metal színtér egyik alapköve, akik most egy intimebb, akusztikus koncerttel mutatják meg dalaik érzelmesebb oldalát."
+    },
+    {
+      "id": "19",
+      "name": "Paddy and the Rats",
+      "stage": "Acoustic Stage",
+      "day": 18,
+      "startTime": "15:30",
+      "endTime": "16:30",
+      "description_en": "The favorites of domestic Celtic punk-rock, who make a huge, pub-vibe party with violin, accordion, and acoustic guitars.",
+      "description_hu": "A hazai kelta punk-rock kedvencei, akik hegedűvel, harmonikával és akusztikus gitárokkal csinálnak hatalmas, kocsmai hangulatú bulit."
+    },
+    {
+      "id": "20",
+      "name": "Margaret Island",
+      "stage": "Sunrise Stage",
+      "day": 18,
+      "startTime": "13:00",
+      "endTime": "13:45",
+      "description_en": "The favorites of the domestic pop-folk scene, who bring the summer with their positive energy, acoustic sound, and honest songs.",
+      "description_hu": "A hazai pop-folk színtér kedvencei, akik pozitív energiájukkal, akusztikus hangzással és őszinte dalokkal hozzák el a nyarat."
+    },
+    {
+      "id": "21",
+      "name": "Blahalouisiana",
+      "stage": "Sunrise Stage",
+      "day": 18,
+      "startTime": "14:15",
+      "endTime": "15:00",
+      "description_en": "One of the most beloved bands of the domestic indie-pop and beat-rock scene, who enchant the audience with catchy melodies and a nostalgic atmosphere.",
+      "description_hu": "A hazai indie-pop és beat-rock színtér egyik legkedveltebb zenekara, akik fülbemászó dallamokkal és nosztalgikus hangulattal varázsolják el a közönséget."
+    },
+    {
+      "id": "22",
+      "name": "Elefánt",
+      "stage": "Sunrise Stage",
+      "day": 18,
+      "startTime": "15:30",
+      "endTime": "16:30",
+      "description_en": "The inescapable figures of alternative music, who enchant with their melancholic, poetic lyrics and pulsating melodies.",
+      "description_hu": "Az alternatív zene megkerülhetetlen alakjai, akik melankolikus, költői szövegeikkel és lüktető dallamaikkal varázsolnak."
+    },
+    {
+      "id": "23",
+      "name": "Carson Coma",
+      "stage": "Sunrise Stage",
+      "day": 18,
+      "startTime": "17:00",
+      "endTime": "18:00",
+      "description_en": "The most popular young band of domestic alternative rock, who blow up the stage with humorous lyrics and huge retro energy.",
+      "description_hu": "A hazai alternatív rock legnépszerűbb fiatal zenekara, akik humoros szövegekkel és hatalmas retro energiával robbantják fel a színpadot."
+    },
+    {
+      "id": "24",
+      "name": "Peggy Gou",
+      "stage": "Electro Stage",
+      "day": 19,
+      "startTime": "13:00",
+      "endTime": "13:45",
+      "description_hu": "A dél-koreai elektronikus zenei ikon, ami vibráló house szettjeivel és egyedi, divatos stílusával hoz hamisítatlan bulihangulatot.",
+      "description_en": "The South Korean electronic music icon, who brings a genuine party atmosphere with her vibrant house sets and unique, fashionable style."
+    },
+    {
+      "id": "25",
+      "name": "Amelie Lens",
+      "stage": "Electro Stage",
+      "day": 19,
+      "startTime": "14:15",
+      "endTime": "15:00",
+      "description_hu": "A belga techno színtér elképesztő energiájú DJ-je, aki nehéz, dübörgő ütemeivel és hipnotikus sötétségével ragadja magával a táncteret.",
+      "description_en": "The Belgian techno scene's DJ of amazing energy, who captivates the dance floor with her heavy, thumping beats and hypnotic darkness."
+    },
+    {
+      "id": "26",
+      "name": "Fisher",
+      "stage": "Electro Stage",
+      "day": 19,
+      "startTime": "15:30",
+      "endTime": "16:30",
+      "description_hu": "Az ausztrál tech-house fenegyerek, aki hatalmas klubslágereivel, őrült energiájával és vidám hangulatával robbantja fel a közönséget.",
+      "description_en": "The Australian tech-house wild child, who blows up the audience with his massive club hits, crazy energy, and cheerful vibe."
+    },
+    {
+      "id": "27",
+      "name": "Fred again..",
+      "stage": "Electro Stage",
+      "day": 19,
+      "startTime": "17:00",
+      "endTime": "18:00",
+      "description_hu": "A modern elektronikus zene egyik legkreatívabb producere, aki érzelmes mintákkal és lüktető ütemekkel teremt felejthetetlen közösségi élményt.",
+      "description_en": "One of the most creative producers of modern electronic music, who creates an unforgettable communal experience with emotional samples and pulsating beats."
+    },
+    {
+      "id": "28",
+      "name": "Lazarvs",
+      "stage": "Acoustic Stage",
+      "day": 19,
+      "startTime": "13:00",
+      "endTime": "13:45",
+      "description_hu": "A hazai underground metal legnyersebb zenekara, akik ezúttal akusztikus hangszereken mutatják meg dalaik sötét, rituális erejét.",
+      "description_en": "The rawest band of domestic underground metal, who show the dark, ritual power of their songs this time on acoustic instruments."
+    },
+    {
+      "id": "29",
+      "name": "Mudfield",
+      "stage": "Acoustic Stage",
+      "day": 19,
+      "startTime": "14:15",
+      "endTime": "15:00",
+      "description_hu": "A sárréti hard rock zenekar, akik fülbemászó dallamaikat és őszinte, vidéki történeteiket hozzák el egy különleges, letisztult formában.",
+      "description_en": "The hard rock band from Sárrét, who bring their catchy melodies and honest, rural stories in a special, clean format."
+    },
+    {
+      "id": "30",
+      "name": "Depresszió",
+      "stage": "Acoustic Stage",
+      "day": 19,
+      "startTime": "15:30",
+      "endTime": "16:30",
+      "description_hu": "A népszerű modern metal formáció, akik évtizedes zúzós slágereiket öltöztetik teljesen új, akusztikus és dallamos köntösbe.",
+      "description_en": "The popular modern metal group, who dress their decade-old heavy hits into a completely new, acoustic and melodic guise."
+    },
+    {
+      "id": "31",
+      "name": "Rise Against (Acoustic)",
+      "stage": "Acoustic Stage",
+      "day": 19,
+      "startTime": "17:00",
+      "endTime": "18:00",
+      "description_hu": "Az amerikai punk-rock legendák, akik ezúttal elektromos gitárok nélkül, nyers és politikus balladákkal érintik meg a lelkeket.",
+      "description_en": "The American punk-rock legends, who touch souls this time without electric guitars, with raw and political ballads."
+    },
+    {
+      "id": "32",
+      "name": "Honeybeast",
+      "stage": "Sunrise Stage",
+      "day": 19,
+      "startTime": "13:00",
+      "endTime": "13:45",
+      "description_hu": "A zseniális szövegeiről ismert magyar pop-rock zenekar, akik fülbemászó dallamokkal és ironikus látásmóddal varázsolják el a hallgatóságot.",
+      "description_en": "The Hungarian pop-rock band known for their brilliant lyrics, who enchant the audience with catchy melodies and an ironic perspective."
+    },
+    {
+      "id": "33",
+      "name": "Ivan & The Parazol",
+      "stage": "Sunrise Stage",
+      "day": 19,
+      "startTime": "14:15",
+      "endTime": "15:00",
+      "description_hu": "A hazai beat-rock és indie színtér vagány formációja, akik dögös gitárriffekkel és hamisítatlan hetvenes évekbeli energiával hódítanak.",
+      "description_en": "The cool group of the domestic beat-rock and indie scene, who conquer with groovy guitar riffs and genuine seventies energy."
+    },
+    {
+      "id": "34",
+      "name": "Esti Kornél",
+      "stage": "Sunrise Stage",
+      "day": 19,
+      "startTime": "15:30",
+      "endTime": "16:30",
+      "description_hu": "A magyar alternatív rock kiemelkedő képviselői, akik melankolikus hangulattal, mély gondolatokkal és robbanékony koncertekkel várják a tömeget.",
+      "description_en": "The outstanding representatives of Hungarian alternative rock, who await the crowd with a melancholic mood, deep thoughts, and explosive concerts."
+    },
+    {
+      "id": "35",
+      "name": "Bagossy Brothers Company",
+      "stage": "Sunrise Stage",
+      "day": 19,
+      "startTime": "17:00",
+      "endTime": "18:00",
+      "description_hu": "Az erdélyi indie-folk és pop-rock sikercsapat, akik közvetlen stílusukkal, népzenei elemeikkel és slágereikkel teremtenek hatalmas közös éneklést.",
+      "description_en": "The Transylvanian indie-folk and pop-rock success team, who create a huge sing-along with their direct style, folk music elements, and hits."
+    },
+    {
+      "id": "36",
+      "name": "Paul Kalkbrenner",
+      "stage": "Electro Stage",
+      "day": 19,
+      "startTime": "13:00",
+      "endTime": "13:45",
+      "description_hu": "A berlini techno szcéna ikonikus alakja, aki érzelmes, dallamos elektronikus zenéjével és élő fellépéseivel teremt egyedi atmoszférát.",
+      "description_en": "The iconic figure of the Berlin techno scene, who creates a unique atmosphere with his emotional, melodic electronic music and live performances."
+    },
+    {
+      "id": "37",
+      "name": "Nina Kraviz",
+      "stage": "Electro Stage",
+      "day": 19,
+      "startTime": "14:15",
+      "endTime": "15:00",
+      "description_hu": "A szibériai származású DJ, aki savas techno ütemekkel, váratlan zenei fordulatokkal és nyers energiával irányítja a közönséget.",
+      "description_en": "The DJ of Siberian origin, who controls the audience with acid techno beats, unexpected musical twists, and raw energy."
+    },
+    {
+      "id": "38",
+      "name": "Timmy Trumpet",
+      "stage": "Electro Stage",
+      "day": 19,
+      "startTime": "15:30",
+      "endTime": "16:30",
+      "description_hu": "Az ausztrál EDM szupersztár, aki élő trombitajátékkal, brutális basszusokkal és utánozhatatlanul őrült színpadi jelenléttel érkezik.",
+      "description_en": "The Australian EDM superstar, who arrives with live trumpet playing, brutal basses, and an inimitably crazy stage presence."
+    },
+    {
+      "id": "39",
+      "name": "Calvin Harris",
+      "stage": "Electro Stage",
+      "day": 19,
+      "startTime": "17:00",
+      "endTime": "18:00",
+      "description_hu": "A világ egyik legsikeresebb producere, aki gigantikus rádiós slágereivel és nyári himnuszaival garantálja a tökéletes délutáni fesztiválhangulatot.",
+      "description_en": "One of the most successful producers in the world, who guarantees the perfect afternoon festival atmosphere with his gigantic radio hits and summer anthems."
+    },
+    {
+      "id": "40",
+      "name": "Leander Kills (Acoustic)",
+      "stage": "Acoustic Stage",
+      "day": 19,
+      "startTime": "13:00",
+      "endTime": "13:45",
+      "description_hu": "A népszerű hazai metal formáció, akik zongorára és akusztikus gitárokra hangszerelve mutatják meg dalaik drámai és lírai oldalát.",
+      "description_en": "The popular domestic metal group, who show the dramatic and lyrical side of their songs orchestrated for piano and acoustic guitars."
+    },
+    {
+      "id": "41",
+      "name": "Fatal Error (Acoustic)",
+      "stage": "Acoustic Stage",
+      "day": 19,
+      "startTime": "14:15",
+      "endTime": "15:00",
+      "description_hu": "A hazai modern rock energikus képviselői, akik ezúttal egy csendesebb, leülős koncerttel hozzák közelebb a közönséghez az őszinte szövegeiket.",
+      "description_en": "The energetic representatives of domestic modern rock, who bring their honest lyrics closer to the audience this time with a quieter, sit-down concert."
+    },
+    {
+      "id": "42",
+      "name": "Tankcsapda (Acoustic)",
+      "stage": "Acoustic Stage",
+      "day": 19,
+      "startTime": "15:30",
+      "endTime": "16:30",
+      "description_hu": "A magyar rockzene legendás hármasa, akik évtizedes slágereiket játsszák el egy különleges, tábortüzes hangulatú, intim fellépésen.",
+      "description_en": "The legendary trio of Hungarian rock music, who play their decade-old hits at a special, campfire-vibed, intimate performance."
+    },
+    {
+      "id": "43",
+      "name": "Shinedown (Acoustic)",
+      "stage": "Acoustic Stage",
+      "day": 19,
+      "startTime": "17:00",
+      "endTime": "18:00",
+      "description_hu": "A többszörös platinalemezes amerikai hard rock zenekar, akik letaglózó énekhanggal és akusztikus gitárokkal adnak libabőrös koncertet.",
+      "description_en": "The multi-platinum American hard rock band, who give a goosebump-inducing concert with overwhelming vocals and acoustic guitars."
+    },
+    {
+      "id": "44",
+      "name": "analog balaton",
+      "stage": "Sunrise Stage",
+      "day": 19,
+      "startTime": "13:00",
+      "endTime": "13:45",
+      "description_hu": "A hazai elektronikus indie zene úttörő duója, akik melankolikus szövegekkel és lüktető szintetizátorokkal teremtenek varázslatos atmoszférát.",
+      "description_en": "The pioneering duo of domestic electronic indie music, who create a magical atmosphere with melancholic lyrics and pulsating synthesizers."
+    },
+    {
+      "id": "45",
+      "name": "Csaknekedkislány",
+      "stage": "Sunrise Stage",
+      "day": 19,
+      "startTime": "14:15",
+      "endTime": "15:00",
+      "description_hu": "A hazai underground kedvenc tánczenekara, akik humoros szövegekkel, szörf-rock elemekkel és hatalmas lendülettel pörgetik fel a fesztiválozókat.",
+      "description_en": "The favorite dance band of the domestic underground, who rev up the festival-goers with humorous lyrics, surf-rock elements, and huge momentum."
+    },
+    {
+      "id": "46",
+      "name": "30Y",
+      "stage": "Sunrise Stage",
+      "day": 19,
+      "startTime": "15:30",
+      "endTime": "16:30",
+      "description_hu": "A magyar alternatív rock kultikus zenekara, akik költői szövegvilágukkal és nyers gitárzenéjükkel generációk számára jelentenek meghatározó élményt.",
+      "description_en": "The cult band of Hungarian alternative rock, who mean a defining experience for generations with their poetic lyric world and raw guitar music."
+    },
+    {
+      "id": "47",
+      "name": "Hiperkarma",
+      "stage": "Sunrise Stage",
+      "day": 19,
+      "startTime": "17:00",
+      "endTime": "18:00",
+      "description_hu": "A hazai alternatív zenei színtér legendás formációja, akik pörgős ritmusokkal és zseniális, gondolatébresztő dalszövegekkel zárják a délutánt.",
+      "description_en": "The legendary group of the domestic alternative music scene, who close the afternoon with upbeat rhythms and brilliant, thought-provoking lyrics."
+    },
+    {
+      "id": "48",
+      "name": "Tiësto",
+      "stage": "Electro Stage",
+      "day": 18,
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "description_en": "The Dutch electronic music legend, who has dominated global dance floors for decades.",
+      "description_hu": "A holland elektronikus zenei legenda, aki évtizedek óta uralja a globális tánctereket."
+    },
+    {
+      "id": "49",
+      "name": "David Guetta",
+      "stage": "Electro Stage",
+      "day": 18,
+      "startTime": "20:00",
+      "endTime": "21:30",
+      "description_en": "The perfect combiner of pop and EDM, who guarantees massive madness with his hits.",
+      "description_hu": "A pop és az EDM tökéletes ötvözője, aki slágereivel garantálja a hatalmas őrületet."
+    },
+    {
+      "id": "50",
+      "name": "Armin van Buuren",
+      "stage": "Electro Stage",
+      "day": 18,
+      "startTime": "22:00",
+      "endTime": "23:30",
+      "description_en": "The king of trance music, who arrives with uplifting melodies and a monumental spectacle.",
+      "description_hu": "A trance zene királya, aki felemelő dallamokkal és monumentális látvánnyal érkezik."
+    },
+    {
+      "id": "51",
+      "name": "Hardwell",
+      "stage": "Electro Stage",
+      "day": 18,
+      "startTime": "00:00",
+      "endTime": "01:30",
+      "description_en": "The Dutch DJ, who closes the night with big room house sets of overwhelming energy.",
+      "description_hu": "A holland DJ, aki letaglózó energiájú big room house szettekkel zárja az éjszakát."
+    },
+    {
+      "id": "52",
+      "name": "Quimby",
+      "stage": "Acoustic Stage",
+      "day": 18,
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "description_en": "The legends of domestic alternative music, who await the loyal audience with a theatrical concert full of deep emotions.",
+      "description_hu": "A hazai alternatív zene legendái, akik teátrális, mély érzelmekkel teli koncerttel várják a hűséges közönséget."
+    },
+    {
+      "id": "53",
+      "name": "Vad Fruttik",
+      "stage": "Acoustic Stage",
+      "day": 18,
+      "startTime": "20:00",
+      "endTime": "21:30",
+      "description_en": "The masters of electronic alternative rock, who show their melancholic side this time in a more intimate, sit-down format.",
+      "description_hu": "Az elektronikus alternatív rock mesterei, akik ezúttal intimebb, leülős formában mutatják meg melankolikus oldalukat."
+    },
+    {
+      "id": "54",
+      "name": "Pál Utcai Fiúk",
+      "stage": "Acoustic Stage",
+      "day": 18,
+      "startTime": "22:00",
+      "endTime": "23:30",
+      "description_en": "The classic underground rock band, who bring the favorite hits of generations on a nostalgic night.",
+      "description_hu": "A klasszikus underground rockzenekar, akik generációk kedvenc slágereit hozzák el egy nosztalgikus estén."
+    },
+    {
+      "id": "55",
+      "name": "Kiscsillag",
+      "stage": "Acoustic Stage",
+      "day": 18,
+      "startTime": "00:00",
+      "endTime": "01:30",
+      "description_en": "The outstanding band of domestic art-rock, who give an unforgettable experience with their smart lyrics and gritty guitars.",
+      "description_hu": "A hazai art-rock kiemelkedő zenekara, akik okos szövegeikkel és karcos gitárjaikkal adnak felejthetetlen élményt."
+    },
+    {
+      "id": "56",
+      "name": "ValMar",
+      "stage": "Sunrise Stage",
+      "day": 18,
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "description_en": "The favorite duo of the domestic pop scene, who conquer with their catchy hits and laid-back style.",
+      "description_hu": "A hazai popszíntér kedvenc duója, akik fülbemászó slágereikkel és laza stílusukkal hódítanak."
+    },
+    {
+      "id": "57",
+      "name": "Halott Pénz",
+      "stage": "Sunrise Stage",
+      "day": 18,
+      "startTime": "20:00",
+      "endTime": "21:30",
+      "description_en": "The pop-rap band from Pécs, who magically turn their emotional songs into a huge sing-along in front of the stage.",
+      "description_hu": "A pécsi pop-rap zenekar, akik érzelmes dalaikból hatalmas közös éneklést varázsolnak a színpad előtt."
+    },
+    {
+      "id": "58",
+      "name": "Wellhello",
+      "stage": "Sunrise Stage",
+      "day": 18,
+      "startTime": "22:00",
+      "endTime": "23:30",
+      "description_en": "The favorites of Hungarian radios, who bring the summer feeling with ironic lyrics and synthpop melodies.",
+      "description_hu": "A magyar rádiók kedvencei, akik ironikus szövegekkel és szintipop dallamokkal hozzák a nyári életérzést."
+    },
+    {
+      "id": "59",
+      "name": "Majka",
+      "stage": "Sunrise Stage",
+      "day": 18,
+      "startTime": "00:00",
+      "endTime": "01:30",
+      "description_en": "The artist blurring the lines of the rap and pop genres, who brings a monumental live show and a guaranteed full house.",
+      "description_hu": "A rap és pop műfaj határait elmosó előadó, aki monumentális élő show-t és garantált teltházat hoz."
+    },
+    {
+      "id": "60",
+      "name": "Carl Cox",
+      "stage": "Electro Stage",
+      "day": 19,
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "description_en": "The iconic veteran of house and techno, who enchants with his inimitable smile and rhythm.",
+      "description_hu": "A house és a techno ikonikus veteránja, aki utánozhatatlan mosolyával és ritmusával varázsol."
+    },
+    {
+      "id": "61",
+      "name": "Eric Prydz",
+      "stage": "Electro Stage",
+      "day": 19,
+      "startTime": "20:00",
+      "endTime": "21:30",
+      "description_en": "The visual magician, who amazes everyone with dark, progressive house beats and a laser show.",
+      "description_hu": "A vizuális mágus, aki sötét, progresszív house ütemekkel és lézeres show-val nyűgöz le mindenkit."
+    },
+    {
+      "id": "62",
+      "name": "Maceo Plex",
+      "stage": "Electro Stage",
+      "day": 19,
+      "startTime": "22:00",
+      "endTime": "23:30",
+      "description_en": "The master of underground electronics, who dominates the stage with deep, melancholic techno sets.",
+      "description_hu": "Az underground elektronika mestere, aki mély, melankolikus techno szettekkel uralja a színpadot."
+    },
+    {
+      "id": "63",
+      "name": "Tale Of Us",
+      "stage": "Electro Stage",
+      "day": 19,
+      "startTime": "00:00",
+      "endTime": "01:30",
+      "description_en": "The Italian duo, who lead into the dawn with their melodic, futuristic techno music.",
+      "description_hu": "Az olasz duó, akik melodikus, futurisztikus techno zenéjükkel vezetnek át a hajnalba."
+    },
+    {
+      "id": "64",
+      "name": "Kaukázus",
+      "stage": "Acoustic Stage",
+      "day": 19,
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "description_en": "The socio-critical group of Hungarian alternative music, who rev up the mood with an acoustic sound.",
+      "description_hu": "A magyar alternatív zene társadalom-kritikus formációja, akik akusztikus hangzással pörgetik fel a hangulatot."
+    },
+    {
+      "id": "65",
+      "name": "Magashegyi Underground",
+      "stage": "Acoustic Stage",
+      "day": 19,
+      "startTime": "20:00",
+      "endTime": "21:30",
+      "description_en": "The magically vibed folk-pop band, who charm with a fairytale-like lyric world and tinkling melodies.",
+      "description_hu": "A varázslatos hangulatú folk-pop zenekar, akik mesebeli szövegvilággal és csilingelő dallamokkal bűvölnek el."
+    },
+    {
+      "id": "66",
+      "name": "Anna and the Barbies",
+      "stage": "Acoustic Stage",
+      "day": 19,
+      "startTime": "22:00",
+      "endTime": "23:30",
+      "description_en": "The wild and extravagant rock band, who strip off the electronics for an emotional, raw, and honest acoustic set.",
+      "description_hu": "A vad és extravagáns rockbanda, akik levetkőzik az elektronikát egy érzelmes, nyers és őszinte akusztikus szettre."
+    },
+    {
+      "id": "67",
+      "name": "Péterfy Bori & Love Band",
+      "stage": "Acoustic Stage",
+      "day": 19,
+      "startTime": "00:00",
+      "endTime": "01:30",
+      "description_en": "The alternative pop-rock diva, who dominates the tent with her dramatic stage presence and catchy hits.",
+      "description_hu": "Az alternatív pop-rock díva, aki drámai színpadi jelenlétével és fülbemászó slágereivel uralja a sátrat."
+    },
+    {
+      "id": "68",
+      "name": "ByeAlex és a Slepp",
+      "stage": "Sunrise Stage",
+      "day": 19,
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "description_en": "The inescapable figure of domestic light music, who plays his hits with an alternative rock sound.",
+      "description_hu": "A hazai könnyűzene megkerülhetetlen alakja, aki alternatív rockos hangzással szólaltatja meg slágereit."
+    },
+    {
+      "id": "69",
+      "name": "Follow The Flow",
+      "stage": "Sunrise Stage",
+      "day": 19,
+      "startTime": "20:00",
+      "endTime": "21:30",
+      "description_en": "The catchy pop-rap trio, who sweep with their deep lyrics and brass-enriched beats.",
+      "description_hu": "A fülbemászó pop-rap trió, akik mély szövegeikkel és fúvósokkal dúsított alapjaikkal tarolnak."
+    },
+    {
+      "id": "70",
+      "name": "Punnany Massif",
+      "stage": "Sunrise Stage",
+      "day": 19,
+      "startTime": "22:00",
+      "endTime": "23:30",
+      "description_en": "The socio-critical hip-hop band, who create a unique atmosphere with violin and live instruments.",
+      "description_hu": "A társadalom-kritikus hip-hop zenekar, akik hegedűvel és élő hangszerekkel teremtenek egyedi atmoszférát."
+    },
+    {
+      "id": "71",
+      "name": "Irie Maffia",
+      "stage": "Sunrise Stage",
+      "day": 19,
+      "startTime": "00:00",
+      "endTime": "01:30",
+      "description_en": "The team combining the energies of reggae, hip-hop, and rock, who give the hottest festival-closing party.",
+      "description_hu": "A reggae, a hip-hop és a rock energiáit ötvöző csapat, akik a legforróbb fesztiválzáró bulit adják."
+    },
+    {
+      "id": "72",
+      "name": "Skrillex",
+      "stage": "Electro Stage",
+      "day": 20,
+      "startTime": "13:00",
+      "endTime": "13:45",
+      "description_en": "The revolutionizer of dubstep, who shocks the audience with futuristic sound and unexpected beats.",
+      "description_hu": "A dubstep forradalmasítója, aki futurisztikus hangzással és váratlan ütemekkel sokkolja a közönséget."
+    },
+    {
+      "id": "73",
+      "name": "Diplo",
+      "stage": "Electro Stage",
+      "day": 20,
+      "startTime": "14:15",
+      "endTime": "15:00",
+      "description_en": "The versatile star producer, who mixes the best of world music and electronics.",
+      "description_hu": "A sokoldalú sztárproducer, aki a világzene és az elektronika legjavát keveri össze."
+    },
+    {
+      "id": "74",
+      "name": "DJ Snake",
+      "stage": "Electro Stage",
+      "day": 20,
+      "startTime": "15:30",
+      "endTime": "16:30",
+      "description_en": "The French hitmaker, who conquers with brutal basses and catchy eastern motifs.",
+      "description_hu": "A francia slágergyáros, aki brutális basszusokkal és fülbemászó keleti motívumokkal hódít."
+    },
+    {
+      "id": "75",
+      "name": "Marshmello",
+      "stage": "Electro Stage",
+      "day": 20,
+      "startTime": "17:00",
+      "endTime": "18:00",
+      "description_en": "The masked superstar, who creates a huge party with cheerful, pop-centric electronic music.",
+      "description_hu": "A maszkos szupersztár, aki vidám, pop-központú elektronikus zenével teremt hatalmas bulit."
+    },
+    {
+      "id": "76",
+      "name": "Bohemian Betyars",
+      "stage": "Acoustic Stage",
+      "day": 20,
+      "startTime": "13:00",
+      "endTime": "13:45",
+      "description_en": "The speed-folk punk band, who make a crazy, mosh-pit folk party with violin and unbridled energy.",
+      "description_hu": "A speed-folk punk zenekar, akik hegedűvel és féktelen energiával csinálnak őrült, pogózós folk-bulit."
+    },
+    {
+      "id": "77",
+      "name": "Platon Karataev",
+      "stage": "Acoustic Stage",
+      "day": 20,
+      "startTime": "14:15",
+      "endTime": "15:00",
+      "description_en": "The melancholic indie-folk group, who calm the souls with their introverted, meditative melodies.",
+      "description_hu": "A melankolikus indie-folk formáció, akik befelé forduló, meditatív dallamaikkal nyugtatják meg a lelkeket."
+    },
+    {
+      "id": "78",
+      "name": "Lóci Játszik",
+      "stage": "Acoustic Stage",
+      "day": 20,
+      "startTime": "15:30",
+      "endTime": "16:30",
+      "description_en": "The cheerful, acoustic pop band, who create a house party vibe with their humorous stories and brass instruments.",
+      "description_hu": "A vidám, akusztikus popzenekar, akik humoros történeteikkel és rézfúvósokkal teremtenek házibuli hangulatot."
+    },
+    {
+      "id": "79",
+      "name": "Szabó Balázs Bandája",
+      "stage": "Acoustic Stage",
+      "day": 20,
+      "startTime": "17:00",
+      "endTime": "18:00",
+      "description_en": "The world of Hungarian folk music and chansons merges in this special musical journey accompanied by violin.",
+      "description_hu": "A magyar népzene és a sanzonok világa ötvöződik ebben a különleges, hegedűvel kísért zenei utazásban."
+    },
+    {
+      "id": "80",
+      "name": "Krúbi",
+      "stage": "Sunrise Stage",
+      "day": 20,
+      "startTime": "13:00",
+      "endTime": "13:45",
+      "description_en": "The provocative genius of domestic rap, who shocks the festival with his ironic lyrics and theatrical elements.",
+      "description_hu": "A hazai rap provokatív zsenije, aki ironikus szövegeivel és színházi elemekkel sokkolja a fesztivált."
+    },
+    {
+      "id": "81",
+      "name": "Pogány Induló",
+      "stage": "Sunrise Stage",
+      "day": 20,
+      "startTime": "14:15",
+      "endTime": "15:00",
+      "description_en": "The young talent, who moves the crowd with oldschool hip-hop beats and street authenticity.",
+      "description_hu": "A fiatal tehetség, aki oldschool hip-hop alapokkal és utcai hitelességgel mozgatja meg a tömeget."
+    },
+    {
+      "id": "82",
+      "name": "Ekhoe",
+      "stage": "Sunrise Stage",
+      "day": 20,
+      "startTime": "15:30",
+      "endTime": "16:30",
+      "description_en": "The rising star of the domestic trap scene, who bursts in with modern melodies and massive energy.",
+      "description_hu": "A hazai trap szcéna feltörekvő sztárja, aki modern dallamokkal és hatalmas energiával robban be."
+    },
+    {
+      "id": "83",
+      "name": "Lil Frak",
+      "stage": "Sunrise Stage",
+      "day": 20,
+      "startTime": "17:00",
+      "endTime": "18:00",
+      "description_en": "One of the most entertaining and creative figures of the local new-wave hip-hop scene, who always throws a massive party with his cheeky lyrics and catchy beats.",
+      "description_hu": "A hazai újvonalas hiphop egyik legszórakoztatóbb és legkreatívabb alakja, aki pimasz szövegeivel és fülbemászó alapjaival mindig hatalmas bulit csinál."
+    },
+    {
+      "id": "84",
+      "name": "Paul van Dyk",
+      "stage": "Electro Stage",
+      "day": 20,
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "description_en": "The legendary pioneer of trance music, who creates an uplifting atmosphere with his classic melodies.",
+      "description_hu": "A trance zene legendás úttörője, aki klasszikus dallamaival felemelő atmoszférát teremt."
+    },
+    {
+      "id": "85",
+      "name": "Deadmau5",
+      "stage": "Electro Stage",
+      "day": 20,
+      "startTime": "20:00",
+      "endTime": "21:30",
+      "description_en": "The iconic masked producer, who gives an unforgettable visual and musical experience with his progressive house sound.",
+      "description_hu": "Az ikonikus maszkos producer, aki progresszív house hangzásával felejthetetlen vizuális és zenei élményt nyújt."
+    },
+    {
+      "id": "86",
+      "name": "Steve Aoki",
+      "stage": "Electro Stage",
+      "day": 20,
+      "startTime": "22:00",
+      "endTime": "23:30",
+      "description_en": "The ultimate party maker, who blows up the stage with huge drops, incredible energy, and cake throwing.",
+      "description_hu": "Az abszolút bulifelelős, aki hatalmas dropokkal, elképesztő energiával és tortadobálással robbantja fel a színpadot."
+    },
+    {
+      "id": "87",
+      "name": "Afrojack",
+      "stage": "Electro Stage",
+      "day": 20,
+      "startTime": "00:00",
+      "endTime": "01:30",
+      "description_en": "The Dutch EDM giant, who dictates a relentless tempo and creates a massive arena vibe in the night.",
+      "description_hu": "A holland EDM óriás, aki könyörtelen tempót diktál és hatalmas arénahangulatot teremt az éjszakában."
+    },
+    {
+      "id": "88",
+      "name": "Co Lee",
+      "stage": "Acoustic Stage",
+      "day": 20,
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "description_en": "A hip-hop/rap artist moving between underground and mainstream, known for his unique flow and smoky-vibe beats.",
+      "description_hu": "Egyedi flow-járól és füstös hangulatú beatjeiről ismert underground és mainstream határán mozgó hiphop/rap előadó."
+    },
+    {
+      "id": "89",
+      "name": "Sisi",
+      "stage": "Acoustic Stage",
+      "day": 20,
+      "startTime": "20:00",
+      "endTime": "21:30",
+      "description_en": "One of the freshest and most energetic female artists in the local rap scene, who exploded into the industry with raw honesty and incredible rhythm.",
+      "description_hu": "A hazai rap szcéna egyik legfrissebb és legenergikusabb női előadója, aki nyers őszinteséggel és hihetetlen ritmusérzékkel robbant be."
+    },
+    {
+      "id": "90",
+      "name": "AKC Misi",
+      "stage": "Acoustic Stage",
+      "day": 20,
+      "startTime": "22:00",
+      "endTime": "23:30",
+      "description_en": "One of the most defining pioneers of the local new-wave trap subculture, who dictates trends with his melodic choruses and unique style.",
+      "description_hu": "A hazai újhullámos trap és szubkultúra egyik legmeghatározóbb úttörője, aki dallamos refrénjeivel és egyedi stílusával diktálja a divatot."
+    },
+    {
+      "id": "91",
+      "name": "Hundred Sins",
+      "stage": "Acoustic Stage",
+      "day": 20,
+      "startTime": "00:00",
+      "endTime": "01:30",
+      "description_en": "A mysterious, masked producer and one of the most important collaborators and party-starters of the local alternative-electronic and trap scene.",
+      "description_hu": "Rejtélyes, maszkos producer, a hazai alternatív-elektronikus és trap szcéna egyik legfontosabb kollaborátora és bulifelelőse."
+    },
+    {
+      "id": "92",
+      "name": "BSW",
+      "stage": "Sunrise Stage",
+      "day": 20,
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "description_en": "The main stage rap duo, who dictate the evening tempo with their party anthems and massive energy.",
+      "description_hu": "A nagyszínpados rap duó, akik bulis himnuszaikkal és masszív energiájukkal diktálják az esti tempót."
+    },
+    {
+      "id": "93",
+      "name": "LMEN Prala",
+      "stage": "Sunrise Stage",
+      "day": 20,
+      "startTime": "20:00",
+      "endTime": "21:30",
+      "description_en": "The iconic and bourgeois-shocking figure of Hungarian trap, who dominates the evening with his relentless flow.",
+      "description_hu": "A magyar trap ikonikus és polgárpukkasztó alakja, aki könyörtelen flow-jával uralja az estét."
+    },
+    {
+      "id": "94",
+      "name": "T. Danny",
+      "stage": "Sunrise Stage",
+      "day": 20,
+      "startTime": "22:00",
+      "endTime": "23:30",
+      "description_en": "The young hip-hop and R&B talent, who attracts fans with his catchy choruses and cool style.",
+      "description_hu": "A fiatal hip-hop és R&B tehetség, aki fülbemászó refrénjeivel és vagány stílusával vonzza a rajongókat."
+    },
+    {
+      "id": "95",
+      "name": "KKevin",
+      "stage": "Sunrise Stage",
+      "day": 20,
+      "startTime": "00:00",
+      "endTime": "01:30",
+      "description_en": "The rising star of domestic rap, who closes the third day with hard beats and outspoken lyrics.",
+      "description_hu": "A hazai rap feltörekvő sztárja, aki kemény alapokkal és szókimondó szövegekkel zárja a harmadik napot."
+    },
+    {
+      "id": "96",
+      "name": "Alee",
+      "stage": "Sunrise Stage",
+      "day": 20,
+      "startTime": "11:30",
+      "endTime": "12:15",
+      "description_en": "The young rapper who started from a talent show, who spins up the early morning with honest emotions and melodic beats.",
+      "description_hu": "A tehetségkutatóból indult fiatal rapper, aki őszinte érzelmekkel és dallamos alapokkal pörgeti be a kora délelőttöt."
+    },
+    {
+      "id": "97",
+      "name": "Manuel",
+      "stage": "Sunrise Stage",
+      "day": 20,
+      "startTime": "12:30",
+      "endTime": "13:15",
+      "description_en": "The artist balancing on the border of domestic pop and rap, who warms up the festival-goers with his hit choruses.",
+      "description_hu": "A hazai pop és rap határán egyensúlyozó előadó, aki slágeres refrénjeivel melegíti be a fesztiválozókat."
+    },
+    {
+      "id": "98",
+      "name": "Metzker Viktória",
+      "stage": "Electro Stage",
+      "day": 20,
+      "startTime": "11:30",
+      "endTime": "12:15",
+      "description_en": "One of the most popular Hungarian female DJs, who kicks off the day with dynamic and trendy electronic beats.",
+      "description_hu": "Az egyik legnépszerűbb magyar lemezlovasnő, aki dinamikus és trendi elektronikus ütemekkel indítja a napot."
+    },
+    {
+      "id": "99",
+      "name": "Yamina",
+      "stage": "Electro Stage",
+      "day": 20,
+      "startTime": "12:30",
+      "endTime": "13:15",
+      "description_en": "The energetic DJ of the domestic club scene, who sweeps everyone away with her explosive mixes right from the early hours.",
+      "description_hu": "A hazai klubélet energikus DJ-je, aki robbanékony mixeivel már a korai órákban is mindenkit magával ragad."
+    },
+    {
+      "id": "100",
+      "name": "Lotfi Begi",
+      "stage": "Electro Stage",
+      "day": 20,
+      "startTime": "10:30",
+      "endTime": "11:15",
+      "description_en": "The hitmaker producer, who opens the electronic stage with melodic and radio-friendly dance music.",
+      "description_hu": "A slágergyáros producer, aki dallamos és rádióbarát tánczenével nyitja meg az elektronikus színpadot."
+    }
+  ],
+  "sponsors": [
+    {
+      "id": "s1",
+      "name": "Nebula Energy",
+      "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/FIAT_logo_%282006%29.svg/120px-FIAT_logo_%282006%29.svg.png"
+    },
+    {
+      "id": "s2",
+      "name": "Wavora Water",
+      "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/120px-Coca-Cola_logo.svg.png"
+    },
+    {
+      "id": "s3",
+      "name": "Lumen Lighting",
+      "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/120px-Google_2015_logo.svg.png"
+    },
+    {
+      "id": "s4",
+      "name": "Pulse Sound",
+      "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tesla_logo.png/120px-Tesla_logo.png"
+    },
+    {
+      "id": "s5",
+      "name": "Vibes Tech",
+      "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/120px-Apple_logo_black.svg.png"
+    }
+  ]
 }
