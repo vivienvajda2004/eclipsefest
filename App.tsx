@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
 	Animated,
+	Dimensions,
 	Easing,
 	FlatList,
 	Image,
 	Linking,
+	PanResponder,
 	Platform,
 	SafeAreaView,
 	ScrollView,
@@ -17,6 +19,20 @@ import {
 	View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import Svg, {
+	Circle,
+	Defs,
+	Ellipse,
+	G,
+	Line,
+	LinearGradient,
+	Path,
+	Polygon,
+	RadialGradient,
+	Rect,
+	Stop,
+	Text as SvgText,
+} from "react-native-svg";
 import festivalData from "./assets/data/eclipsefest_data.json";
 
 // ─── Nyelvi szótár ────────────────────────────────────────────────────────────
@@ -428,72 +444,590 @@ function TicketsScreen({ tickets, selectedId, quantity, email, orderComplete, on
 	);
 }
 
+// ─── Canvas térkép segédfüggvények ────────────────────────────────────────────
+
+// GPS koordinátákat vászon pixelekre konvertál
+// ─── GPS → SVG koordináta konverter ──────────────────────────────────────────
+function gpsToXY(
+	lat: number, lng: number,
+	bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number },
+	W: number, H: number
+): { x: number; y: number } {
+	const x = ((lng - bounds.minLng) / (bounds.maxLng - bounds.minLng)) * W;
+	const y = ((bounds.maxLat - lat) / (bounds.maxLat - bounds.minLat)) * H;
+	return { x, y };
+}
+
 // ─── Térkép képernyő ──────────────────────────────────────────────────────────
+// react-native-svg alapú illusztrált fesztivál térkép
+
+const SCREEN_W = Dimensions.get("window").width;
+const MAP_W = 420;
+const MAP_H = 520;
+
+// ─── Térkép konstansok ────────────────────────────────────────────────────────
+const COLORS = {
+  grass:       "#2d5a1b",
+  grassLight:  "#3a7023",
+  grassDark:   "#1e4012",
+  path:        "#c8b99a",
+  pathDark:    "#a89070",
+  road:        "#8b7355",
+  fence:       "#6b4c2a",
+  stageMain:   "#4a0080",
+  stagePurple: "#6b21a8",
+  stageBlue:   "#1d4ed8",
+  stageGold:   "#b45309",
+  water:       "#1e40af",
+  waterLight:  "#3b82f6",
+  campTeal:    "#0d9488",
+  campLight:   "#14b8a6",
+  food:        "#d97706",
+  foodLight:   "#fbbf24",
+  service:     "#0891b2",
+  merch:       "#be185d",
+  vip:         "#7c3aed",
+  entrance:    "#16a34a",
+  parking:     "#475569",
+  tree:        "#166534",
+  treeLight:   "#15803d",
+  treeShadow:  "#14532d",
+  text:        "#f0e8ff",
+  textDark:    "#1a0a30",
+  white:       "#ffffff",
+  shadow:      "rgba(0,0,0,0.3)",
+};
+
+// ─── Segéd komponensek ────────────────────────────────────────────────────────
+
+// Fa komponens
+function MapTree({ x, y, r = 14 }: { x: number; y: number; r?: number }) {
+  return (
+    <G>
+      <Ellipse cx={x+2} cy={y+r*0.6} rx={r*0.55} ry={r*0.22} fill={COLORS.treeShadow} opacity={0.5} />
+      <Circle cx={x} cy={y} r={r} fill={COLORS.treeShadow} opacity={0.3} />
+      <Circle cx={x} cy={y} r={r*0.85} fill={COLORS.tree} />
+      <Circle cx={x-r*0.2} cy={y-r*0.2} r={r*0.7} fill={COLORS.treeLight} />
+      <Circle cx={x+r*0.1} cy={y-r*0.3} r={r*0.45} fill="#22c55e" opacity={0.6} />
+    </G>
+  );
+}
+
+// Bokor komponens
+function MapBush({ x, y }: { x: number; y: number }) {
+  return (
+    <G>
+      <Ellipse cx={x+1} cy={y+5} rx={9} ry={4} fill={COLORS.treeShadow} opacity={0.3} />
+      <Circle cx={x-4} cy={y+1} r={6} fill={COLORS.tree} />
+      <Circle cx={x+4} cy={y+1} r={6} fill={COLORS.tree} />
+      <Circle cx={x} cy={y-2} r={7} fill={COLORS.treeLight} />
+    </G>
+  );
+}
+
+// Színpad épület komponens
+function MapStage({
+  x, y, w, h, color, label, sublabel, icon,
+}: { x: number; y: number; w: number; h: number; color: string; label: string; sublabel?: string; icon: string }) {
+  const depth = 8;
+  const sideColor = color + "88";
+  return (
+    <G>
+      {/* Árnyék */}
+      <Rect x={x+4} y={y+4} width={w} height={h} rx={4} fill="rgba(0,0,0,0.4)" />
+      {/* Oldalsó 3D hatás */}
+      <Polygon
+        points={`${x+w},${y} ${x+w+depth},${y+depth} ${x+w+depth},${y+h+depth} ${x+w},${y+h}`}
+        fill={sideColor}
+      />
+      <Polygon
+        points={`${x},${y+h} ${x+depth},${y+h+depth} ${x+w+depth},${y+h+depth} ${x+w},${y+h}`}
+        fill={sideColor}
+      />
+      {/* Fő felület */}
+      <Rect x={x} y={y} width={w} height={h} rx={4} fill={color} />
+      {/* Tető sáv */}
+      <Rect x={x} y={y} width={w} height={h*0.3} rx={4} fill="rgba(255,255,255,0.15)" />
+      {/* Ikon */}
+      <SvgText x={x+w/2} y={y+h*0.45} fontSize={16} textAnchor="middle" fill={COLORS.white}>{icon}</SvgText>
+      {/* Felirat */}
+      <SvgText x={x+w/2} y={y+h*0.68} fontSize={8} fontWeight="bold" textAnchor="middle" fill={COLORS.white} letterSpacing={0.5}>{label}</SvgText>
+      {sublabel && <SvgText x={x+w/2} y={y+h*0.82} fontSize={6.5} textAnchor="middle" fill="rgba(255,255,255,0.8)">{sublabel}</SvgText>}
+    </G>
+  );
+}
+
+// POI jelölő
+function MapPin({
+  x, y, color, icon, label,
+}: { x: number; y: number; color: string; icon: string; label: string }) {
+  return (
+    <G>
+      <Ellipse cx={x+1} cy={y+18} rx={8} ry={3} fill="rgba(0,0,0,0.3)" />
+      <Path d={`M${x},${y} C${x-10},${y-8} ${x-10},${y-22} ${x},${y-26} C${x+10},${y-22} ${x+10},${y-8} ${x},${y}`} fill={color} />
+      <Circle cx={x} cy={y-18} r={9} fill="rgba(255,255,255,0.2)" />
+      <SvgText x={x} y={y-14} fontSize={10} textAnchor="middle" fill={COLORS.white}>{icon}</SvgText>
+      {/* Felirat buborék */}
+      <Rect x={x-20} y={y-42} width={40} height={14} rx={7} fill="rgba(0,0,0,0.75)" />
+      <SvgText x={x} y={y-32} fontSize={7} fontWeight="bold" textAnchor="middle" fill={COLORS.white}>{label}</SvgText>
+    </G>
+  );
+}
+
+// Kemping sátor
+function MapTent({ x, y, color = COLORS.campTeal }: { x: number; y: number; color?: string }) {
+  return (
+    <G>
+      <Polygon points={`${x},${y-12} ${x-10},${y+4} ${x+10},${y+4}`} fill={color} />
+      <Polygon points={`${x},${y-12} ${x-6},${y+4} ${x+6},${y+4}`} fill="rgba(255,255,255,0.2)" />
+      <Rect x={x-4} y={y-2} width={8} height={6} rx={1} fill={COLORS.textDark} opacity={0.5} />
+    </G>
+  );
+}
+
+// ─── Fő MapScreen ─────────────────────────────────────────────────────────────
 function MapScreen({ map }: { map: FestivalMap }) {
-	const [filter, setFilter] = useState<MapFilter>("all");
-	const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [mapView, setMapView] = useState<"map" | "list">("map");
+  const [filter, setFilter] = useState<MapFilter>("all");
 
-	const visiblePoints = filter === "all" ? map.points : map.points.filter((p) => p.category === filter);
-	const selected = map.points.find((p) => p.id === selectedId) ?? null;
+  // Pan & Zoom state
+  const scale = useRef(1);
+  const translateX = useRef(0);
+  const translateY = useRef(0);
+  const lastScale = useRef(1);
+  const lastTX = useRef(0);
+  const lastTY = useRef(0);
+  const [transform, setTransform] = useState({ scale: 1, tx: 0, ty: 0 });
 
-	const renderDetailCard = (point: MapPoint) => (
-		<View style={styles.mapDetailCard}>
-			<View style={[styles.mapDetailAccent, { backgroundColor: MAP_CATEGORY_META[point.category].color }]} />
-			<View style={styles.mapDetailBody}>
-				<View style={styles.mapDetailHeader}>
-					<Text style={styles.mapDetailName}>{point.name}</Text>
-					<View style={styles.mapDetailBadge}>
-						<Text style={styles.mapDetailBadgeText}>{MAP_CATEGORY_META[point.category].label}</Text>
-					</View>
-				</View>
-				<Text style={styles.mapDetailDescription}>{point.description}</Text>
-				{Platform.OS !== "web" && (
-					<TouchableOpacity style={styles.mapOpenExternalBtn} onPress={() => openInGoogleMaps(point)}>
-						<Ionicons name="open-outline" size={14} color="#c084fc" />
-						<Text style={styles.mapOpenExternalText}>Megnyitás Google Maps-ben</Text>
-					</TouchableOpacity>
-				)}
-			</View>
-			<TouchableOpacity style={styles.mapDetailClose} onPress={() => setSelectedId(null)}>
-				<Ionicons name="close" size={18} color="#888" />
-			</TouchableOpacity>
-		</View>
-	);
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        lastTX.current = translateX.current;
+        lastTY.current = translateY.current;
+        lastScale.current = scale.current;
+      },
+      onPanResponderMove: (_, gs) => {
+        if (gs.numberActiveTouches === 1) {
+          translateX.current = lastTX.current + gs.dx;
+          translateY.current = lastTY.current + gs.dy;
+          setTransform({ scale: scale.current, tx: translateX.current, ty: translateY.current });
+        }
+      },
+      onPanResponderRelease: () => {},
+    })
+  ).current;
 
-	return (
-		<View style={styles.mapScreen}>
-			<View style={styles.mapHeader}>
-				<Text style={styles.mapHeading}>Térkép</Text>
-				<Text style={styles.mapVenue}>{map.venueName}</Text>
-			</View>
-			<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mapFilters}>
-				{MAP_FILTERS.map((item) => {
-					const active = filter === item.key;
-					return (
-						<TouchableOpacity key={item.key} style={[styles.mapFilterChip, active && styles.mapFilterChipActive]} onPress={() => { setFilter(item.key); setSelectedId(null); }}>
-							<Text style={[styles.mapFilterChipText, active && styles.mapFilterChipTextActive]}>{item.label}</Text>
-						</TouchableOpacity>
-					);
-				})}
-			</ScrollView>
-			<View style={styles.mapPointsList}>
-				<FlatList
-					data={visiblePoints}
-					keyExtractor={(item) => item.id}
-					renderItem={({ item }) => (
-						<TouchableOpacity style={[styles.mapPointItem, selectedId === item.id && styles.mapPointItemSelected]} onPress={() => setSelectedId(item.id)}>
-							<Ionicons name={MAP_CATEGORY_META[item.category].icon as keyof typeof Ionicons.glyphMap} size={20} color={MAP_CATEGORY_META[item.category].color} />
-							<View style={styles.mapPointItemText}>
-								<Text style={styles.mapPointItemName}>{item.name}</Text>
-								<Text style={styles.mapPointItemCategory}>{MAP_CATEGORY_META[item.category].label}</Text>
-							</View>
-						</TouchableOpacity>
-					)}
-				/>
-			</View>
-			{selected && renderDetailCard(selected)}
-		</View>
-	);
+  const selected = map.points.find((p) => p.id === selectedId) ?? null;
+
+  const renderDetailCard = (point: MapPoint) => (
+    <View style={styles.mapDetailCard}>
+      <View style={[styles.mapDetailAccent, { backgroundColor: MAP_CATEGORY_META[point.category].color }]} />
+      <View style={styles.mapDetailBody}>
+        <View style={styles.mapDetailHeader}>
+          <Text style={styles.mapDetailName}>{point.name}</Text>
+          <View style={styles.mapDetailBadge}>
+            <Text style={styles.mapDetailBadgeText}>{MAP_CATEGORY_META[point.category].label}</Text>
+          </View>
+        </View>
+        <Text style={styles.mapDetailDescription}>{point.description}</Text>
+        {Platform.OS !== "web" && (
+          <TouchableOpacity style={styles.mapOpenExternalBtn} onPress={() => openInGoogleMaps(point)}>
+            <Ionicons name="open-outline" size={14} color="#c084fc" />
+            <Text style={styles.mapOpenExternalText}>Megnyitás Google Maps-ben</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      <TouchableOpacity style={styles.mapDetailClose} onPress={() => setSelectedId(null)}>
+        <Ionicons name="close" size={18} color="#888" />
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <View style={styles.mapScreen}>
+      {/* Fejléc */}
+      <View style={styles.mapHeader}>
+        <Text style={styles.mapHeading}>Térkép</Text>
+        <Text style={styles.mapVenue}>{map.venueName}</Text>
+      </View>
+
+      {/* Nézet váltó */}
+      <View style={styles.mapViewToggle}>
+        <TouchableOpacity
+          style={[styles.mapViewToggleBtn, mapView === "map" && styles.mapViewToggleBtnActive]}
+          onPress={() => setMapView("map")}
+        >
+          <Ionicons name="map-outline" size={14} color={mapView === "map" ? "#a855f7" : "rgba(168,85,247,0.45)"} />
+          <Text style={[styles.mapViewToggleText, mapView === "map" && styles.mapViewToggleTextActive]}>Térkép</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.mapViewToggleBtn, mapView === "list" && styles.mapViewToggleBtnActive]}
+          onPress={() => setMapView("list")}
+        >
+          <Ionicons name="list-outline" size={14} color={mapView === "list" ? "#a855f7" : "rgba(168,85,247,0.45)"} />
+          <Text style={[styles.mapViewToggleText, mapView === "list" && styles.mapViewToggleTextActive]}>Lista</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* SVG TÉRKÉP NÉZET */}
+      {mapView === "map" && (
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
+          {/* Térkép konténer */}
+          <View
+            style={styles.svgMapContainer}
+            {...panResponder.panHandlers}
+          >
+            <Svg
+              width={SCREEN_W - 24}
+              height={(SCREEN_W - 24) * (MAP_H / MAP_W)}
+              viewBox={`0 0 ${MAP_W} ${MAP_H}`}
+              style={{ borderRadius: 16 }}
+            >
+              <Defs>
+                <LinearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0" stopColor={COLORS.grassLight} />
+                  <Stop offset="1" stopColor={COLORS.grassDark} />
+                </LinearGradient>
+                <LinearGradient id="stageMainGrad" x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0" stopColor="#7c3aed" />
+                  <Stop offset="1" stopColor="#4a0080" />
+                </LinearGradient>
+                <RadialGradient id="stageGlow" cx="50%" cy="50%" r="50%">
+                  <Stop offset="0" stopColor="#a855f7" stopOpacity="0.4" />
+                  <Stop offset="1" stopColor="#a855f7" stopOpacity="0" />
+                </RadialGradient>
+              </Defs>
+
+              {/* ═══ ALAP HÁTTÉR ═══ */}
+              <Rect x={0} y={0} width={MAP_W} height={MAP_H} fill="url(#grassGrad)" />
+
+              {/* Textura rács */}
+              {Array.from({ length: 20 }, (_, i) => (
+                <Line key={`gh${i}`} x1={0} y1={i*26} x2={MAP_W} y2={i*26} stroke="rgba(0,0,0,0.06)" strokeWidth={0.5} />
+              ))}
+              {Array.from({ length: 16 }, (_, i) => (
+                <Line key={`gv${i}`} x1={i*26} y1={0} x2={i*26} y2={MAP_H} stroke="rgba(0,0,0,0.06)" strokeWidth={0.5} />
+              ))}
+
+              {/* ═══ HELYSZÍN KERÍTÉS ═══ */}
+              <Rect x={8} y={8} width={MAP_W-16} height={MAP_H-16} rx={12}
+                fill="none" stroke={COLORS.fence} strokeWidth={3} strokeDasharray="8,4" />
+              <Rect x={12} y={12} width={MAP_W-24} height={MAP_H-24} rx={10}
+                fill="none" stroke="rgba(107,76,42,0.4)" strokeWidth={1} />
+
+              {/* ═══ TAVACSKA / VÍZ ═══ */}
+              <Ellipse cx={340} cy={80} rx={55} ry={35} fill={COLORS.water} opacity={0.85} />
+              <Ellipse cx={338} cy={77} rx={50} ry={29} fill={COLORS.waterLight} opacity={0.4} />
+              <SvgText x={340} y={82} fontSize={8} textAnchor="middle" fill="rgba(255,255,255,0.7)" fontStyle="italic">tó</SvgText>
+
+              {/* ═══ FŐ ÚTVONALAK ═══ */}
+              {/* Középső főút - vízszintes */}
+              <Rect x={20} y={268} width={MAP_W-40} height={18} rx={3} fill={COLORS.path} />
+              <Rect x={20} y={272} width={MAP_W-40} height={10} rx={2} fill={COLORS.pathDark} opacity={0.3} />
+              {/* Középső főút - függőleges */}
+              <Rect x={192} y={20} width={18} height={MAP_H-40} rx={3} fill={COLORS.path} />
+              <Rect x={196} y={20} width={10} height={MAP_H-40} rx={2} fill={COLORS.pathDark} opacity={0.3} />
+              {/* Átlós sétány bal */}
+              <Path d="M 20,180 Q 100,220 192,268" stroke={COLORS.path} strokeWidth={12} fill="none" strokeLinecap="round" />
+              <Path d="M 20,180 Q 100,220 192,268" stroke={COLORS.pathDark} strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.3} />
+              {/* Átlós sétány jobb */}
+              <Path d="M 210,268 Q 310,230 400,180" stroke={COLORS.path} strokeWidth={12} fill="none" strokeLinecap="round" />
+              {/* Kemping sétány */}
+              <Path d="M 20,120 L 100,120 L 100,268" stroke={COLORS.path} strokeWidth={10} fill="none" strokeLinecap="round" />
+              {/* Déli sétány */}
+              <Path d="M 100,380 Q 200,350 300,380" stroke={COLORS.path} strokeWidth={10} fill="none" strokeLinecap="round" />
+
+              {/* Útvonal jelölések (nyilak) */}
+              <SvgText x={201} y={440} fontSize={7} fill="rgba(255,255,255,0.4)" textAnchor="middle">↑↓</SvgText>
+              <SvgText x={300} y={277} fontSize={7} fill="rgba(255,255,255,0.4)" textAnchor="middle">→</SvgText>
+
+              {/* ═══ KEMPING ZÓNA ═══ */}
+              <Rect x={20} y={30} width={120} height={140} rx={8}
+                fill={COLORS.campTeal} opacity={0.12}
+                stroke={COLORS.campTeal} strokeWidth={1.5} strokeDasharray="6,3" />
+              <SvgText x={80} y={50} fontSize={8} fontWeight="bold" textAnchor="middle"
+                fill={COLORS.campTeal} letterSpacing={1.5}>KEMPING ZÓNA</SvgText>
+              {/* Sátrak */}
+              <MapTent x={45} y={85} />
+              <MapTent x={75} y={85} />
+              <MapTent x={105} y={85} />
+              <MapTent x={60} y={115} />
+              <MapTent x={90} y={115} />
+              <MapTent x={45} y={148} color="#0e7490" />
+              <MapTent x={75} y={148} color="#0e7490" />
+              <MapTent x={105} y={148} color="#0e7490" />
+
+              {/* ═══ PARKOLÓ ═══ */}
+              <Rect x={20} y={380} width={80} height={110} rx={6}
+                fill={COLORS.parking} opacity={0.25}
+                stroke={COLORS.parking} strokeWidth={1.5} />
+              <SvgText x={60} y={438} fontSize={28} fontWeight="900" textAnchor="middle"
+                fill="rgba(148,163,184,0.8)">P</SvgText>
+              <SvgText x={60} y={455} fontSize={7} textAnchor="middle"
+                fill="rgba(148,163,184,0.6)">PARKOLÓ</SvgText>
+              {/* Parkoló sorok */}
+              {[0,1,2].map(i => (
+                <Line key={`ps${i}`} x1={28+i*24} y1={385} x2={28+i*24} y2={485}
+                  stroke="rgba(148,163,184,0.3)" strokeWidth={1} strokeDasharray="4,4" />
+              ))}
+
+              {/* ═══ MAIN STAGE – ÉSZAK-KÖZÉP ═══ */}
+              <Circle cx={201} cy={100} r={45} fill="url(#stageGlow)" />
+              <MapStage x={160} y={55} w={82} h={60} color="#5b21b6"
+                label="MAIN STAGE" sublabel="EclipseFest" icon="🎤" />
+
+              {/* ═══ ELECTRONIC STAGE – NYUGAT ═══ */}
+              <Circle cx={100} cy={220} r={30} fill="#1d4ed8" opacity={0.1} />
+              <MapStage x={50} y={190} w={72} h={52} color="#1d4ed8"
+                label="ELECTRONIC" sublabel="STAGE" icon="🎧" />
+
+              {/* ═══ ACOUSTIC STAGE – KELET ═══ */}
+              <Circle cx={320} cy={210} r={30} fill="#b45309" opacity={0.1} />
+              <MapStage x={278} y={178} w={72} h={52} color="#b45309"
+                label="ACOUSTIC" sublabel="STAGE" icon="🎸" />
+
+              {/* ═══ SUNRISE STAGE – DÉL ═══ */}
+              <Circle cx={201} cy={390} r={28} fill="#7c3aed" opacity={0.12} />
+              <MapStage x={160} y={360} w={82} h={52} color="#6d28d9"
+                label="SUNRISE" sublabel="STAGE" icon="🌅" />
+
+              {/* ═══ FOOD COURT – KÖZÉP-NYUGAT ═══ */}
+              <Rect x={108} y={290} width={70} height={52} rx={8}
+                fill="#92400e" opacity={0.3} stroke="#d97706" strokeWidth={1} />
+              <SvgText x={143} y={308} fontSize={16} textAnchor="middle">🍔</SvgText>
+              <SvgText x={143} y={323} fontSize={7} fontWeight="bold" textAnchor="middle"
+                fill="#fbbf24">FOOD COURT</SvgText>
+              <SvgText x={143} y={334} fontSize={6} textAnchor="middle" fill="rgba(251,191,36,0.7)">étel & ital</SvgText>
+
+              {/* ═══ STREET FOOD – NYUGAT ═══ */}
+              <Rect x={22} y={290} width={60} height={48} rx={8}
+                fill="#92400e" opacity={0.25} stroke="#d97706" strokeWidth={1} />
+              <SvgText x={52} y={308} fontSize={14} textAnchor="middle">🌮</SvgText>
+              <SvgText x={52} y={322} fontSize={6.5} fontWeight="bold" textAnchor="middle"
+                fill="#fbbf24">STREET FOOD</SvgText>
+              <SvgText x={52} y={332} fontSize={6} textAnchor="middle" fill="rgba(251,191,36,0.7)">gyors falatkák</SvgText>
+
+              {/* ═══ BÁRKÖZPONT – KELET ═══ */}
+              <Rect x={248} y={290} width={62} height={48} rx={8}
+                fill="#92400e" opacity={0.25} stroke="#d97706" strokeWidth={1} />
+              <SvgText x={279} y={308} fontSize={14} textAnchor="middle">🍺</SvgText>
+              <SvgText x={279} y={322} fontSize={6.5} fontWeight="bold" textAnchor="middle"
+                fill="#fbbf24">BÁRKÖZPONT</SvgText>
+              <SvgText x={279} y={332} fontSize={6} textAnchor="middle" fill="rgba(251,191,36,0.7)">koktél & sör</SvgText>
+
+              {/* ═══ MERCH VILLAGE ═══ */}
+              <Rect x={228} y={160} width={44} height={38} rx={6}
+                fill="#831843" opacity={0.35} stroke="#ec4899" strokeWidth={1} />
+              <SvgText x={250} y={178} fontSize={13} textAnchor="middle">👕</SvgText>
+              <SvgText x={250} y={192} fontSize={6} fontWeight="bold" textAnchor="middle"
+                fill="#f9a8d4">MERCH</SvgText>
+
+              {/* ═══ VIP LOUNGE – ÉSZAK-KELET ═══ */}
+              <Rect x={318} y={130} width={80} height={40} rx={8}
+                fill="#4c1d95" opacity={0.4} stroke="#7c3aed" strokeWidth={1.5} />
+              <SvgText x={358} y={147} fontSize={12} textAnchor="middle">⭐</SvgText>
+              <SvgText x={358} y={161} fontSize={7} fontWeight="bold" textAnchor="middle"
+                fill="#c4b5fd">VIP LOUNGE</SvgText>
+
+              {/* ═══ ARTIST MERCH ═══ */}
+              <Rect x={318} y={178} width={80} height={36} rx={6}
+                fill="#831843" opacity={0.3} stroke="#ec4899" strokeWidth={1} />
+              <SvgText x={358} y={193} fontSize={11} textAnchor="middle">🏷️</SvgText>
+              <SvgText x={358} y={207} fontSize={6.5} fontWeight="bold" textAnchor="middle"
+                fill="#f9a8d4">ELŐADÓI STAND</SvgText>
+
+              {/* ═══ FOTÓPONT ═══ */}
+              <Rect x={318} y={222} width={80} height={36} rx={6}
+                fill="#831843" opacity={0.25} stroke="#ec4899" strokeWidth={1} />
+              <SvgText x={358} y={237} fontSize={11} textAnchor="middle">📸</SvgText>
+              <SvgText x={358} y={251} fontSize={6.5} fontWeight="bold" textAnchor="middle"
+                fill="#f9a8d4">FOTÓPONT</SvgText>
+
+              {/* ═══ SZOLGÁLTATÁSOK – DÉLI SÁV ═══ */}
+              {/* Elsősegély */}
+              <Rect x={148} y={350} width={36} height={36} rx={6}
+                fill="#7f1d1d" opacity={0.4} stroke="#ef4444" strokeWidth={1.5} />
+              <SvgText x={166} y={368} fontSize={14} textAnchor="middle">🏥</SvgText>
+              <SvgText x={166} y={381} fontSize={6} textAnchor="middle" fill="#fca5a5">SEGÉLY</SvgText>
+
+              {/* Mosdó 1 – észak */}
+              <Rect x={150} y={140} width={32} height={32} rx={5}
+                fill="#164e63" opacity={0.5} stroke="#38bdf8" strokeWidth={1} />
+              <SvgText x={166} y={156} fontSize={13} textAnchor="middle">🚻</SvgText>
+              <SvgText x={166} y={167} fontSize={6} textAnchor="middle" fill="#7dd3fc">WC</SvgText>
+
+              {/* Mosdó 2 – dél */}
+              <Rect x={150} y={290} width={32} height={32} rx={5}
+                fill="#164e63" opacity={0.5} stroke="#38bdf8" strokeWidth={1} />
+              <SvgText x={166} y={306} fontSize={13} textAnchor="middle">🚻</SvgText>
+              <SvgText x={166} y={317} fontSize={6} textAnchor="middle" fill="#7dd3fc">WC</SvgText>
+
+              {/* Infópont */}
+              <Rect x={238} y={350} width={36} height={36} rx={6}
+                fill="#1e1b4b" opacity={0.5} stroke="#a855f7" strokeWidth={1.5} />
+              <SvgText x={256} y={368} fontSize={14} textAnchor="middle">ℹ️</SvgText>
+              <SvgText x={256} y={381} fontSize={6} textAnchor="middle" fill="#c4b5fd">INFÓ</SvgText>
+
+              {/* ═══ FŐBEJÁRAT – DÉL KÖZÉP ═══ */}
+              <Rect x={148} y={470} width={106} height={36} rx={8}
+                fill={COLORS.entrance} opacity={0.9} stroke="#16a34a" strokeWidth={2} />
+              <SvgText x={201} y={487} fontSize={11} textAnchor="middle">🚪</SvgText>
+              <SvgText x={201} y={500} fontSize={8} fontWeight="bold" textAnchor="middle"
+                fill={COLORS.white} letterSpacing={1}>FŐBEJÁRAT</SvgText>
+
+              {/* Bejárat nyilak */}
+              <Line x1={201} y1={450} x2={201} y2={468} stroke="#22c55e" strokeWidth={2} />
+              <Polygon points="196,458 201,448 206,458" fill="#22c55e" />
+
+              {/* ═══ FÁK ═══ */}
+              {/* Északi fasor */}
+              <MapTree x={150} y={28} r={16} />
+              <MapTree x={220} y={22} r={14} />
+              <MapTree x={265} y={28} r={15} />
+              <MapTree x={308} y={25} r={13} />
+              {/* Keleti fasor */}
+              <MapTree x={395} y={120} r={14} />
+              <MapTree x={400} y={160} r={12} />
+              <MapTree x={398} y={200} r={15} />
+              <MapTree x={397} y={260} r={13} />
+              <MapTree x={395} y={320} r={12} />
+              {/* Déli fasor */}
+              <MapTree x={120} y={488} r={14} />
+              <MapTree x={280} y={492} r={13} />
+              <MapTree x={350} y={485} r={15} />
+              <MapTree x={390} y={480} r={12} />
+              {/* Nyugati fasor */}
+              <MapTree x={18} y={320} r={13} />
+              <MapTree x={20} y={360} r={14} />
+              <MapTree x={18} y={400} r={12} />
+              {/* Belsők */}
+              <MapTree x={130} y={360} r={11} />
+              <MapTree x={360} y={360} r={12} />
+              <MapTree x={148} y={430} r={10} />
+              <MapTree x={258} y={430} r={11} />
+
+              {/* ═══ BOKROK ═══ */}
+              <MapBush x={132} y={180} />
+              <MapBush x={145} y={210} />
+              <MapBush x={260} y={160} />
+              <MapBush x={272} y={140} />
+              <MapBush x={108} y={355} />
+              <MapBush x={308} y={355} />
+              <MapBush x={115} y={460} />
+              <MapBush x={290} y={460} />
+              <MapBush x={320} y={470} />
+              <MapBush x={335} y={455} />
+              <MapBush x={365} y={400} />
+              <MapBush x={380} y={420} />
+
+              {/* ═══ ÉSZAK IRÁNYTŰ ═══ */}
+              <Circle cx={382} cy={32} r={16} fill="rgba(0,0,0,0.55)" stroke="rgba(168,85,247,0.6)" strokeWidth={1} />
+              <Polygon points="382,18 378,34 382,31 386,34" fill="#a855f7" />
+              <Polygon points="382,46 378,30 382,33 386,30" fill="rgba(168,85,247,0.4)" />
+              <SvgText x={382} y={37} fontSize={7} fontWeight="bold" textAnchor="middle" fill="#f0e8ff">N</SvgText>
+
+              {/* ═══ SKÁLA ═══ */}
+              <Rect x={20} y={500} width={60} height={6} rx={3} fill="rgba(255,255,255,0.3)" />
+              <Rect x={20} y={500} width={30} height={6} rx={3} fill="rgba(255,255,255,0.6)" />
+              <SvgText x={20} y={496} fontSize={6} fill="rgba(255,255,255,0.5)">0</SvgText>
+              <SvgText x={75} y={496} fontSize={6} fill="rgba(255,255,255,0.5)">200m</SvgText>
+
+              {/* ═══ CÍM / BRAND ═══ */}
+              <Rect x={MAP_W-120} y={MAP_H-38} width={112} height={30} rx={6} fill="rgba(0,0,0,0.5)" />
+              <SvgText x={MAP_W-64} y={MAP_H-23} fontSize={9} fontWeight="bold" textAnchor="middle"
+                fill="#a855f7" letterSpacing={1}>ECLIPSEFEST</SvgText>
+              <SvgText x={MAP_W-64} y={MAP_H-12} fontSize={7} textAnchor="middle"
+                fill="rgba(168,85,247,0.6)">2026 · Budapest Park</SvgText>
+
+            </Svg>
+          </View>
+
+          {/* Jelmagyarázat */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mapLegend}>
+            {(Object.keys(MAP_CATEGORY_META) as MapCategory[]).map((cat) => (
+              <TouchableOpacity key={cat} style={styles.mapLegendItem}
+                onPress={() => setFilter(filter === cat ? "all" : cat)}>
+                <View style={[styles.mapLegendDot, { backgroundColor: MAP_CATEGORY_META[cat].color }]} />
+                <Text style={[styles.mapLegendText, filter === cat && { color: MAP_CATEGORY_META[cat].color }]}>
+                  {MAP_CATEGORY_META[cat].label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          {/* Kompakt lista a térkép alatt */}
+          <View style={{ marginTop: 4 }}>
+            {map.points
+              .filter(p => filter === "all" || p.category === filter)
+              .map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={[styles.mapPointItem, selectedId === item.id && styles.mapPointItemSelected]}
+                onPress={() => setSelectedId(selectedId === item.id ? null : item.id)}
+              >
+                <View style={[styles.mapPointIconWrap, { backgroundColor: `${MAP_CATEGORY_META[item.category].color}22` }]}>
+                  <Ionicons name={MAP_CATEGORY_META[item.category].icon as keyof typeof Ionicons.glyphMap}
+                    size={18} color={MAP_CATEGORY_META[item.category].color} />
+                </View>
+                <View style={styles.mapPointItemText}>
+                  <Text style={styles.mapPointItemName}>{item.name}</Text>
+                  <Text style={styles.mapPointItemCategory}>{MAP_CATEGORY_META[item.category].label}</Text>
+                </View>
+                <Ionicons name={selectedId === item.id ? "chevron-up" : "chevron-down"}
+                  size={16} color="rgba(168,85,247,0.4)" />
+              </TouchableOpacity>
+            ))}
+            {selected && renderDetailCard(selected)}
+          </View>
+        </ScrollView>
+      )}
+
+      {/* LISTA NÉZET */}
+      {mapView === "list" && (
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+          {/* Kategória szűrő */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mapFilters}>
+            {MAP_FILTERS.map((item) => {
+              const active = filter === item.key;
+              return (
+                <TouchableOpacity key={item.key}
+                  style={[styles.mapFilterChip, active && styles.mapFilterChipActive]}
+                  onPress={() => { setFilter(item.key); setSelectedId(null); }}>
+                  {item.key !== "all" && (
+                    <Ionicons name={MAP_CATEGORY_META[item.key as MapCategory]?.icon as keyof typeof Ionicons.glyphMap}
+                      size={11} color={active ? MAP_CATEGORY_META[item.key as MapCategory]?.color : "rgba(168,85,247,0.45)"} />
+                  )}
+                  <Text style={[styles.mapFilterChipText, active && styles.mapFilterChipTextActive]}>{item.label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+          {map.points
+            .filter(p => filter === "all" || p.category === filter)
+            .map((item) => (
+            <TouchableOpacity key={item.id}
+              style={[styles.mapPointItem, selectedId === item.id && styles.mapPointItemSelected]}
+              onPress={() => setSelectedId(selectedId === item.id ? null : item.id)}>
+              <View style={[styles.mapPointIconWrap, { backgroundColor: `${MAP_CATEGORY_META[item.category].color}22` }]}>
+                <Ionicons name={MAP_CATEGORY_META[item.category].icon as keyof typeof Ionicons.glyphMap}
+                  size={18} color={MAP_CATEGORY_META[item.category].color} />
+              </View>
+              <View style={styles.mapPointItemText}>
+                <Text style={styles.mapPointItemName}>{item.name}</Text>
+                <Text style={styles.mapPointItemCategory}>{MAP_CATEGORY_META[item.category].label}</Text>
+              </View>
+              <Ionicons name={selectedId === item.id ? "chevron-up" : "chevron-down"}
+                size={16} color="rgba(168,85,247,0.4)" />
+            </TouchableOpacity>
+          ))}
+          {selected && renderDetailCard(selected)}
+        </ScrollView>
+      )}
+    </View>
+  );
 }
 
 // ─── Home képernyő ────────────────────────────────────────────────────────────
@@ -1194,7 +1728,7 @@ const styles = StyleSheet.create({
 	homeScreen: { flex: 1, backgroundColor: "#06020f", position: "relative", overflow: "hidden" },
 	homeScroll: { alignItems: "center", paddingBottom: 32 },
 	star: { position: "absolute", backgroundColor: "#ffffff", borderRadius: 99 },
-	
+
 	// Következő kedvenc chip
 	nextFavChip: {
 		flexDirection: "row",
@@ -1321,9 +1855,80 @@ const styles = StyleSheet.create({
 	mapPointsList: { flex: 1, backgroundColor: "rgba(120,60,200,0.03)", borderTopWidth: 0.5, borderTopColor: "rgba(120,60,200,0.2)" },
 	mapPointItem: { flexDirection: "row", alignItems: "center", padding: 16, borderBottomWidth: 0.5, borderBottomColor: "rgba(120,60,200,0.1)", gap: 12 },
 	mapPointItemSelected: { backgroundColor: "rgba(168,85,247,0.1)" },
+	mapPointIconWrap: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
 	mapPointItemText: { flex: 1 },
 	mapPointItemName: { color: "#e8d8ff", fontSize: 14, fontWeight: "600", marginBottom: 2 },
 	mapPointItemCategory: { color: "rgba(168,85,247,0.55)", fontSize: 11, letterSpacing: 0.3 },
+
+	// Illusztrált térkép stílusok
+	mapCanvasWrap: { flex: 1 },
+	svgMapContainer: {
+		marginHorizontal: 12,
+		borderRadius: 16,
+		overflow: "hidden",
+		borderWidth: 1.5,
+		borderColor: "rgba(120,60,200,0.4)",
+	},
+	svgContainer: {
+		marginHorizontal: 12,
+		height: 340,
+		backgroundColor: "#1e3d1e",
+		borderRadius: 16,
+		borderWidth: 1.5,
+		borderColor: "rgba(120,60,200,0.5)",
+		overflow: "hidden",
+		position: "relative",
+	},
+	mapBgGrass: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#1e3d1e" },
+	mapFence: { position: "absolute", top: 6, left: 6, right: 6, bottom: 6, borderRadius: 12, borderWidth: 1.5, borderColor: "rgba(168,85,247,0.5)" },
+	mapRoad: { position: "absolute", backgroundColor: "#3d3060" },
+	mapRoadDiag: { position: "absolute", height: 10, backgroundColor: "#3d3060", transformOrigin: "left center" },
+	mapTree: { position: "absolute", alignItems: "center" },
+	mapTreeTop: { width: 14, height: 14, borderRadius: 7, backgroundColor: "#2d6a2d", borderWidth: 1, borderColor: "#3d8a3d" },
+	mapTreeTrunk: { width: 3, height: 5, backgroundColor: "#5c3d1e", marginTop: -1 },
+	mapBush: { position: "absolute", width: 10, height: 10, borderRadius: 5, backgroundColor: "#2a5a2a", borderWidth: 0.5, borderColor: "#3a7a3a" },
+	mapCampZone: { position: "absolute", top: 60, left: 8, width: 90, height: 60, backgroundColor: "rgba(45,212,191,0.15)", borderWidth: 1, borderColor: "#2dd4bf", borderRadius: 8, alignItems: "center", justifyContent: "flex-end", paddingBottom: 4 },
+	mapZoneLabel: { fontSize: 7, color: "#2dd4bf", letterSpacing: 1, fontWeight: "600" },
+	mapTent: { position: "absolute", width: 16, height: 14, backgroundColor: "#2dd4bf", borderRadius: 2, borderTopLeftRadius: 8, borderTopRightRadius: 8, opacity: 0.8 },
+	mapParkingZone: { position: "absolute", top: 268, left: 8, width: 36, height: 36, backgroundColor: "rgba(56,189,248,0.2)", borderWidth: 1, borderColor: "#38bdf8", borderRadius: 6, alignItems: "center", justifyContent: "center" },
+	mapParkingLabel: { fontSize: 16, fontWeight: "900", color: "#38bdf8" },
+	mapStage: { position: "absolute", borderRadius: 8, alignItems: "center", justifyContent: "center", borderWidth: 1.5, borderColor: "rgba(168,85,247,0.8)", padding: 2 },
+	mapStageIcon: { fontSize: 12, lineHeight: 14 },
+	mapStageLabel: { fontSize: 7, color: "#f0e8ff", fontWeight: "700", textAlign: "center", letterSpacing: 0.3 },
+	mapPoi: { position: "absolute", paddingHorizontal: 5, paddingVertical: 3, borderRadius: 8, borderWidth: 1, alignItems: "center", minWidth: 44 },
+	mapPoiIcon: { fontSize: 12, lineHeight: 14 },
+	mapPoiLabel: { fontSize: 6.5, fontWeight: "600", textAlign: "center", letterSpacing: 0.3 },
+	mapEntrance: { position: "absolute", bottom: 10, left: "36%", width: 72, paddingVertical: 4, backgroundColor: "#22c55e", borderRadius: 8, borderWidth: 1.5, borderColor: "#16a34a", alignItems: "center" },
+	mapEntranceIcon: { fontSize: 12, lineHeight: 14 },
+	mapEntranceLabel: { fontSize: 7, color: "#fff", fontWeight: "800", letterSpacing: 1 },
+	mapWc: { position: "absolute", width: 22, height: 22, backgroundColor: "rgba(56,189,248,0.25)", borderRadius: 4, borderWidth: 1, borderColor: "#38bdf8", alignItems: "center", justifyContent: "center" },
+	mapWcIcon: { fontSize: 11 },
+	mapFirstAid: { position: "absolute", width: 22, height: 22, backgroundColor: "rgba(239,68,68,0.25)", borderRadius: 4, borderWidth: 1, borderColor: "#ef4444", alignItems: "center", justifyContent: "center" },
+	mapFirstAidIcon: { fontSize: 11 },
+	mapInfo: { position: "absolute", width: 22, height: 22, backgroundColor: "rgba(168,85,247,0.25)", borderRadius: 4, borderWidth: 1, borderColor: "#a855f7", alignItems: "center", justifyContent: "center" },
+	mapInfoIcon: { fontSize: 11 },
+	mapNorth: { position: "absolute", top: 10, right: 10, width: 26, height: 26, backgroundColor: "rgba(0,0,0,0.5)", borderRadius: 13, borderWidth: 0.5, borderColor: "rgba(168,85,247,0.4)", alignItems: "center", justifyContent: "center" },
+	mapNorthText: { fontSize: 7, color: "#a855f7", fontWeight: "800", lineHeight: 8 },
+	mapNorthArrow: { fontSize: 7, color: "#a855f7", lineHeight: 8 },
+	svgGridLine: { position: "absolute", height: 0.5, backgroundColor: "rgba(120,60,200,0.1)" },
+	svgGridLineV: { position: "absolute", width: 0.5, backgroundColor: "rgba(120,60,200,0.1)" },
+	svgVenueBorder: { position: "absolute", top: 12, left: 12, right: 12, bottom: 12, borderRadius: 12, borderWidth: 1, borderColor: "rgba(120,60,200,0.25)" },
+	svgZoneLabel: { position: "absolute", fontSize: 8, letterSpacing: 2, color: "rgba(120,60,200,0.3)" },
+	svgRouteLine: { position: "absolute", height: 1, backgroundColor: "rgba(168,85,247,0.15)", transformOrigin: "left center" },
+	svgPoint: { position: "absolute", alignItems: "center", justifyContent: "center" },
+	svgPointGlow: { position: "absolute", width: "200%", height: "200%", borderRadius: 999, borderWidth: 1.5, opacity: 0.3 },
+	svgLabel: { position: "absolute", fontSize: 9, width: 72, textAlign: "center" },
+	mapLegend: { paddingHorizontal: 12, paddingVertical: 8, gap: 12 },
+	mapLegendItem: { flexDirection: "row", alignItems: "center", gap: 5 },
+	mapLegendDot: { width: 8, height: 8, borderRadius: 4 },
+	mapLegendText: { fontSize: 10, color: "rgba(216,200,240,0.6)" },
+	mapCanvasHint: { fontSize: 10, color: "rgba(168,85,247,0.35)", textAlign: "center", paddingVertical: 4 },
+	mapViewToggle: { flexDirection: "row", marginHorizontal: 16, marginBottom: 8, borderRadius: 12, borderWidth: 0.5, borderColor: "rgba(120,60,200,0.25)", overflow: "hidden", backgroundColor: "rgba(120,60,200,0.05)" },
+	mapViewToggleBtn: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 9 },
+	mapViewToggleBtnActive: { backgroundColor: "rgba(124,58,237,0.2)" },
+	mapViewToggleText: { fontSize: 12, color: "rgba(168,85,247,0.45)", fontWeight: "500" },
+	mapViewToggleTextActive: { color: "#e8d8ff" },
+
 
 	// Schedule
 	scheduleScreen: { flex: 1 },
