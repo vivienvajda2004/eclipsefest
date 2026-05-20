@@ -33,8 +33,7 @@
     },
     "owner": "petya122s-organization",
     "plugins": [
-      "expo-font",
-      "react-native-maps"
+      "expo-font"
     ]
   }
 }
