@@ -100,3 +100,14 @@ export const performerImages: Record<string, any> = {
   "99": require('../performers/performer_99.jpg'),
   "100": require('../performers/performer_100.jpg'),
 };
+
+export const gastroImages: Record<string, any> = {
+  "g1": require('../gastro_images/monsterbar_cosmopolitan_cocktail.jpg'),
+  "g2": require('../gastro_images/swiftie_mojito.jpg'),
+  "g3": require('../gastro_images/dragonsgrill_burger.jpg'),
+  "g4": require('../gastro_images/violator_wraps.jpg'),
+  "g5": require('../gastro_images/gyuri_langos.jpg'),
+  "g6": require('../gastro_images/cosmic_icecream.jpg'),
+  "g7": require('../gastro_images/monster_energydrink.jpg'),
+  "g8": require('../gastro_images/nightcrawler_ramen.jpg'),
+};
