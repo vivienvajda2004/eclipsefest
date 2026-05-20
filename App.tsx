@@ -1114,278 +1114,20 @@ function MapScreen({ map }: { map: FestivalMap }) {
         </TouchableOpacity>
       </View>
 
-      {/* SVG TÉRKÉP NÉZET */}
+      {/* ILLUSZTRÁLT TÉRKÉP NÉZET */}
       {mapView === "map" && (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
-          {/* Térkép konténer */}
-          <View
-            style={styles.svgMapContainer}
-            {...panResponder.panHandlers}
-          >
-            <Svg
-              width={SCREEN_W - 24}
-              height={(SCREEN_W - 24) * (MAP_H / MAP_W)}
-              viewBox={`0 0 ${MAP_W} ${MAP_H}`}
-              style={{ borderRadius: 16 }}
-            >
-              <Defs>
-                <LinearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
-                  <Stop offset="0" stopColor={COLORS.grassLight} />
-                  <Stop offset="1" stopColor={COLORS.grassDark} />
-                </LinearGradient>
-                <LinearGradient id="stageMainGrad" x1="0" y1="0" x2="0" y2="1">
-                  <Stop offset="0" stopColor="#7c3aed" />
-                  <Stop offset="1" stopColor="#4a0080" />
-                </LinearGradient>
-                <RadialGradient id="stageGlow" cx="50%" cy="50%" r="50%">
-                  <Stop offset="0" stopColor="#a855f7" stopOpacity="0.4" />
-                  <Stop offset="1" stopColor="#a855f7" stopOpacity="0" />
-                </RadialGradient>
-              </Defs>
-
-              {/* ═══ ALAP HÁTTÉR ═══ */}
-              <Rect x={0} y={0} width={MAP_W} height={MAP_H} fill="url(#grassGrad)" />
-
-              {/* Textura rács */}
-              {Array.from({ length: 20 }, (_, i) => (
-                <Line key={`gh${i}`} x1={0} y1={i*26} x2={MAP_W} y2={i*26} stroke="rgba(120,60,200,0.06)" strokeWidth={0.5} />
-              ))}
-              {Array.from({ length: 16 }, (_, i) => (
-                <Line key={`gv${i}`} x1={i*26} y1={0} x2={i*26} y2={MAP_H} stroke="rgba(120,60,200,0.06)" strokeWidth={0.5} />
-              ))}
-
-              {/* ═══ HELYSZÍN KERÍTÉS ═══ */}
-              <Rect x={8} y={8} width={MAP_W-16} height={MAP_H-16} rx={12}
-                fill="none" stroke={COLORS.fence} strokeWidth={2} strokeDasharray="8,4" />
-              <Rect x={12} y={12} width={MAP_W-24} height={MAP_H-24} rx={10}
-                fill="none" stroke="rgba(168,85,247,0.15)" strokeWidth={1} />
-
-              {/* ═══ TAVACSKA / VÍZ ═══ */}
-              <Ellipse cx={340} cy={80} rx={55} ry={35} fill={COLORS.water} stroke="rgba(168,85,247,0.3)" strokeWidth={1} />
-              <Ellipse cx={338} cy={77} rx={50} ry={29} fill={COLORS.waterLight} stroke="rgba(168,85,247,0.15)" strokeWidth={0.5} />
-              <SvgText x={340} y={82} fontSize={8.5} fontWeight="600" textAnchor="middle" fill="rgba(216,180,254,0.6)" letterSpacing={0.5}>AMETHYST LAKE</SvgText>
-
-              {/* ═══ FŐ ÚTVONALAK ═══ */}
-              {/* Középső főút - vízszintes */}
-              <Rect x={20} y={268} width={MAP_W-40} height={18} rx={3} fill={COLORS.path} />
-              <Rect x={20} y={272} width={MAP_W-40} height={10} rx={2} fill={COLORS.pathDark} opacity={0.3} />
-              {/* Középső főút - függőleges */}
-              <Rect x={192} y={20} width={18} height={MAP_H-40} rx={3} fill={COLORS.path} />
-              <Rect x={196} y={20} width={10} height={MAP_H-40} rx={2} fill={COLORS.pathDark} opacity={0.3} />
-              {/* Átlós sétány bal */}
-              <Path d="M 20,180 Q 100,220 192,268" stroke={COLORS.path} strokeWidth={12} fill="none" strokeLinecap="round" />
-              <Path d="M 20,180 Q 100,220 192,268" stroke={COLORS.pathDark} strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.3} />
-              {/* Átlós sétány jobb */}
-              <Path d="M 210,268 Q 310,230 400,180" stroke={COLORS.path} strokeWidth={12} fill="none" strokeLinecap="round" />
-              {/* Kemping sétány */}
-              <Path d="M 20,120 L 100,120 L 100,268" stroke={COLORS.path} strokeWidth={10} fill="none" strokeLinecap="round" />
-              {/* Déli sétány */}
-              <Path d="M 100,380 Q 200,350 300,380" stroke={COLORS.path} strokeWidth={10} fill="none" strokeLinecap="round" />
-
-              {/* Útvonal jelölések (nyilak) */}
-              <SvgText x={201} y={440} fontSize={7} fill="rgba(168,85,247,0.4)" textAnchor="middle">↑↓</SvgText>
-              <SvgText x={300} y={277} fontSize={7} fill="rgba(168,85,247,0.4)" textAnchor="middle">→</SvgText>
-
-              {/* ═══ KEMPING ZÓNA ═══ */}
-              <Rect x={20} y={30} width={120} height={140} rx={8}
-                fill="rgba(13,148,136,0.06)"
-                stroke={COLORS.campTeal} strokeWidth={1.2} strokeDasharray="6,3" />
-              <SvgText x={80} y={50} fontSize={8} fontWeight="bold" textAnchor="middle"
-                fill="#2dd4bf" letterSpacing={1.5}>KEMPING ZÓNA</SvgText>
-              {/* Sátrak */}
-              <MapTent x={45} y={85} />
-              <MapTent x={75} y={85} />
-              <MapTent x={105} y={85} />
-              <MapTent x={60} y={115} />
-              <MapTent x={90} y={115} />
-              <MapTent x={45} y={148} color="#0d9488" />
-              <MapTent x={75} y={148} color="#0d9488" />
-              <MapTent x={105} y={148} color="#0d9488" />
-
-              {/* ═══ PARKOLÓ ═══ */}
-              <Rect x={20} y={380} width={80} height={110} rx={6}
-                fill={COLORS.parking} opacity={0.25}
-                stroke="rgba(71,85,105,0.4)" strokeWidth={1.5} />
-              <SvgText x={60} y={438} fontSize={28} fontWeight="900" textAnchor="middle"
-                fill="rgba(148,163,184,0.4)">P</SvgText>
-              <SvgText x={60} y={455} fontSize={7} textAnchor="middle"
-                fill="rgba(148,163,184,0.4)">PARKOLÓ</SvgText>
-              {/* Parkoló sorok */}
-              {[0,1,2].map(i => (
-                <Line key={`ps${i}`} x1={28+i*24} y1={385} x2={28+i*24} y2={485}
-                  stroke="rgba(148,163,184,0.15)" strokeWidth={1} strokeDasharray="4,4" />
-              ))}
-
-              {/* ═══ MAIN STAGE – ÉSZAK-KÖZÉP ═══ */}
-              <Circle cx={201} cy={100} r={45} fill="url(#stageGlow)" />
-              <MapStage x={160} y={55} w={82} h={60} color="#a855f7"
-                label="MAIN STAGE" sublabel="EclipseFest" icon="◆" />
-
-              {/* ═══ ELECTRONIC STAGE – NYUGAT ═══ */}
-              <Circle cx={100} cy={220} r={30} fill="#1d4ed8" opacity={0.1} />
-              <MapStage x={50} y={190} w={72} h={52} color="#1d4ed8"
-                label="ELECTRONIC" sublabel="STAGE" icon="◆" />
-
-              {/* ═══ ACOUSTIC STAGE – KELET ═══ */}
-              <Circle cx={320} cy={210} r={30} fill="#b45309" opacity={0.1} />
-              <MapStage x={278} y={178} w={72} h={52} color="#b45309"
-                label="ACOUSTIC" sublabel="STAGE" icon="◆" />
-
-              {/* ═══ SUNRISE STAGE – DÉL ═══ */}
-              <Circle cx={201} cy={390} r={28} fill="#7c3aed" opacity={0.12} />
-              <MapStage x={160} y={360} w={82} h={52} color="#7c3aed"
-                label="SUNRISE" sublabel="STAGE" icon="◆" />
-
-              {/* ═══ FOOD COURT – KÖZÉP-NYUGAT ═══ */}
-              <Rect x={108} y={290} width={70} height={52} rx={10}
-                fill="rgba(15,7,32,0.85)" stroke="#f59e0b" strokeWidth={1} />
-              <SvgText x={143} y={309} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#f59e0b">F&B</SvgText>
-              <SvgText x={143} y={323} fontSize={7} fontWeight="bold" textAnchor="middle"
-                fill="#f59e0b" letterSpacing={0.4}>FOOD COURT</SvgText>
-              <SvgText x={143} y={334} fontSize={6} textAnchor="middle" fill="rgba(245,158,11,0.7)">étel & ital</SvgText>
-
-              {/* ═══ STREET FOOD – NYUGAT ═══ */}
-              <Rect x={22} y={290} width={60} height={48} rx={10}
-                fill="rgba(15,7,32,0.85)" stroke="#fbbf24" strokeWidth={1} />
-              <SvgText x={52} y={309} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#fbbf24">FOOD</SvgText>
-              <SvgText x={52} y={322} fontSize={6.5} fontWeight="bold" textAnchor="middle"
-                fill="#fbbf24" letterSpacing={0.4}>STREET FOOD</SvgText>
-              <SvgText x={52} y={332} fontSize={6} textAnchor="middle" fill="rgba(251,191,36,0.7)">gyors falatok</SvgText>
-
-              {/* ═══ BÁRKÖZPONT – KELET ═══ */}
-              <Rect x={248} y={290} width={62} height={48} rx={10}
-                fill="rgba(15,7,32,0.85)" stroke="#fbbf24" strokeWidth={1} />
-              <SvgText x={279} y={309} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#fbbf24">BAR</SvgText>
-              <SvgText x={279} y={322} fontSize={6.5} fontWeight="bold" textAnchor="middle"
-                fill="#fbbf24" letterSpacing={0.4}>BÁRKÖZPONT</SvgText>
-              <SvgText x={279} y={332} fontSize={6} textAnchor="middle" fill="rgba(251,191,36,0.7)">koktél & sör</SvgText>
-
-              {/* ═══ MERCH VILLAGE ═══ */}
-              <Rect x={228} y={160} width={44} height={38} rx={8}
-                fill="rgba(15,7,32,0.85)" stroke="#ec4899" strokeWidth={1} />
-              <SvgText x={250} y={179} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#f9a8d4">SHOP</SvgText>
-              <SvgText x={250} y={192} fontSize={6} fontWeight="bold" textAnchor="middle"
-                fill="#f9a8d4" letterSpacing={0.4}>MERCH</SvgText>
-
-              {/* ═══ VIP LOUNGE – ÉSZAK-KELET ═══ */}
-              <Rect x={318} y={130} width={80} height={40} rx={10}
-                fill="rgba(15,7,32,0.85)" stroke="#a855f7" strokeWidth={1.2} />
-              <SvgText x={358} y={148} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#c4b5fd">VIP</SvgText>
-              <SvgText x={358} y={161} fontSize={7.5} fontWeight="bold" textAnchor="middle"
-                fill="#c4b5fd" letterSpacing={0.5}>VIP LOUNGE</SvgText>
-
-              {/* ═══ ARTIST MERCH ═══ */}
-              <Rect x={318} y={178} width={80} height={36} rx={8}
-                fill="rgba(15,7,32,0.85)" stroke="#ec4899" strokeWidth={1} />
-              <SvgText x={358} y={194} fontSize={7} fontWeight="bold" textAnchor="middle" fill="#f9a8d4">MERCH</SvgText>
-              <SvgText x={358} y={207} fontSize={6.5} fontWeight="bold" textAnchor="middle"
-                fill="#f9a8d4" letterSpacing={0.4}>ELŐADÓI STAND</SvgText>
-
-              {/* ═══ FOTÓPONT ═══ */}
-              <Rect x={318} y={222} width={80} height={36} rx={8}
-                fill="rgba(15,7,32,0.85)" stroke="#ec4899" strokeWidth={1} />
-              <SvgText x={358} y={238} fontSize={7} fontWeight="bold" textAnchor="middle" fill="#f9a8d4">PHOTO</SvgText>
-              <SvgText x={358} y={251} fontSize={6.5} fontWeight="bold" textAnchor="middle"
-                fill="#f9a8d4" letterSpacing={0.4}>FOTÓPONT</SvgText>
-
-              {/* ═══ SZOLGÁLTATÁSOK – DÉLI SÁV ═══ */}
-              {/* Elsősegély */}
-              <Rect x={148} y={350} width={36} height={36} rx={8}
-                fill="rgba(15,7,32,0.85)" stroke="#ef4444" strokeWidth={1.2} />
-              <SvgText x={166} y={369} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#fca5a5">SOS</SvgText>
-              <SvgText x={166} y={381} fontSize={6} textAnchor="middle" fill="#fca5a5" letterSpacing={0.3}>SEGÉLY</SvgText>
-
-              {/* Mosdó 1 – észak */}
-              <Rect x={150} y={140} width={32} height={32} rx={6}
-                fill="rgba(15,7,32,0.85)" stroke="#38bdf8" strokeWidth={1} />
-              <SvgText x={166} y={157} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#7dd3fc">WC</SvgText>
-              <SvgText x={166} y={167} fontSize={6.5} textAnchor="middle" fill="#7dd3fc" letterSpacing={0.3}>WC</SvgText>
-
-              {/* Mosdó 2 – dél */}
-              <Rect x={150} y={290} width={32} height={32} rx={6}
-                fill="rgba(15,7,32,0.85)" stroke="#38bdf8" strokeWidth={1} />
-              <SvgText x={166} y={307} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#7dd3fc">WC</SvgText>
-              <SvgText x={166} y={317} fontSize={6.5} textAnchor="middle" fill="#7dd3fc" letterSpacing={0.3}>WC</SvgText>
-
-              {/* Infópont */}
-              <Rect x={238} y={350} width={36} height={36} rx={8}
-                fill="rgba(15,7,32,0.85)" stroke="#a855f7" strokeWidth={1.2} />
-              <SvgText x={256} y={369} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#c4b5fd">INFO</SvgText>
-              <SvgText x={256} y={381} fontSize={6} textAnchor="middle" fill="#c4b5fd" letterSpacing={0.3}>INFÓ</SvgText>
-
-              {/* ═══ FŐBEJÁRAT – DÉL KÖZÉP ═══ */}
-              <Rect x={148} y={470} width={106} height={36} rx={10}
-                fill="rgba(15,7,32,0.95)" stroke="#a855f7" strokeWidth={1.5} />
-              <SvgText x={201} y={488} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#a855f7">ENTRY</SvgText>
-              <SvgText x={201} y={500} fontSize={8} fontWeight="bold" textAnchor="middle"
-                fill="#f0e8ff" letterSpacing={1.2}>FŐBEJÁRAT</SvgText>
-
-              {/* Bejárat nyilak */}
-              <Line x1={201} y1={450} x2={201} y2={468} stroke="#a855f7" strokeWidth={2} />
-              <Polygon points="196,458 201,448 206,458" fill="#a855f7" />
-
-              {/* ═══ FÁK ═══ */}
-              {/* Északi fasor */}
-              <MapTree x={150} y={28} r={16} />
-              <MapTree x={220} y={22} r={14} />
-              <MapTree x={265} y={28} r={15} />
-              <MapTree x={308} y={25} r={13} />
-              {/* Keleti fasor */}
-              <MapTree x={395} y={120} r={14} />
-              <MapTree x={400} y={160} r={12} />
-              <MapTree x={398} y={200} r={15} />
-              <MapTree x={397} y={260} r={13} />
-              <MapTree x={395} y={320} r={12} />
-              {/* Déli fasor */}
-              <MapTree x={120} y={488} r={14} />
-              <MapTree x={280} y={492} r={13} />
-              <MapTree x={350} y={485} r={15} />
-              <MapTree x={390} y={480} r={12} />
-              {/* Nyugati fasor */}
-              <MapTree x={18} y={320} r={13} />
-              <MapTree x={20} y={360} r={14} />
-              <MapTree x={18} y={400} r={12} />
-              {/* Belsők */}
-              <MapTree x={130} y={360} r={11} />
-              <MapTree x={360} y={360} r={12} />
-              <MapTree x={148} y={430} r={10} />
-              <MapTree x={258} y={430} r={11} />
-
-              {/* ═══ BOKROK ═══ */}
-              <MapBush x={132} y={180} />
-              <MapBush x={145} y={210} />
-              <MapBush x={260} y={160} />
-              <MapBush x={272} y={140} />
-              <MapBush x={108} y={355} />
-              <MapBush x={308} y={355} />
-              <MapBush x={115} y={460} />
-              <MapBush x={290} y={460} />
-              <MapBush x={320} y={470} />
-              <MapBush x={335} y={455} />
-              <MapBush x={365} y={400} />
-              <MapBush x={380} y={420} />
-
-              {/* ═══ ÉSZAK IRÁNYTŰ ═══ */}
-              <Circle cx={382} cy={32} r={16} fill="rgba(34,18,58,0.55)" stroke="rgba(168,85,247,0.6)" strokeWidth={1} />
-              <Polygon points="382,18 378,34 382,31 386,34" fill="#a855f7" />
-              <Polygon points="382,46 378,30 382,33 386,30" fill="rgba(168,85,247,0.4)" />
-              <SvgText x={382} y={37} fontSize={7} fontWeight="bold" textAnchor="middle" fill="#f0e8ff">N</SvgText>
-
-              {/* ═══ SKÁLA ═══ */}
-              <Rect x={20} y={500} width={60} height={6} rx={3} fill="rgba(255,255,255,0.15)" />
-              <Rect x={20} y={500} width={30} height={6} rx={3} fill="rgba(168,85,247,0.4)" />
-              <SvgText x={20} y={496} fontSize={6} fill="rgba(255,255,255,0.4)">0</SvgText>
-              <SvgText x={75} y={496} fontSize={6} fill="rgba(255,255,255,0.4)">200m</SvgText>
-
-              {/* ═══ CÍM / BRAND ═══ */}
-              <Rect x={MAP_W-120} y={MAP_H-38} width={112} height={30} rx={6} fill="rgba(10,4,21,0.8)" stroke="rgba(168,85,247,0.3)" strokeWidth={0.8} />
-              <SvgText x={MAP_W-64} y={MAP_H-23} fontSize={9} fontWeight="bold" textAnchor="middle"
-                fill="#a855f7" letterSpacing={1}>ECLIPSEFEST</SvgText>
-              <SvgText x={MAP_W-64} y={MAP_H-12} fontSize={7} textAnchor="middle"
-                fill="rgba(168,85,247,0.6)">2026 · Budapest Park</SvgText>
-
-            </Svg>
+          <View style={styles.festivalMapImageCard}>
+            <Image
+              source={require("./assets/enhanced_ready.png")}
+              style={styles.festivalMapImage}
+              resizeMode="contain"
+            />
           </View>
+
+          <Text style={styles.mapImageHint}>
+            Érintsd meg az alábbi helyszíneket a részletekhez. A térképkép az assets/enhanced_ready.png fájlból töltődik be.
+          </Text>
 
           {/* Jelmagyarázat */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mapLegend}>
@@ -2876,6 +2618,32 @@ const styles = StyleSheet.create({
 		overflow: "hidden",
 		borderWidth: 1.5,
 		borderColor: "rgba(120,60,200,0.4)",
+	},
+	festivalMapImageCard: {
+		marginHorizontal: 12,
+		borderRadius: 24,
+		overflow: "hidden",
+		borderWidth: 1.5,
+		borderColor: "rgba(216,180,254,0.28)",
+		backgroundColor: "rgba(8,3,18,0.84)",
+		shadowColor: THEME.accent,
+		shadowOpacity: 0.18,
+		shadowRadius: 18,
+		elevation: 8,
+	},
+	festivalMapImage: {
+		width: "100%",
+		height: (SCREEN_W - 24) * 0.5625,
+	},
+	mapImageHint: {
+		fontSize: 12,
+		lineHeight: 18,
+		color: THEME.textSubtle,
+		fontWeight: "700",
+		fontFamily: FONTS.ui,
+		paddingHorizontal: 18,
+		paddingTop: 10,
+		paddingBottom: 4,
 	},
 	svgContainer: {
 		marginHorizontal: 12,
