@@ -177,6 +177,36 @@ function formatPrice(amount: number, currency: string) {
 	return `${amount.toLocaleString("hu-HU")} ${currency}`;
 }
 
+const FESTIVAL_YEAR = 2026;
+const REFUND_DEADLINE_HOURS = 24;
+
+function getPerformanceDate(performer: Performer) {
+	const [hour, minute] = performer.startTime.split(":").map(Number);
+	return new Date(FESTIVAL_YEAR, 6, performer.day, hour, minute, 0, 0);
+}
+
+function getRefundDeadline(performer: Performer) {
+	return new Date(getPerformanceDate(performer).getTime() - REFUND_DEADLINE_HOURS * 60 * 60 * 1000);
+}
+
+function formatPerformanceDate(performer: Performer) {
+	return `Júl. ${performer.day}. · ${performer.startTime}–${performer.endTime}`;
+}
+
+function formatCountdown(target: Date, now: Date) {
+	const diff = Math.max(0, target.getTime() - now.getTime());
+	const totalMinutes = Math.floor(diff / 60000);
+	const days = Math.floor(totalMinutes / (60 * 24));
+	const hours = Math.floor((totalMinutes - days * 60 * 24) / 60);
+	const minutes = totalMinutes % 60;
+	return { days, hours, minutes, expired: diff <= 0 };
+}
+
+function formatRefundDeadline(performer: Performer) {
+	const deadline = getRefundDeadline(performer);
+	return `Júl. ${deadline.getDate()}. ${deadline.toLocaleTimeString("hu-HU", { hour: "2-digit", minute: "2-digit" })}`;
+}
+
 function isValidEmail(email: string) {
 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
@@ -372,43 +402,142 @@ function TicketCard({ ticket, selected, onSelect }: { ticket: Ticket; selected: 
 }
 
 // ─── Jegyvásárlás képernyő ────────────────────────────────────────────────────
-function TicketsScreen({ tickets, selectedId, quantity, email, orderComplete, onSelect, onChangeQuantity, onEmailChange, onPurchase, onReset }: {
+function PerformanceTicketCard({ performer, selected, onSelect }: { performer: Performer; selected: boolean; onSelect: () => void }) {
+	return (
+		<TouchableOpacity style={[styles.performanceTicketCard, selected && styles.performanceTicketCardSelected]} onPress={onSelect}>
+			<View style={styles.performanceTicketVisual}>
+				<Svg width="100%" height="100%" viewBox="0 0 90 70">
+					<Defs>
+						<RadialGradient id={`ticketGlow${performer.id}`} cx="50%" cy="35%" r="65%">
+							<Stop offset="0" stopColor="#c084fc" stopOpacity="0.9" />
+							<Stop offset="1" stopColor="#0b041a" stopOpacity="1" />
+						</RadialGradient>
+					</Defs>
+					<Rect x="0" y="0" width="90" height="70" rx="14" fill={`url(#ticketGlow${performer.id})`} />
+					<Circle cx="45" cy="34" r="16" fill="rgba(0,0,0,0.35)" />
+					<Circle cx="45" cy="34" r="9" fill="rgba(255,255,255,0.85)" />
+					<Path d="M10 55 C25 42 35 49 45 38 C55 49 67 42 80 55" stroke="rgba(255,255,255,0.42)" strokeWidth="3" fill="none" />
+					{[12, 24, 36, 54, 66, 78].map((x, i) => (
+						<Rect key={i} x={x} y={58 - (i % 3) * 7} width="3" height={(i % 3) * 7 + 10} rx="1.5" fill="rgba(255,255,255,0.35)" />
+					))}
+				</Svg>
+			</View>
+			<View style={styles.performanceTicketInfo}>
+				<Text style={styles.performanceTicketName}>{performer.name}</Text>
+				<Text style={styles.performanceTicketMeta}>{performer.stage}</Text>
+				<View style={styles.performanceTicketTimeRow}>
+					<Ionicons name="calendar-outline" size={13} color={THEME.accent} />
+					<Text style={styles.performanceTicketTime}>{formatPerformanceDate(performer)}</Text>
+				</View>
+			</View>
+			<Ionicons name={selected ? "checkmark-circle" : "ellipse-outline"} size={22} color={selected ? THEME.accent : "rgba(255,255,255,0.35)"} />
+		</TouchableOpacity>
+	);
+}
+
+function TicketsScreen({
+	tickets,
+	performers,
+	selectedId,
+	selectedPerformanceId,
+	quantity,
+	email,
+	orderComplete,
+	refundRequested,
+	onSelect,
+	onSelectPerformance,
+	onChangeQuantity,
+	onEmailChange,
+	onPurchase,
+	onReset,
+	onRequestRefund,
+}: {
 	tickets: Ticket[];
+	performers: Performer[];
 	selectedId: string | null;
+	selectedPerformanceId: string | null;
 	quantity: number;
 	email: string;
 	orderComplete: boolean;
+	refundRequested: boolean;
 	onSelect: (id: string) => void;
+	onSelectPerformance: (id: string) => void;
 	onChangeQuantity: (delta: number) => void;
 	onEmailChange: (value: string) => void;
 	onPurchase: () => void;
 	onReset: () => void;
+	onRequestRefund: () => void;
 }) {
+	const [now, setNow] = useState(() => new Date());
+
+	useEffect(() => {
+		const timer = setInterval(() => setNow(new Date()), 60000);
+		return () => clearInterval(timer);
+	}, []);
+
+	const sortedPerformers = [...performers].sort((a, b) => getPerformanceDate(a).getTime() - getPerformanceDate(b).getTime());
 	const selected = tickets.find((t) => t.id === selectedId) ?? null;
+	const selectedPerformance = sortedPerformers.find((p) => p.id === selectedPerformanceId) ?? null;
 	const total = selected ? selected.price * quantity : 0;
 	const emailValid = isValidEmail(email);
 	const showEmailError = email.length > 0 && !emailValid;
-	const canCheckout = !!selected && emailValid;
+	const canCheckout = !!selected && !!selectedPerformance && emailValid;
+	const countdown = selectedPerformance ? formatCountdown(getPerformanceDate(selectedPerformance), now) : null;
+	const refundDeadline = selectedPerformance ? getRefundDeadline(selectedPerformance) : null;
+	const canRequestRefund = !!selectedPerformance && now.getTime() <= (refundDeadline?.getTime() ?? 0) && !refundRequested;
 
-	if (orderComplete && selected) {
+	if (orderComplete && selected && selectedPerformance && countdown) {
 		return (
 			<View style={styles.ticketsScreen}>
-				<View style={styles.orderSuccess}>
+				<ScrollView contentContainerStyle={styles.orderSuccessScroll} showsVerticalScrollIndicator={false}>
 					<View style={styles.orderSuccessIcon}>
 						<Ionicons name="checkmark-circle" size={56} color="#a855f7" />
 					</View>
 					<Text style={styles.orderSuccessTitle}>Sikeres vásárlás!</Text>
 					<Text style={styles.orderSuccessSub}>A visszaigazolást elküldjük erre a címre:</Text>
 					<Text style={styles.orderSuccessEmail}>{email.trim()}</Text>
+
 					<View style={styles.orderSummaryCard}>
 						<Text style={styles.orderSummaryLabel}>RENDELÉS</Text>
 						<Text style={styles.orderSummaryName}>{selected.name}</Text>
 						<Text style={styles.orderSummaryDetail}>{quantity} db · {formatPrice(total, selected.currency)}</Text>
+						<View style={styles.orderDivider} />
+						<Text style={styles.orderPerformerName}>{selectedPerformance.name}</Text>
+						<Text style={styles.orderPerformerMeta}>{selectedPerformance.stage} · {formatPerformanceDate(selectedPerformance)}</Text>
 					</View>
+
+					<View style={styles.countdownCard}>
+						<Text style={styles.countdownLabel}>FELLÉPÉSIG HÁTRA VAN</Text>
+						<View style={styles.countdownGrid}>
+							<View style={styles.countdownBox}><Text style={styles.countdownNumber}>{countdown.days}</Text><Text style={styles.countdownUnit}>nap</Text></View>
+							<View style={styles.countdownBox}><Text style={styles.countdownNumber}>{countdown.hours}</Text><Text style={styles.countdownUnit}>óra</Text></View>
+							<View style={styles.countdownBox}><Text style={styles.countdownNumber}>{countdown.minutes}</Text><Text style={styles.countdownUnit}>perc</Text></View>
+						</View>
+					</View>
+
+					<View style={styles.refundPolicyCard}>
+						<View style={styles.refundPolicyHeader}>
+							<Ionicons name="shield-checkmark-outline" size={18} color={THEME.accent} />
+							<Text style={styles.refundPolicyTitle}>Visszamondás & visszatérítés</Text>
+						</View>
+						<Text style={styles.refundPolicyText}>
+							A jegy ehhez a fellépéshez van társítva. Visszatérítési kérelmet legkésőbb {REFUND_DEADLINE_HOURS} órával a kezdés előtt lehet indítani.
+						</Text>
+						<Text style={styles.refundDeadlineText}>Határidő: {formatRefundDeadline(selectedPerformance)}</Text>
+						{refundRequested ? (
+							<View style={styles.refundRequestedBadge}><Text style={styles.refundRequestedText}>Visszatérítési kérelem elküldve</Text></View>
+						) : (
+							<TouchableOpacity style={[styles.refundBtn, !canRequestRefund && styles.refundBtnDisabled]} onPress={onRequestRefund} disabled={!canRequestRefund}>
+								<Ionicons name="return-up-back-outline" size={16} color={THEME.text} />
+								<Text style={styles.refundBtnText}>{canRequestRefund ? "Visszatérítés kérése" : "A visszatérítési határidő lejárt"}</Text>
+							</TouchableOpacity>
+						)}
+					</View>
+
 					<TouchableOpacity style={styles.checkoutBtn} onPress={onReset}>
 						<Text style={styles.checkoutBtnText}>Új vásárlás</Text>
 					</TouchableOpacity>
-				</View>
+				</ScrollView>
 			</View>
 		);
 	}
@@ -417,10 +546,41 @@ function TicketsScreen({ tickets, selectedId, quantity, email, orderComplete, on
 		<View style={styles.ticketsScreen}>
 			<ScrollView contentContainerStyle={styles.ticketsScroll} showsVerticalScrollIndicator={false}>
 				<Text style={styles.ticketsHeading}>Jegyvásárlás</Text>
-				<Text style={styles.ticketsSubheading}>Válaszd ki a jegytípust, add meg a mennyiséget és az e-mail címed.</Text>
+				<Text style={styles.ticketsSubheading}>Válaszd ki a jegytípust, majd azt az előadót, akinek a fellépésére szeretnéd kötni a jegyet.</Text>
+				<View style={styles.ticketSectionHeader}>
+					<Text style={styles.ticketSectionTitle}>1. Jegytípus</Text>
+					<Text style={styles.ticketSectionHint}>Belépő kategória</Text>
+				</View>
 				{tickets.map((ticket) => (
 					<TicketCard key={ticket.id} ticket={ticket} selected={selectedId === ticket.id} onSelect={() => onSelect(ticket.id)} />
 				))}
+
+				<View style={styles.ticketSectionHeader}>
+					<Text style={styles.ticketSectionTitle}>2. Fellépés</Text>
+					<Text style={styles.ticketSectionHint}>Előadóhoz kötött jegy</Text>
+				</View>
+				<View style={styles.performanceList}>
+					{sortedPerformers.map((performer) => (
+						<PerformanceTicketCard
+							key={performer.id}
+							performer={performer}
+							selected={selectedPerformanceId === performer.id}
+							onSelect={() => onSelectPerformance(performer.id)}
+						/>
+					))}
+				</View>
+
+				{selectedPerformance && countdown && (
+					<View style={styles.selectedPerformancePanel}>
+						<Text style={styles.selectedPerformanceLabel}>Kiválasztott fellépés</Text>
+						<Text style={styles.selectedPerformanceName}>{selectedPerformance.name}</Text>
+						<Text style={styles.selectedPerformanceMeta}>{selectedPerformance.stage} · {formatPerformanceDate(selectedPerformance)}</Text>
+						<View style={styles.miniCountdownRow}>
+							<Text style={styles.miniCountdownText}>{countdown.days} nap · {countdown.hours} óra · {countdown.minutes} perc van hátra</Text>
+						</View>
+						<Text style={styles.selectedRefundInfo}>Visszamondási határidő: {formatRefundDeadline(selectedPerformance)}</Text>
+					</View>
+				)}
 			</ScrollView>
 			<View style={styles.checkoutBar}>
 				{selected ? (
@@ -458,7 +618,7 @@ function TicketsScreen({ tickets, selectedId, quantity, email, orderComplete, on
 						</View>
 					</>
 				) : (
-					<Text style={styles.checkoutHint}>Válassz egy jegytípust a folytatáshoz</Text>
+					<Text style={styles.checkoutHint}>Válassz jegytípust és fellépést a folytatáshoz</Text>
 				)}
 				<TouchableOpacity style={[styles.checkoutBtn, !canCheckout && styles.checkoutBtnDisabled]} onPress={onPurchase} disabled={!canCheckout}>
 					<Ionicons name="card-outline" size={18} color="#f0e8ff" />
@@ -2005,9 +2165,11 @@ export default function App() {
 	const [favorites, setFavorites] = useState<string[]>([]);
 	const [lang, setLang] = useState<"en" | "hu">("en");
 	const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+	const [selectedPerformanceId, setSelectedPerformanceId] = useState<string | null>(null);
 	const [ticketQuantity, setTicketQuantity] = useState(1);
 	const [buyerEmail, setBuyerEmail] = useState("");
 	const [orderComplete, setOrderComplete] = useState(false);
+	const [refundRequested, setRefundRequested] = useState(false);
 	const [tabHistory, setTabHistory] = useState<(TabKey | "More")[]>([]);
 
 	const navigateTo = (tab: TabKey | "More") => {
@@ -2029,10 +2191,9 @@ export default function App() {
 	const tickets = festivalData.tickets as Ticket[];
 	const festivalMap = festivalData.map as FestivalMap;
 
-	// A JSON-ban lévő előadókhoz hozzárendeljük a napot (demo: round-robin 18/19/20)
 	const performers: Performer[] = (festivalData.performers as any[]).map((p, i) => ({
 		...p,
-		day: [18, 19, 20][i % 3],
+		day: p.day ?? [18, 19, 20][i % 3],
 	}));
 
 	const favoritePerformers = performers.filter((p) => favorites.includes(p.id));
@@ -2041,10 +2202,12 @@ export default function App() {
 		setFavorites((prev) => prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]);
 	};
 
-	const handleSelectTicket = (id: string) => { setSelectedTicketId(id); setTicketQuantity(1); setOrderComplete(false); };
+	const handleSelectTicket = (id: string) => { setSelectedTicketId(id); setTicketQuantity(1); setOrderComplete(false); setRefundRequested(false); };
+	const handleSelectPerformance = (id: string) => { setSelectedPerformanceId(id); setOrderComplete(false); setRefundRequested(false); };
 	const handleChangeQuantity = (delta: number) => { setTicketQuantity((prev) => Math.max(1, Math.min(10, prev + delta))); };
-	const handlePurchase = () => { if (selectedTicketId && isValidEmail(buyerEmail)) setOrderComplete(true); };
-	const handleResetOrder = () => { setOrderComplete(false); setSelectedTicketId(null); setTicketQuantity(1); setBuyerEmail(""); };
+	const handlePurchase = () => { if (selectedTicketId && selectedPerformanceId && isValidEmail(buyerEmail)) setOrderComplete(true); };
+	const handleResetOrder = () => { setOrderComplete(false); setRefundRequested(false); setSelectedTicketId(null); setSelectedPerformanceId(null); setTicketQuantity(1); setBuyerEmail(""); };
+	const handleRequestRefund = () => { setRefundRequested(true); };
 
 	const navTabs: { key: TabKey | "More"; icon: string; label: string }[] = [
 		{ key: "Home", icon: "home", label: t.home },
@@ -2114,15 +2277,20 @@ export default function App() {
 				{activeTab === "Tickets" && (
 					<TicketsScreen
 						tickets={tickets}
+						performers={performers}
 						selectedId={selectedTicketId}
+						selectedPerformanceId={selectedPerformanceId}
 						quantity={ticketQuantity}
 						email={buyerEmail}
 						orderComplete={orderComplete}
+						refundRequested={refundRequested}
 						onSelect={handleSelectTicket}
+						onSelectPerformance={handleSelectPerformance}
 						onChangeQuantity={handleChangeQuantity}
 						onEmailChange={setBuyerEmail}
 						onPurchase={handlePurchase}
 						onReset={handleResetOrder}
+						onRequestRefund={handleRequestRefund}
 					/>
 				)}
 				{activeTab === "Sponsors" && <SponsorsScreen t={t} onBack={goBack} />}
@@ -2284,6 +2452,45 @@ const styles = StyleSheet.create({
 	orderSummaryLabel: { fontSize: 9, letterSpacing: 1.2, color: THEME.textSubtle, marginBottom: 8, fontWeight: "800" },
 	orderSummaryName: { fontSize: 18, fontWeight: "900", color: THEME.text, marginBottom: 4 },
 	orderSummaryDetail: { fontSize: 14, color: THEME.accent, fontWeight: "800" },
+	orderSuccessScroll: { padding: 20, paddingBottom: 32, alignItems: "center" },
+	orderDivider: { width: "100%", height: 1, backgroundColor: THEME.border, marginVertical: 14 },
+	orderPerformerName: { fontSize: 18, fontWeight: "900", color: THEME.text, textAlign: "center", marginBottom: 5 },
+	orderPerformerMeta: { fontSize: 12, color: THEME.textSubtle, textAlign: "center", fontWeight: "700" },
+	ticketSectionHeader: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", marginTop: 4, marginBottom: 10 },
+	ticketSectionTitle: { fontSize: 15, color: THEME.text, fontWeight: "900", letterSpacing: 0.2 },
+	ticketSectionHint: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700" },
+	performanceList: { gap: 10, marginBottom: 18 },
+	performanceTicketCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.045)" },
+	performanceTicketCardSelected: { borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.12)" },
+	performanceTicketVisual: { width: 72, height: 58, borderRadius: 14, overflow: "hidden", backgroundColor: "rgba(168,85,247,0.16)" },
+	performanceTicketInfo: { flex: 1 },
+	performanceTicketName: { fontSize: 15, color: THEME.text, fontWeight: "900", marginBottom: 3 },
+	performanceTicketMeta: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700", marginBottom: 6 },
+	performanceTicketTimeRow: { flexDirection: "row", alignItems: "center", gap: 5 },
+	performanceTicketTime: { fontSize: 11, color: THEME.textMuted, fontWeight: "700" },
+	selectedPerformancePanel: { padding: 16, borderRadius: 18, borderWidth: 1, borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.10)", marginBottom: 110 },
+	selectedPerformanceLabel: { fontSize: 10, color: THEME.accent, fontWeight: "900", letterSpacing: 1.3, marginBottom: 8 },
+	selectedPerformanceName: { fontSize: 20, color: THEME.text, fontWeight: "900", marginBottom: 5 },
+	selectedPerformanceMeta: { fontSize: 12, color: THEME.textMuted, fontWeight: "700", marginBottom: 12 },
+	miniCountdownRow: { paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, backgroundColor: "rgba(0,0,0,0.18)", borderWidth: 1, borderColor: THEME.border, marginBottom: 10 },
+	miniCountdownText: { fontSize: 13, color: THEME.text, fontWeight: "900", textAlign: "center" },
+	selectedRefundInfo: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700", textAlign: "center" },
+	countdownCard: { width: "100%", padding: 18, borderRadius: 18, borderWidth: 1, borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.12)", marginBottom: 14 },
+	countdownLabel: { fontSize: 10, color: THEME.accent, fontWeight: "900", letterSpacing: 1.4, textAlign: "center", marginBottom: 12 },
+	countdownGrid: { flexDirection: "row", gap: 10 },
+	countdownBox: { flex: 1, paddingVertical: 12, borderRadius: 14, backgroundColor: "rgba(0,0,0,0.22)", alignItems: "center", borderWidth: 1, borderColor: THEME.border },
+	countdownNumber: { fontSize: 24, color: THEME.text, fontWeight: "900" },
+	countdownUnit: { fontSize: 10, color: THEME.textSubtle, fontWeight: "800", marginTop: 3 },
+	refundPolicyCard: { width: "100%", padding: 16, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.045)", marginBottom: 16 },
+	refundPolicyHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
+	refundPolicyTitle: { fontSize: 15, color: THEME.text, fontWeight: "900" },
+	refundPolicyText: { fontSize: 12, color: THEME.textMuted, lineHeight: 18, marginBottom: 10 },
+	refundDeadlineText: { fontSize: 12, color: THEME.accent, fontWeight: "900", marginBottom: 12 },
+	refundBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 12, borderRadius: 14, backgroundColor: "rgba(168,85,247,0.16)", borderWidth: 1, borderColor: THEME.borderStrong },
+	refundBtnDisabled: { opacity: 0.45 },
+	refundBtnText: { color: THEME.text, fontSize: 13, fontWeight: "900" },
+	refundRequestedBadge: { paddingVertical: 12, borderRadius: 14, backgroundColor: "rgba(34,197,94,0.12)", borderWidth: 1, borderColor: "rgba(34,197,94,0.35)", alignItems: "center" },
+	refundRequestedText: { color: "#86efac", fontSize: 13, fontWeight: "900" },
 
 	// Térkép
 	mapScreen: { flex: 1, paddingTop: 8 },
