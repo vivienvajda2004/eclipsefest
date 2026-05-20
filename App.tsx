@@ -202,6 +202,28 @@ const MAP_FILTERS: { key: MapFilter; label: string }[] = [
 	{ key: "camping", label: "Kemping" },
 ];
 
+// Az illusztrált térképképhez tartozó vizuális marker pozíciók.
+// x/y százalékban van megadva, így a jelölő reszponzívan együtt méreteződik a képpel.
+const MAP_IMAGE_MARKERS: Record<string, { x: number; y: number }> = {
+	"main-stage": { x: 58, y: 43 },
+	"electronic-stage": { x: 50, y: 21 },
+	"acoustic-stage": { x: 15, y: 42 },
+	"sunrise-stage": { x: 72, y: 58 },
+	"entrance": { x: 22, y: 78 },
+	"info-desk": { x: 42, y: 40 },
+	"food-court": { x: 49, y: 63 },
+	"street-food": { x: 34, y: 51 },
+	"bar-center": { x: 79, y: 50 },
+	"merch-village": { x: 56, y: 53 },
+	"artist-merch": { x: 61, y: 44 },
+	"photo-booth": { x: 83, y: 67 },
+	"vip-lounge": { x: 60, y: 36 },
+	"camping": { x: 82, y: 25 },
+	"wc-north": { x: 40, y: 32 },
+	"wc-south": { x: 33, y: 61 },
+	"first-aid": { x: 72, y: 42 },
+};
+
 const FESTIVAL_DAYS = [
 	{ key: "all", label: "Mind" },
 	{ key: 18, label: "Júl. 18" },
@@ -1063,6 +1085,12 @@ function MapScreen({ map }: { map: FestivalMap }) {
   ).current;
 
   const selected = map.points.find((p) => p.id === selectedId) ?? null;
+  const selectedMarker = selected ? MAP_IMAGE_MARKERS[selected.id] : null;
+
+  const handleSelectMapPoint = (id: string) => {
+    setSelectedId((current) => current === id ? null : id);
+    setMapView("map");
+  };
 
   const renderDetailCard = (point: MapPoint) => (
     <View style={styles.mapDetailCard}>
@@ -1123,7 +1151,37 @@ function MapScreen({ map }: { map: FestivalMap }) {
               style={styles.festivalMapImage}
               resizeMode="contain"
             />
+            {selected && selectedMarker && (
+              <View
+                pointerEvents="none"
+                style={[
+                  styles.mapImageMarker,
+                  {
+                    left: `${selectedMarker.x}%`,
+                    top: `${selectedMarker.y}%`,
+                    borderColor: MAP_CATEGORY_META[selected.category].color,
+                  },
+                ]}
+              >
+                <View style={[styles.mapImageMarkerPulse, { borderColor: MAP_CATEGORY_META[selected.category].color }]} />
+                <View style={[styles.mapImageMarkerPin, { backgroundColor: MAP_CATEGORY_META[selected.category].color }]}> 
+                  <Ionicons name={MAP_CATEGORY_META[selected.category].icon as keyof typeof Ionicons.glyphMap} size={14} color="#fff" />
+                </View>
+                <View style={styles.mapImageMarkerLabel}>
+                  <Text numberOfLines={1} style={styles.mapImageMarkerLabelText}>{selected.name}</Text>
+                </View>
+              </View>
+            )}
           </View>
+
+          {selected && (
+            <View style={styles.mapSelectedNotice}>
+              <Ionicons name="locate" size={15} color={MAP_CATEGORY_META[selected.category].color} />
+              <Text style={styles.mapSelectedNoticeText}>
+                Kijelölve a térképen: <Text style={styles.mapSelectedNoticeName}>{selected.name}</Text>
+              </Text>
+            </View>
+          )}
 
           <Text style={styles.mapImageHint}>
             Érintsd meg az alábbi helyszíneket a részletekhez. A térképkép az assets/enhanced_ready.png fájlból töltődik be.
@@ -1150,7 +1208,7 @@ function MapScreen({ map }: { map: FestivalMap }) {
               <React.Fragment key={item.id}>
                 <TouchableOpacity
                   style={[styles.mapPointItem, selectedId === item.id && styles.mapPointItemSelected]}
-                  onPress={() => setSelectedId(selectedId === item.id ? null : item.id)}
+                  onPress={() => handleSelectMapPoint(item.id)}
                 >
                   <View style={[styles.mapPointIconWrap, { backgroundColor: `${MAP_CATEGORY_META[item.category].color}22` }]}>
                     <Ionicons name={MAP_CATEGORY_META[item.category].icon as keyof typeof Ionicons.glyphMap}
@@ -1196,7 +1254,7 @@ function MapScreen({ map }: { map: FestivalMap }) {
             <React.Fragment key={item.id}>
               <TouchableOpacity
                 style={[styles.mapPointItem, selectedId === item.id && styles.mapPointItemSelected]}
-                onPress={() => setSelectedId(selectedId === item.id ? null : item.id)}>
+                onPress={() => handleSelectMapPoint(item.id)}>
                 <View style={[styles.mapPointIconWrap, { backgroundColor: `${MAP_CATEGORY_META[item.category].color}22` }]}>
                   <Ionicons name={MAP_CATEGORY_META[item.category].icon as keyof typeof Ionicons.glyphMap}
                     size={18} color={MAP_CATEGORY_META[item.category].color} />
@@ -2630,11 +2688,84 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.18,
 		shadowRadius: 18,
 		elevation: 8,
+		position: "relative",
 	},
 	festivalMapImage: {
 		width: "100%",
 		height: (SCREEN_W - 24) * 0.5625,
 	},
+	mapImageMarker: {
+		position: "absolute",
+		width: 46,
+		height: 46,
+		marginLeft: -23,
+		marginTop: -40,
+		alignItems: "center",
+		justifyContent: "center",
+		zIndex: 20,
+	},
+	mapImageMarkerPulse: {
+		position: "absolute",
+		width: 42,
+		height: 42,
+		borderRadius: 21,
+		borderWidth: 2,
+		backgroundColor: "rgba(255,255,255,0.16)",
+	},
+	mapImageMarkerPin: {
+		width: 30,
+		height: 30,
+		borderRadius: 15,
+		alignItems: "center",
+		justifyContent: "center",
+		borderWidth: 2,
+		borderColor: "#fff",
+		shadowColor: "#000",
+		shadowOpacity: 0.35,
+		shadowRadius: 8,
+		elevation: 8,
+	},
+	mapImageMarkerLabel: {
+		position: "absolute",
+		top: 36,
+		minWidth: 86,
+		maxWidth: 132,
+		paddingHorizontal: 8,
+		paddingVertical: 4,
+		borderRadius: 999,
+		backgroundColor: "rgba(8,3,18,0.88)",
+		borderWidth: 1,
+		borderColor: "rgba(245,208,254,0.38)",
+	},
+	mapImageMarkerLabelText: {
+		color: THEME.text,
+		fontSize: 10,
+		fontWeight: "900",
+		textAlign: "center",
+		fontFamily: FONTS.ui,
+	},
+	mapSelectedNotice: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
+		marginHorizontal: 16,
+		marginTop: 10,
+		paddingVertical: 10,
+		paddingHorizontal: 12,
+		borderRadius: 16,
+		backgroundColor: "rgba(168,85,247,0.12)",
+		borderWidth: 1,
+		borderColor: "rgba(216,180,254,0.20)",
+	},
+	mapSelectedNoticeText: {
+		flex: 1,
+		fontSize: 12,
+		lineHeight: 17,
+		color: THEME.textMuted,
+		fontFamily: FONTS.ui,
+		fontWeight: "700",
+	},
+	mapSelectedNoticeName: { color: THEME.text, fontWeight: "900" },
 	mapImageHint: {
 		fontSize: 12,
 		lineHeight: 18,
