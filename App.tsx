@@ -546,6 +546,7 @@ function TicketsScreen({
 }) {
 	const [now, setNow] = useState(() => new Date());
 	const [selectedDiscount, setSelectedDiscount] = useState<DiscountKey>("early");
+	const [expandedPerformanceDays, setExpandedPerformanceDays] = useState<Record<number, boolean>>({ 18: true, 19: false, 20: false });
 
 	useEffect(() => {
 		const timer = setInterval(() => setNow(new Date()), 60000);
@@ -553,6 +554,12 @@ function TicketsScreen({
 	}, []);
 
 	const sortedPerformers = [...performers].sort((a, b) => getPerformanceDate(a).getTime() - getPerformanceDate(b).getTime());
+	const performanceDays = [...new Set(sortedPerformers.map((p) => p.day))].sort((a, b) => a - b);
+	const performancesByDay = performanceDays.map((day) => ({
+		day,
+		label: `Júl. ${day}.`,
+		items: sortedPerformers.filter((p) => p.day === day),
+	}));
 	const selected = tickets.find((t) => t.id === selectedId) ?? null;
 	const selectedPerformances = sortedPerformers.filter((p) => selectedPerformanceIds.includes(p.id));
 	const selectedPerformanceSet = new Set(selectedPerformanceIds);
@@ -579,6 +586,10 @@ function TicketsScreen({
 	const canCheckout = !!selected && selectedPerformances.length > 0 && emailValid && !hasConflicts;
 	const earliestRefundDeadline = getEarliestRefundDeadline(selectedPerformances);
 	const canRequestRefund = selectedPerformances.length > 0 && !!earliestRefundDeadline && now.getTime() <= earliestRefundDeadline.getTime() && !refundRequested;
+
+	const togglePerformanceDay = (day: number) => {
+		setExpandedPerformanceDays((prev) => ({ ...prev, [day]: !prev[day] }));
+	};
 
 	if (orderComplete && selected && selectedPerformances.length > 0 && countdownTarget && countdown) {
 		return (
@@ -666,16 +677,44 @@ function TicketsScreen({
 					<Text style={styles.ticketSectionTitle}>2. Fellépések</Text>
 					<Text style={styles.ticketSectionHint}>{selectedPerformances.length > 0 ? `${selectedPerformances.length} kiválasztva` : "Több is választható"}</Text>
 				</View>
-				<View style={styles.performanceList}>
-					{sortedPerformers.map((performer) => (
-						<PerformanceTicketCard
-							key={performer.id}
-							performer={performer}
-							selected={selectedPerformanceSet.has(performer.id)}
-							conflicted={conflictedIds.has(performer.id)}
-							onSelect={() => onTogglePerformance(performer.id)}
-						/>
-					))}
+				<View style={styles.performanceAccordionList}>
+					{performancesByDay.map(({ day, label, items }) => {
+						const expanded = expandedPerformanceDays[day] ?? false;
+						const selectedCountForDay = items.filter((p) => selectedPerformanceSet.has(p.id)).length;
+						const hasConflictOnDay = items.some((p) => conflictedIds.has(p.id));
+						return (
+							<View key={day} style={[styles.performanceDayGroup, hasConflictOnDay && styles.performanceDayGroupWarning]}>
+								<TouchableOpacity style={styles.performanceDayHeader} onPress={() => togglePerformanceDay(day)} activeOpacity={0.85}>
+									<View style={styles.performanceDayHeaderLeft}>
+										<View style={[styles.performanceDayIcon, expanded && styles.performanceDayIconActive]}>
+											<Ionicons name="calendar-outline" size={18} color={expanded ? THEME.text : THEME.accent} />
+										</View>
+										<View>
+											<Text style={styles.performanceDayTitle}>{label}</Text>
+											<Text style={styles.performanceDaySubtitle}>{items.length} fellépés · {selectedCountForDay > 0 ? `${selectedCountForDay} kiválasztva` : "nincs kiválasztva"}</Text>
+										</View>
+									</View>
+									<View style={styles.performanceDayHeaderRight}>
+										{hasConflictOnDay && <View style={styles.performanceDayWarningBadge}><Ionicons name="warning-outline" size={13} color="#fed7aa" /><Text style={styles.performanceDayWarningText}>ütközés</Text></View>}
+										<Ionicons name={expanded ? "chevron-up" : "chevron-down"} size={20} color={THEME.textMuted} />
+									</View>
+								</TouchableOpacity>
+								{expanded && (
+									<View style={styles.performanceDayBody}>
+										{items.map((performer) => (
+											<PerformanceTicketCard
+												key={performer.id}
+												performer={performer}
+												selected={selectedPerformanceSet.has(performer.id)}
+												conflicted={conflictedIds.has(performer.id)}
+												onSelect={() => onTogglePerformance(performer.id)}
+											/>
+										))}
+									</View>
+								)}
+							</View>
+						);
+					})}
 				</View>
 
 				{hasConflicts && (
@@ -2661,6 +2700,19 @@ const styles = StyleSheet.create({
 	ticketSectionTitle: { fontSize: 15, color: THEME.text, fontWeight: "900", letterSpacing: 0.2 },
 	ticketSectionHint: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700" },
 	performanceList: { gap: 10, marginBottom: 18 },
+	performanceAccordionList: { gap: 10, marginBottom: 18 },
+	performanceDayGroup: { borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.04)", overflow: "hidden" },
+	performanceDayGroupWarning: { borderColor: "rgba(251,146,60,0.48)", backgroundColor: "rgba(249,115,22,0.07)" },
+	performanceDayHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 14, paddingHorizontal: 14 },
+	performanceDayHeaderLeft: { flexDirection: "row", alignItems: "center", flex: 1, gap: 10 },
+	performanceDayHeaderRight: { flexDirection: "row", alignItems: "center", gap: 8 },
+	performanceDayIcon: { width: 38, height: 38, borderRadius: 13, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: THEME.border, backgroundColor: "rgba(168,85,247,0.08)" },
+	performanceDayIconActive: { borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.22)" },
+	performanceDayTitle: { fontSize: 16, color: THEME.text, fontWeight: "900" },
+	performanceDaySubtitle: { fontSize: 12, color: THEME.textSubtle, fontWeight: "700", marginTop: 3 },
+	performanceDayWarningBadge: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 7, paddingVertical: 4, borderRadius: 999, backgroundColor: "rgba(249,115,22,0.18)", borderWidth: 1, borderColor: "rgba(251,146,60,0.35)" },
+	performanceDayWarningText: { fontSize: 10, color: "#fed7aa", fontWeight: "900" },
+	performanceDayBody: { paddingHorizontal: 10, paddingBottom: 10, gap: 10 },
 	performanceTicketCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.045)" },
 	performanceTicketCardSelected: { borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.12)" },
 	performanceTicketCardConflicted: { borderColor: "rgba(251,146,60,0.7)", backgroundColor: "rgba(249,115,22,0.10)" },
