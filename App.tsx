@@ -54,9 +54,10 @@ const THEME = {
 };
 
 const FONTS = {
-	heading: Platform.select({ ios: "Georgia", android: "serif", default: "serif" }),
-	subheading: Platform.select({ ios: "Avenir Next", android: "sans-serif-medium", default: "sans-serif" }),
-	body: Platform.select({ ios: "System", android: "sans-serif", default: "sans-serif" }),
+	// Egységes, modern sans-serif irány: nincs serif / Georgia, így eltűnnek az Androidos fekete render-csíkok is.
+	heading: Platform.select({ ios: "Avenir Next", android: "sans-serif-medium", default: "sans-serif" }),
+	subheading: Platform.select({ ios: "Avenir Next", android: "sans-serif", default: "sans-serif" }),
+	body: Platform.select({ ios: "Avenir Next", android: "sans-serif", default: "sans-serif" }),
 	ui: Platform.select({ ios: "Avenir Next", android: "sans-serif-medium", default: "sans-serif" }),
 };
 
@@ -521,7 +522,7 @@ function PerformanceTicketCard({ performer, selected, conflicted, onSelect }: { 
 						</RadialGradient>
 					</Defs>
 					<Rect x="0" y="0" width="90" height="70" rx="14" fill={`url(#ticketGlow${performer.id})`} />
-					<Circle cx="45" cy="34" r="16" fill="rgba(0,0,0,0.35)" />
+					<Circle cx="45" cy="34" r="16" fill="rgba(34,18,58,0.35)" />
 					<Circle cx="45" cy="34" r="9" fill="rgba(255,255,255,0.85)" />
 					<Path d="M10 55 C25 42 35 49 45 38 C55 49 67 42 80 55" stroke="rgba(255,255,255,0.42)" strokeWidth="3" fill="none" />
 					{[12, 24, 36, 54, 66, 78].map((x, i) => (
@@ -946,7 +947,7 @@ const COLORS = {
   text:        "#f0e8ff",
   textDark:    "#06020f",
   white:       "#ffffff",
-  shadow:      "rgba(0,0,0,0.5)",
+  shadow:      "rgba(34,18,58,0.55)",
 };
 
 // ─── Segéd komponensek ────────────────────────────────────────────────────────
@@ -1002,12 +1003,12 @@ function MapPin({
 }: { x: number; y: number; color: string; icon: string; label: string }) {
   return (
     <G>
-      <Ellipse cx={x+1} cy={y+18} rx={8} ry={3} fill="rgba(0,0,0,0.3)" />
+      <Ellipse cx={x+1} cy={y+18} rx={8} ry={3} fill="rgba(34,18,58,0.30)" />
       <Path d={`M${x},${y} C${x-10},${y-8} ${x-10},${y-22} ${x},${y-26} C${x+10},${y-22} ${x+10},${y-8} ${x},${y}`} fill={color} />
       <Circle cx={x} cy={y-18} r={9} fill="rgba(255,255,255,0.2)" />
       <SvgText x={x} y={y-14} fontSize={10} textAnchor="middle" fill={COLORS.white}>{icon}</SvgText>
       {/* Felirat buborék */}
-      <Rect x={x-20} y={y-42} width={40} height={14} rx={7} fill="rgba(0,0,0,0.75)" />
+      <Rect x={x-20} y={y-42} width={40} height={14} rx={7} fill="rgba(42,22,70,0.86)" />
       <SvgText x={x} y={y-32} fontSize={7} fontWeight="bold" textAnchor="middle" fill={COLORS.white}>{label}</SvgText>
     </G>
   );
@@ -1365,7 +1366,7 @@ function MapScreen({ map }: { map: FestivalMap }) {
               <MapBush x={380} y={420} />
 
               {/* ═══ ÉSZAK IRÁNYTŰ ═══ */}
-              <Circle cx={382} cy={32} r={16} fill="rgba(0,0,0,0.55)" stroke="rgba(168,85,247,0.6)" strokeWidth={1} />
+              <Circle cx={382} cy={32} r={16} fill="rgba(34,18,58,0.55)" stroke="rgba(168,85,247,0.6)" strokeWidth={1} />
               <Polygon points="382,18 378,34 382,31 386,34" fill="#a855f7" />
               <Polygon points="382,46 378,30 382,33 386,30" fill="rgba(168,85,247,0.4)" />
               <SvgText x={382} y={37} fontSize={7} fontWeight="bold" textAnchor="middle" fill="#f0e8ff">N</SvgText>
@@ -1961,7 +1962,7 @@ function EventVisual({ accent = THEME.accent, compact = false }: { accent?: stri
 						<Stop offset="1" stopColor={accent} stopOpacity="0" />
 					</RadialGradient>
 					<LinearGradient id="stageFade" x1="0" y1="0" x2="0" y2="1">
-						<Stop offset="0" stopColor="rgba(0,0,0,0)" />
+						<Stop offset="0" stopColor="rgba(34,18,58,0)" />
 						<Stop offset="1" stopColor="#05020d" />
 					</LinearGradient>
 				</Defs>
@@ -1975,7 +1976,7 @@ function EventVisual({ accent = THEME.accent, compact = false }: { accent?: stri
 				{[0, 1, 2, 3, 4].map((i) => (
 					<Circle key={`light-${i}`} cx={82 + i * 48} cy={compact ? 66 : 90} r={compact ? 8 : 11} fill={i % 2 === 0 ? accent : "#f0e8ff"} opacity={0.78} />
 				))}
-				<Path d={`M0 ${h - 48} C36 ${h - 72} 72 ${h - 50} 110 ${h - 68} C150 ${h - 88} 194 ${h - 50} 232 ${h - 70} C282 ${h - 96} 318 ${h - 58} 360 ${h - 78} L360 ${h} L0 ${h} Z`} fill="rgba(0,0,0,0.56)" />
+				<Path d={`M0 ${h - 48} C36 ${h - 72} 72 ${h - 50} 110 ${h - 68} C150 ${h - 88} 194 ${h - 50} 232 ${h - 70} C282 ${h - 96} 318 ${h - 58} 360 ${h - 78} L360 ${h} L0 ${h} Z`} fill="rgba(34,18,58,0.42)" />
 				{[18, 44, 76, 108, 140, 172, 204, 236, 268, 300, 332].map((x, i) => (
 					<G key={`crowd-${i}`}> 
 						<Circle cx={x} cy={h - 36 - (i % 3) * 5} r={6 + (i % 2)} fill="rgba(4,2,8,0.96)" />
@@ -2612,7 +2613,7 @@ const styles = StyleSheet.create({
 	headerBackBtnHidden: { opacity: 0 },
 	headerBrandWrap: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
 	headerMoonDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: THEME.accent, shadowColor: THEME.accent, shadowOpacity: 0.85, shadowRadius: 12, elevation: 8 },
-	headerBadge: { textAlign: "center", fontSize: 12, letterSpacing: 3.2, color: THEME.text, fontWeight: "900", fontFamily: FONTS.ui, textShadowColor: "rgba(192,132,252,0.55)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 12 },
+	headerBadge: { textAlign: "center", fontSize: 12, letterSpacing: 3.0, color: THEME.text, fontWeight: "900", fontFamily: FONTS.ui, backgroundColor: "transparent", includeFontPadding: false },
 	langSwitch: { minWidth: 44, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.075)", borderRadius: 22, borderWidth: 1, borderColor: "rgba(216,180,254,0.30)", shadowColor: THEME.accent, shadowOpacity: 0.25, shadowRadius: 14, elevation: 6 },
 	langSwitchText: { color: THEME.accent, fontWeight: "900", letterSpacing: 0.9, fontSize: 13 },
 	mainArea: { flex: 1 },
@@ -2626,7 +2627,7 @@ const styles = StyleSheet.create({
 	homeHeroCard: { width: "100%", maxWidth: 430, marginHorizontal: 20, marginTop: 18, borderRadius: 34, overflow: "hidden", borderWidth: 1, borderColor: "rgba(216,180,254,0.22)", backgroundColor: "rgba(255,255,255,0.06)", shadowColor: THEME.accent, shadowOpacity: 0.30, shadowRadius: 24, elevation: 10 },
 	homeHeroOverlay: { position: "absolute", left: 18, right: 18, bottom: 18 },
 	homeHeroEyebrow: { color: "rgba(245,208,254,0.92)", fontSize: 11, letterSpacing: 2.4, fontWeight: "900", fontFamily: FONTS.ui, marginBottom: 8 },
-	homeHeroTitle: { color: "#fff", fontSize: 26, lineHeight: 31, fontWeight: "700", fontFamily: FONTS.heading, textShadowColor: "rgba(0,0,0,0.55)", textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 8 },
+	homeHeroTitle: { color: "#fff", fontSize: 26, lineHeight: 31, fontWeight: "700", fontFamily: FONTS.heading },
 	eventVisualFrame: { width: "100%", height: 210, overflow: "hidden", backgroundColor: "#111827" },
 	eventVisualFrameCompact: { height: 138, borderTopLeftRadius: 22, borderTopRightRadius: 22 },
 	star: { position: "absolute", backgroundColor: "rgba(255,255,255,0.55)", borderRadius: 99 },
@@ -2662,7 +2663,7 @@ const styles = StyleSheet.create({
 	logoImage: { width: "100%", height: "100%" },
 
 	titleZone: { alignItems: "center", marginTop: -4, paddingHorizontal: 24 },
-	festName: { fontSize: 46, fontWeight: "700", color: THEME.text, letterSpacing: 0.8, fontFamily: FONTS.heading, textShadowColor: "rgba(192,132,252,0.5)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 20 },
+	festName: { fontSize: 46, fontWeight: "700", color: THEME.text, letterSpacing: 0.8, fontFamily: FONTS.heading },
 	tagline: { fontSize: 11, letterSpacing: 2.0, color: "rgba(216,180,254,0.78)", marginTop: 6, textAlign: "center", fontFamily: FONTS.ui, fontWeight: "900" },
 
 	dateStrip: { flexDirection: "row", alignItems: "center", marginHorizontal: 24, marginTop: 16, paddingVertical: 16, paddingHorizontal: 18, borderWidth: 1, borderColor: "rgba(216,180,254,0.24)", borderRadius: 24, backgroundColor: "rgba(255,255,255,0.07)", shadowColor: THEME.accent, shadowOpacity: 0.12, shadowRadius: 16, elevation: 5 },
@@ -2684,7 +2685,7 @@ const styles = StyleSheet.create({
 	// Jegyvásárlás
 	ticketsScreen: { flex: 1 },
 	ticketsScroll: { padding: 16, paddingBottom: 24 },
-	ticketsHeading: { fontSize: 34, fontWeight: "700", color: THEME.text, marginBottom: 8, letterSpacing: 0.2, fontFamily: FONTS.heading, textShadowColor: "rgba(192,132,252,0.35)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 16 },
+	ticketsHeading: { fontSize: 34, fontWeight: "700", color: THEME.text, marginBottom: 8, letterSpacing: 0.2, fontFamily: FONTS.heading },
 	ticketsSubheading: { fontSize: 14, color: THEME.textMuted, marginBottom: 18, lineHeight: 22, fontFamily: FONTS.body },
 	ticketCard: { flexDirection: "row", backgroundColor: "rgba(255,255,255,0.065)", borderWidth: 1, borderColor: "rgba(216,180,254,0.16)", borderRadius: 26, marginBottom: 16, overflow: "hidden", position: "relative", shadowColor: THEME.accent, shadowOpacity: 0.12, shadowRadius: 16, elevation: 5 },
 	ticketCardSelected: { borderColor: "rgba(245,208,254,0.58)", backgroundColor: "rgba(168,85,247,0.18)", shadowOpacity: 0.26 },
@@ -2697,7 +2698,7 @@ const styles = StyleSheet.create({
 	ticketName: { color: THEME.text, fontSize: 19, fontWeight: "700", fontFamily: FONTS.heading },
 	ticketBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, backgroundColor: THEME.surface2, borderWidth: 1, borderColor: THEME.border },
 	ticketBadgeText: { fontSize: 9, letterSpacing: 0.6, color: THEME.textSubtle, fontWeight: "700" },
-	ticketPrice: { fontSize: 22, fontWeight: "900", color: THEME.accent, fontFamily: FONTS.ui, textShadowColor: "rgba(192,132,252,0.3)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 10 },
+	ticketPrice: { fontSize: 22, fontWeight: "900", color: THEME.accent, fontFamily: FONTS.ui },
 	ticketDescription: { fontSize: 12, color: THEME.textMuted, lineHeight: 17, marginBottom: 10 },
 	ticketFeatures: { gap: 5 },
 	ticketFeatureRow: { flexDirection: "row", alignItems: "center", gap: 6 },
@@ -2774,14 +2775,14 @@ const styles = StyleSheet.create({
 	performanceConflictText: { fontSize: 12, color: "rgba(255,237,213,0.88)", lineHeight: 18, marginBottom: 8 },
 	performanceConflictItem: { fontSize: 12, color: "#fed7aa", lineHeight: 18, fontWeight: "700" },
 	checkoutWarningText: { color: "#fed7aa", fontSize: 12, fontWeight: "800", textAlign: "center", marginBottom: 8 },
-	miniCountdownRow: { paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, backgroundColor: "rgba(0,0,0,0.18)", borderWidth: 1, borderColor: THEME.border, marginBottom: 10 },
+	miniCountdownRow: { paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, backgroundColor: "rgba(168,85,247,0.08)", borderWidth: 1, borderColor: THEME.border, marginBottom: 10 },
 	miniCountdownText: { fontSize: 13, color: THEME.text, fontWeight: "900", textAlign: "center" },
 	selectedRefundInfo: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700", textAlign: "center" },
 	countdownCard: { width: "100%", padding: 18, borderRadius: 18, borderWidth: 1, borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.12)", marginBottom: 14 },
 	countdownLabel: { fontSize: 10, color: THEME.accent, fontWeight: "900", letterSpacing: 1.4, textAlign: "center", marginBottom: 8 },
 	countdownTargetName: { fontSize: 16, color: THEME.text, fontWeight: "900", textAlign: "center", marginBottom: 12 },
 	countdownGrid: { flexDirection: "row", gap: 10 },
-	countdownBox: { flex: 1, paddingVertical: 12, borderRadius: 14, backgroundColor: "rgba(0,0,0,0.22)", alignItems: "center", borderWidth: 1, borderColor: THEME.border },
+	countdownBox: { flex: 1, paddingVertical: 12, borderRadius: 14, backgroundColor: "rgba(168,85,247,0.10)", alignItems: "center", borderWidth: 1, borderColor: THEME.border },
 	countdownNumber: { fontSize: 24, color: THEME.text, fontWeight: "900" },
 	countdownUnit: { fontSize: 10, color: THEME.textSubtle, fontWeight: "800", marginTop: 3 },
 	refundPolicyCard: { width: "100%", padding: 16, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.045)", marginBottom: 16 },
@@ -2824,7 +2825,7 @@ const styles = StyleSheet.create({
 	cartDiscountValue: { fontSize: 12, color: "#86efac", fontWeight: "900" },
 	cartGrandTotalLine: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 10, marginTop: 4, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.10)" },
 	cartGrandTotalLabel: { fontSize: 14, color: THEME.text, fontWeight: "900" },
-	cartGrandTotalValue: { fontSize: 24, color: THEME.text, fontWeight: "900", fontFamily: FONTS.ui, textShadowColor: "rgba(192,132,252,0.35)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 10 },
+	cartGrandTotalValue: { fontSize: 24, color: THEME.text, fontWeight: "900", fontFamily: FONTS.ui },
 	cartLegalNote: { fontSize: 10, color: THEME.textSubtle, lineHeight: 15, marginTop: 12, fontWeight: "600" },
 	checkoutCartMini: { marginBottom: 10, paddingTop: 2 },
 	totalValueSmall: { fontSize: 13, fontWeight: "800", color: THEME.textMuted },
@@ -2907,7 +2908,7 @@ const styles = StyleSheet.create({
 	mapFirstAidIcon: { fontSize: 11 },
 	mapInfo: { position: "absolute", width: 22, height: 22, backgroundColor: "rgba(168,85,247,0.25)", borderRadius: 4, borderWidth: 1, borderColor: "#a855f7", alignItems: "center", justifyContent: "center" },
 	mapInfoIcon: { fontSize: 11 },
-	mapNorth: { position: "absolute", top: 10, right: 10, width: 26, height: 26, backgroundColor: "rgba(0,0,0,0.5)", borderRadius: 13, borderWidth: 0.5, borderColor: "rgba(168,85,247,0.4)", alignItems: "center", justifyContent: "center" },
+	mapNorth: { position: "absolute", top: 10, right: 10, width: 26, height: 26, backgroundColor: "rgba(34,18,58,0.55)", borderRadius: 13, borderWidth: 0.5, borderColor: "rgba(168,85,247,0.4)", alignItems: "center", justifyContent: "center" },
 	mapNorthText: { fontSize: 7, color: "#a855f7", fontWeight: "800", lineHeight: 8 },
 	mapNorthArrow: { fontSize: 7, color: "#a855f7", lineHeight: 8 },
 	svgGridLine: { position: "absolute", height: 0.5, backgroundColor: "rgba(120,60,200,0.1)" },
@@ -2933,8 +2934,8 @@ const styles = StyleSheet.create({
 	// Schedule
 	scheduleScreen: { flex: 1 },
 	scheduleHeader: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 6 },
-	scheduleHeading: { fontSize: 34, fontWeight: "700", color: THEME.text, letterSpacing: 0.2, fontFamily: FONTS.heading, textShadowColor: "rgba(192,132,252,0.35)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 16 },
-	scheduleSubheading: { fontSize: 13, color: THEME.textSubtle, marginTop: 4, fontFamily: FONTS.ui, letterSpacing: 0.3 },
+	scheduleHeading: { fontSize: 34, fontWeight: "900", color: THEME.text, letterSpacing: 0.2, fontFamily: FONTS.heading, backgroundColor: "transparent", includeFontPadding: false },
+	scheduleSubheading: { fontSize: 13, color: THEME.textSubtle, marginTop: 8, fontFamily: FONTS.ui, letterSpacing: 0.3, backgroundColor: "transparent", includeFontPadding: false },
 	scheduleViewSwitcher: { paddingHorizontal: 16, gap: 8, paddingVertical: 8, alignItems: "center" },
 	scheduleViewChip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(216,180,254,0.16)", backgroundColor: "rgba(255,255,255,0.055)" },
 	scheduleViewChipActive: { backgroundColor: "rgba(168,85,247,0.20)", borderColor: "rgba(245,208,254,0.42)" },
@@ -2966,14 +2967,14 @@ const styles = StyleSheet.create({
 
 	// Performer kártya
 	listContent: { padding: 16, paddingBottom: 32 },
-	card: { flexDirection: "row", alignItems: "center", backgroundColor: "rgba(255,255,255,0.06)", borderWidth: 1, borderColor: "rgba(216,180,254,0.14)", borderRadius: 24, marginBottom: 14, overflow: "hidden", shadowColor: THEME.accent, shadowOpacity: 0.10, shadowRadius: 14, elevation: 4 },
+	card: { flexDirection: "row", alignItems: "center", backgroundColor: "rgba(42,22,70,0.42)", borderWidth: 1, borderColor: "rgba(216,180,254,0.18)", borderRadius: 24, marginBottom: 14, overflow: "hidden", shadowColor: THEME.accent, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
 	cardConflict: { borderColor: "rgba(245,158,11,0.55)", backgroundColor: "rgba(245,158,11,0.07)" },
 	cardAccent: { width: 3, alignSelf: "stretch", backgroundColor: THEME.accent2, opacity: 0.8 },
 	cardAccentConflict: { backgroundColor: "#f59e0b", opacity: 1 },
-	cardInfo: { flex: 1, paddingVertical: 14, paddingHorizontal: 14 },
-	performerName: { color: THEME.text, fontSize: 18, fontWeight: "700", fontFamily: FONTS.heading },
-	performerDetails: { color: THEME.textSubtle, fontSize: 12, marginTop: 4, letterSpacing: 0.2, fontWeight: "700" },
-	performerCardHint: { color: THEME.accent, fontSize: 11, marginTop: 6, fontWeight: "800", letterSpacing: 0.2 },
+	cardInfo: { flex: 1, paddingVertical: 16, paddingHorizontal: 16, backgroundColor: "transparent" },
+	performerName: { color: THEME.text, fontSize: 18, fontWeight: "900", fontFamily: FONTS.heading, backgroundColor: "transparent", includeFontPadding: false },
+	performerDetails: { color: THEME.textSubtle, fontSize: 12, marginTop: 7, letterSpacing: 0.2, fontWeight: "700", fontFamily: FONTS.ui, backgroundColor: "transparent", includeFontPadding: false },
+	performerCardHint: { color: THEME.accent, fontSize: 12, marginTop: 9, fontWeight: "900", letterSpacing: 0.3, fontFamily: FONTS.ui, backgroundColor: "transparent", includeFontPadding: false },
 	performerModalBackdrop: { flex: 1, backgroundColor: "rgba(3,1,8,0.78)", justifyContent: "center", paddingHorizontal: 18 },
 	performerModalCard: { borderRadius: 28, overflow: "hidden", backgroundColor: "#10091c", borderWidth: 1, borderColor: THEME.borderStrong, shadowColor: THEME.accent, shadowOpacity: 0.22, shadowRadius: 26, elevation: 12 },
 	performerModalHero: { height: 150, backgroundColor: "rgba(168,85,247,0.12)" },
@@ -2999,7 +3000,7 @@ const styles = StyleSheet.create({
 	navItem: { flex: 1, alignItems: "center", gap: 4 },
 	navIconWrap: { width: 46, height: 40, borderRadius: 18, alignItems: "center", justifyContent: "center" },
 	navIconActive: { backgroundColor: "rgba(168,85,247,0.24)", borderWidth: 1, borderColor: "rgba(245,208,254,0.46)", shadowColor: THEME.accent, shadowOpacity: 0.48, shadowRadius: 13, elevation: 7 },
-	navText: { fontSize: 10.5, color: "rgba(255,255,255,0.42)", letterSpacing: 0.4, fontWeight: "800", fontFamily: FONTS.ui },
+	navText: { fontSize: 10.5, color: "rgba(255,255,255,0.42)", letterSpacing: 0.4, fontWeight: "800", fontFamily: FONTS.ui, backgroundColor: "transparent", includeFontPadding: false },
 	navTextActive: { color: THEME.accent },
 	navBadge: { position: "absolute", top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: THEME.accent, alignItems: "center", justifyContent: "center", paddingHorizontal: 3 },
 	navBadgeText: { fontSize: 9, color: "#fff", fontWeight: "700" },
@@ -3121,7 +3122,7 @@ const styles = StyleSheet.create({
 	gastroCardHeader: { flexDirection: "row", alignItems: "flex-start", gap: 12, marginBottom: 8 },
 	gastroEmoji: { fontSize: 20, lineHeight: 24 },
 	gastroCardTitles: { flex: 1 },
-	gastroName: { fontSize: 25, fontWeight: "700", color: THEME.text, marginBottom: 7, fontFamily: FONTS.heading, textShadowColor: "rgba(192,132,252,0.22)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 8 },
+	gastroName: { fontSize: 25, fontWeight: "700", color: THEME.text, marginBottom: 7, fontFamily: FONTS.heading },
 	gastroTagRow: { flexDirection: "row", alignItems: "center", gap: 6 },
 	gastroCatBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, backgroundColor: THEME.surface2, borderColor: THEME.border },
 	gastroCatText: { fontSize: 11, fontWeight: "900", letterSpacing: 0.5, fontFamily: FONTS.ui },
