@@ -36,21 +36,21 @@ import Svg, {
 } from "react-native-svg";
 import festivalData from "./assets/data/eclipsefest_data.json";
 
-// B) prémium / elegáns – sötét alap, finom lila akcentus, visszafogott glow
+// Extra prémium / holdfényes event-app irány – mély fekete, lila glow, üveges kártyák
 const THEME = {
-	bg: "#06020f",
-	surface: "rgba(255,255,255,0.045)",
-	surface2: "rgba(168,85,247,0.11)",
-	border: "rgba(216,180,254,0.16)",
-	borderStrong: "rgba(168,85,247,0.42)",
-	text: "#f0e8ff",
-	textMuted: "rgba(232,216,255,0.82)",
-	textSubtle: "rgba(168,85,247,0.55)",
-	accent: "#a855f7",
-	accent2: "#7c3aed",
+	bg: "#03000a",
+	surface: "rgba(255,255,255,0.055)",
+	surface2: "rgba(168,85,247,0.16)",
+	border: "rgba(216,180,254,0.18)",
+	borderStrong: "rgba(192,132,252,0.58)",
+	text: "#fbf7ff",
+	textMuted: "rgba(242,232,255,0.86)",
+	textSubtle: "rgba(216,180,254,0.62)",
+	accent: "#c084fc",
+	accent2: "#8b5cf6",
 	danger: "#ef4444",
 	warn: "#f59e0b",
-	navBg: "rgba(10,4,21,0.98)",
+	navBg: "rgba(5,1,14,0.96)",
 };
 
 const FONTS = {
@@ -59,6 +59,41 @@ const FONTS = {
 	body: Platform.select({ ios: "System", android: "sans-serif", default: "sans-serif" }),
 	ui: Platform.select({ ios: "Avenir Next", android: "sans-serif-medium", default: "sans-serif" }),
 };
+
+function CosmicBackdrop() {
+	return (
+		<View pointerEvents="none" style={styles.cosmicBackdrop}>
+			<Svg width="100%" height="100%" viewBox="0 0 390 844" preserveAspectRatio="none">
+				<Defs>
+					<RadialGradient id="bgGlowTop" cx="78%" cy="8%" r="55%">
+						<Stop offset="0" stopColor="#7c3aed" stopOpacity="0.36" />
+						<Stop offset="0.55" stopColor="#7c3aed" stopOpacity="0.10" />
+						<Stop offset="1" stopColor="#03000a" stopOpacity="0" />
+					</RadialGradient>
+					<RadialGradient id="bgGlowBottom" cx="18%" cy="85%" r="60%">
+						<Stop offset="0" stopColor="#c026d3" stopOpacity="0.22" />
+						<Stop offset="0.55" stopColor="#8b5cf6" stopOpacity="0.08" />
+						<Stop offset="1" stopColor="#03000a" stopOpacity="0" />
+					</RadialGradient>
+					<LinearGradient id="moonLine" x1="0" y1="0" x2="1" y2="1">
+						<Stop offset="0" stopColor="#f5d0fe" stopOpacity="0.45" />
+						<Stop offset="1" stopColor="#8b5cf6" stopOpacity="0.05" />
+					</LinearGradient>
+				</Defs>
+				<Rect x="0" y="0" width="390" height="844" fill="#03000a" />
+				<Rect x="0" y="0" width="390" height="844" fill="url(#bgGlowTop)" />
+				<Rect x="0" y="0" width="390" height="844" fill="url(#bgGlowBottom)" />
+				<Circle cx="324" cy="112" r="46" fill="none" stroke="url(#moonLine)" strokeWidth="1.2" />
+				<Circle cx="339" cy="98" r="44" fill="#03000a" opacity="0.75" />
+				<Path d="M -30 210 C 80 155, 198 168, 420 96" stroke="rgba(192,132,252,0.14)" strokeWidth="1" fill="none" />
+				<Path d="M -40 540 C 110 470, 250 530, 430 430" stroke="rgba(216,180,254,0.08)" strokeWidth="1" fill="none" />
+				{Array.from({ length: 24 }, (_, i) => (
+					<Circle key={`bg-star-${i}`} cx={(i * 47) % 390} cy={60 + ((i * 89) % 720)} r={i % 5 === 0 ? 1.2 : 0.6} fill="rgba(255,255,255,0.32)" />
+				))}
+			</Svg>
+		</View>
+	);
+}
 
 // ─── Nyelvi szótár ────────────────────────────────────────────────────────────
 const translations = {
@@ -2464,8 +2499,7 @@ export default function App() {
 			]}
 		>
 			<StatusBar barStyle="light-content" backgroundColor={THEME.bg} />
-			<View pointerEvents="none" style={[styles.screenGlow, styles.screenGlowTop]} />
-			<View pointerEvents="none" style={[styles.screenGlow, styles.screenGlowBottom]} />
+			<CosmicBackdrop />
 
 			<View style={styles.header}>
 				<TouchableOpacity
@@ -2476,7 +2510,10 @@ export default function App() {
 				>
 					<Ionicons name="chevron-back" size={22} color={THEME.text} />
 				</TouchableOpacity>
-				<Text style={styles.headerBadge}>ECLIPSEFEST · 2026</Text>
+				<View style={styles.headerBrandWrap}>
+					<View style={styles.headerMoonDot} />
+					<Text style={styles.headerBadge}>ECLIPSEFEST · 2026</Text>
+				</View>
 				<TouchableOpacity style={styles.langSwitch} onPress={() => setLang(lang === "en" ? "hu" : "en")}>
 					<Text style={styles.langSwitchText}>
 						{lang === "en" ? "EN" : "HU"}
@@ -2553,7 +2590,7 @@ export default function App() {
 								<Ionicons
 									name={active ? (tab.icon as keyof typeof Ionicons.glyphMap) : (`${tab.icon}-outline` as keyof typeof Ionicons.glyphMap)}
 									size={20}
-									color={active ? "#a855f7" : "#444"}
+									color={active ? THEME.accent : "rgba(255,255,255,0.36)"}
 								/>
 								{showBadge && <View style={styles.navBadge}><Text style={styles.navBadgeText}>{favorites.length}</Text></View>}
 							</View>
@@ -2569,11 +2606,14 @@ export default function App() {
 // ─── Stílusok ─────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
 	container: { flex: 1, backgroundColor: THEME.bg },
-	header: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 12, paddingHorizontal: 14, backgroundColor: "rgba(6,2,15,0.82)", alignItems: "center", borderBottomWidth: 1, borderBottomColor: THEME.border, shadowColor: THEME.accent, shadowOpacity: 0.08, shadowRadius: 14, elevation: 6 },
-	headerBackBtn: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.06)", borderWidth: 1, borderColor: THEME.borderStrong, shadowColor: THEME.accent, shadowOpacity: 0.12, shadowRadius: 10, elevation: 4 },
+	cosmicBackdrop: { ...StyleSheet.absoluteFillObject },
+	header: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 12, paddingHorizontal: 14, backgroundColor: "rgba(8,2,22,0.78)", alignItems: "center", borderBottomWidth: 1, borderBottomColor: "rgba(216,180,254,0.14)", shadowColor: THEME.accent, shadowOpacity: 0.22, shadowRadius: 22, elevation: 10 },
+	headerBackBtn: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.075)", borderWidth: 1, borderColor: "rgba(216,180,254,0.30)", shadowColor: THEME.accent, shadowOpacity: 0.25, shadowRadius: 14, elevation: 6 },
 	headerBackBtnHidden: { opacity: 0 },
-	headerBadge: { flex: 1, textAlign: "center", fontSize: 12, letterSpacing: 2.8, color: THEME.accent, fontWeight: "900", fontFamily: FONTS.ui },
-	langSwitch: { minWidth: 44, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 22, borderWidth: 1, borderColor: THEME.borderStrong, shadowColor: THEME.accent, shadowOpacity: 0.12, shadowRadius: 10, elevation: 4 },
+	headerBrandWrap: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+	headerMoonDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: THEME.accent, shadowColor: THEME.accent, shadowOpacity: 0.85, shadowRadius: 12, elevation: 8 },
+	headerBadge: { textAlign: "center", fontSize: 12, letterSpacing: 3.2, color: THEME.text, fontWeight: "900", fontFamily: FONTS.ui, textShadowColor: "rgba(192,132,252,0.55)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 12 },
+	langSwitch: { minWidth: 44, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.075)", borderRadius: 22, borderWidth: 1, borderColor: "rgba(216,180,254,0.30)", shadowColor: THEME.accent, shadowOpacity: 0.25, shadowRadius: 14, elevation: 6 },
 	langSwitchText: { color: THEME.accent, fontWeight: "900", letterSpacing: 0.9, fontSize: 13 },
 	mainArea: { flex: 1 },
 	screenGlow: { position: "absolute", borderRadius: 999, opacity: 0.22 },
@@ -2581,12 +2621,12 @@ const styles = StyleSheet.create({
 	screenGlowBottom: { width: 260, height: 260, bottom: 70, left: -90, backgroundColor: "rgba(236,72,153,0.10)" },
 
 	// Home
-	homeScreen: { flex: 1, backgroundColor: THEME.bg, position: "relative", overflow: "hidden" },
+	homeScreen: { flex: 1, backgroundColor: "transparent", position: "relative", overflow: "hidden" },
 	homeScroll: { alignItems: "center", paddingBottom: 32, paddingTop: 8 },
-	homeHeroCard: { width: "100%", maxWidth: 430, marginHorizontal: 20, marginTop: 18, borderRadius: 28, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.05)" },
+	homeHeroCard: { width: "100%", maxWidth: 430, marginHorizontal: 20, marginTop: 18, borderRadius: 34, overflow: "hidden", borderWidth: 1, borderColor: "rgba(216,180,254,0.22)", backgroundColor: "rgba(255,255,255,0.06)", shadowColor: THEME.accent, shadowOpacity: 0.30, shadowRadius: 24, elevation: 10 },
 	homeHeroOverlay: { position: "absolute", left: 18, right: 18, bottom: 18 },
-	homeHeroEyebrow: { color: "rgba(216,180,254,0.86)", fontSize: 10, letterSpacing: 1.6, fontWeight: "900", fontFamily: FONTS.ui, marginBottom: 6 },
-	homeHeroTitle: { color: "#fff", fontSize: 22, lineHeight: 27, fontWeight: "700", fontFamily: FONTS.heading },
+	homeHeroEyebrow: { color: "rgba(245,208,254,0.92)", fontSize: 11, letterSpacing: 2.4, fontWeight: "900", fontFamily: FONTS.ui, marginBottom: 8 },
+	homeHeroTitle: { color: "#fff", fontSize: 26, lineHeight: 31, fontWeight: "700", fontFamily: FONTS.heading, textShadowColor: "rgba(0,0,0,0.55)", textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 8 },
 	eventVisualFrame: { width: "100%", height: 210, overflow: "hidden", backgroundColor: "#111827" },
 	eventVisualFrameCompact: { height: 138, borderTopLeftRadius: 22, borderTopRightRadius: 22 },
 	star: { position: "absolute", backgroundColor: "rgba(255,255,255,0.55)", borderRadius: 99 },
@@ -2622,48 +2662,48 @@ const styles = StyleSheet.create({
 	logoImage: { width: "100%", height: "100%" },
 
 	titleZone: { alignItems: "center", marginTop: -4, paddingHorizontal: 24 },
-	festName: { fontSize: 40, fontWeight: "700", color: THEME.text, letterSpacing: 0.6 },
-	tagline: { fontSize: 10, letterSpacing: 1.2, color: THEME.textSubtle, marginTop: 6, textAlign: "center" },
+	festName: { fontSize: 46, fontWeight: "700", color: THEME.text, letterSpacing: 0.8, fontFamily: FONTS.heading, textShadowColor: "rgba(192,132,252,0.5)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 20 },
+	tagline: { fontSize: 11, letterSpacing: 2.0, color: "rgba(216,180,254,0.78)", marginTop: 6, textAlign: "center", fontFamily: FONTS.ui, fontWeight: "900" },
 
-	dateStrip: { flexDirection: "row", alignItems: "center", marginHorizontal: 24, marginTop: 12, paddingVertical: 14, paddingHorizontal: 18, borderWidth: 1, borderColor: THEME.border, borderRadius: 16, backgroundColor: THEME.surface },
+	dateStrip: { flexDirection: "row", alignItems: "center", marginHorizontal: 24, marginTop: 16, paddingVertical: 16, paddingHorizontal: 18, borderWidth: 1, borderColor: "rgba(216,180,254,0.24)", borderRadius: 24, backgroundColor: "rgba(255,255,255,0.07)", shadowColor: THEME.accent, shadowOpacity: 0.12, shadowRadius: 16, elevation: 5 },
 	dateItem: { alignItems: "center", paddingHorizontal: 12 },
-	dateNum: { fontSize: 26, fontWeight: "600", color: THEME.text, lineHeight: 28 },
+	dateNum: { fontSize: 30, fontWeight: "700", color: THEME.text, lineHeight: 32, fontFamily: FONTS.heading },
 	dateSub: { fontSize: 9, letterSpacing: 1.2, color: THEME.textSubtle, marginTop: 3 },
 	dateSep: { width: 1, height: 36, backgroundColor: THEME.border },
 	dateRight: { alignItems: "flex-end", paddingLeft: 12 },
 	dateYear: { fontSize: 14, fontWeight: "600", color: THEME.textMuted },
 
 	infoRow: { flexDirection: "row", gap: 8, marginHorizontal: 24, marginTop: 12 },
-	infoChip: { flex: 1, padding: 12, borderWidth: 1, borderColor: THEME.border, borderRadius: 14, backgroundColor: THEME.surface, alignItems: "center" },
+	infoChip: { flex: 1, padding: 14, borderWidth: 1, borderColor: "rgba(216,180,254,0.20)", borderRadius: 20, backgroundColor: "rgba(255,255,255,0.055)", alignItems: "center" },
 	chipLabel: { fontSize: 9, letterSpacing: 0.8, color: THEME.textSubtle, marginBottom: 5, fontWeight: "600" },
 	chipValue: { fontSize: 13, fontWeight: "600", color: THEME.textMuted },
 
-	ticketCta: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, marginHorizontal: 32, marginTop: 12, paddingVertical: 14, borderRadius: 14, backgroundColor: "rgba(167,139,250,0.16)", borderWidth: 1, borderColor: THEME.borderStrong, alignSelf: "center", width: "100%", maxWidth: 420 },
-	ticketCtaText: { fontSize: 14, fontWeight: "700", color: THEME.text, letterSpacing: 0.2 },
+	ticketCta: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 32, marginTop: 16, paddingVertical: 16, borderRadius: 999, backgroundColor: "rgba(168,85,247,0.28)", borderWidth: 1, borderColor: "rgba(245,208,254,0.45)", alignSelf: "center", width: "100%", maxWidth: 420, shadowColor: THEME.accent, shadowOpacity: 0.35, shadowRadius: 18, elevation: 8 },
+	ticketCtaText: { fontSize: 15, fontWeight: "900", color: THEME.text, letterSpacing: 0.7, fontFamily: FONTS.ui },
 
 	// Jegyvásárlás
 	ticketsScreen: { flex: 1 },
 	ticketsScroll: { padding: 16, paddingBottom: 24 },
-	ticketsHeading: { fontSize: 24, fontWeight: "800", color: THEME.text, marginBottom: 6, letterSpacing: 0.2 },
-	ticketsSubheading: { fontSize: 13, color: THEME.textSubtle, marginBottom: 16, lineHeight: 18 },
-	ticketCard: { flexDirection: "row", backgroundColor: "rgba(255,255,255,0.055)", borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", borderRadius: 20, marginBottom: 14, overflow: "hidden", position: "relative" },
-	ticketCardSelected: { borderColor: THEME.borderStrong, backgroundColor: THEME.surface2 },
+	ticketsHeading: { fontSize: 34, fontWeight: "700", color: THEME.text, marginBottom: 8, letterSpacing: 0.2, fontFamily: FONTS.heading, textShadowColor: "rgba(192,132,252,0.35)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 16 },
+	ticketsSubheading: { fontSize: 14, color: THEME.textMuted, marginBottom: 18, lineHeight: 22, fontFamily: FONTS.body },
+	ticketCard: { flexDirection: "row", backgroundColor: "rgba(255,255,255,0.065)", borderWidth: 1, borderColor: "rgba(216,180,254,0.16)", borderRadius: 26, marginBottom: 16, overflow: "hidden", position: "relative", shadowColor: THEME.accent, shadowOpacity: 0.12, shadowRadius: 16, elevation: 5 },
+	ticketCardSelected: { borderColor: "rgba(245,208,254,0.58)", backgroundColor: "rgba(168,85,247,0.18)", shadowOpacity: 0.26 },
 	ticketAccentSelected: { backgroundColor: THEME.accent, opacity: 1 },
 	popularBadge: { position: "absolute", top: 10, right: 44, zIndex: 1, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: THEME.surface2, borderWidth: 1, borderColor: THEME.borderStrong },
 	popularBadgeText: { fontSize: 8.5, letterSpacing: 1, color: THEME.accent, fontWeight: "800" },
 	ticketCardBody: { flex: 1, paddingVertical: 14, paddingHorizontal: 14 },
 	ticketCardHeader: { marginBottom: 6 },
 	ticketTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
-	ticketName: { color: THEME.text, fontSize: 17, fontWeight: "800" },
+	ticketName: { color: THEME.text, fontSize: 19, fontWeight: "700", fontFamily: FONTS.heading },
 	ticketBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, backgroundColor: THEME.surface2, borderWidth: 1, borderColor: THEME.border },
 	ticketBadgeText: { fontSize: 9, letterSpacing: 0.6, color: THEME.textSubtle, fontWeight: "700" },
-	ticketPrice: { fontSize: 18, fontWeight: "900", color: THEME.accent },
+	ticketPrice: { fontSize: 22, fontWeight: "900", color: THEME.accent, fontFamily: FONTS.ui, textShadowColor: "rgba(192,132,252,0.3)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 10 },
 	ticketDescription: { fontSize: 12, color: THEME.textMuted, lineHeight: 17, marginBottom: 10 },
 	ticketFeatures: { gap: 5 },
 	ticketFeatureRow: { flexDirection: "row", alignItems: "center", gap: 6 },
 	ticketFeatureText: { fontSize: 11, color: THEME.textSubtle, fontWeight: "600" },
 	ticketSelectIndicator: { justifyContent: "center", paddingRight: 14 },
-	checkoutBar: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8, borderTopWidth: 1, borderTopColor: THEME.border, backgroundColor: THEME.navBg },
+	checkoutBar: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 10, borderTopWidth: 1, borderTopColor: "rgba(216,180,254,0.18)", backgroundColor: "rgba(5,1,14,0.94)", shadowColor: THEME.accent, shadowOpacity: 0.18, shadowRadius: 18, elevation: 10 },
 	quantityRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 },
 	quantityLabel: { fontSize: 13, color: THEME.textMuted, fontWeight: "700" },
 	quantityControls: { flexDirection: "row", alignItems: "center", gap: 12 },
@@ -2679,9 +2719,9 @@ const styles = StyleSheet.create({
 	totalLabel: { fontSize: 12, letterSpacing: 0.9, color: THEME.textSubtle, fontWeight: "800" },
 	totalValue: { fontSize: 20, fontWeight: "900", color: THEME.text },
 	checkoutHint: { fontSize: 12, color: THEME.textSubtle, textAlign: "center", marginBottom: 12 },
-	checkoutBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 14, borderRadius: 14, backgroundColor: "rgba(167,139,250,0.18)", borderWidth: 1, borderColor: THEME.borderStrong },
+	checkoutBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, paddingVertical: 16, borderRadius: 999, backgroundColor: "rgba(168,85,247,0.32)", borderWidth: 1, borderColor: "rgba(245,208,254,0.52)", shadowColor: THEME.accent, shadowOpacity: 0.35, shadowRadius: 18, elevation: 8 },
 	checkoutBtnDisabled: { opacity: 0.4 },
-	checkoutBtnText: { fontSize: 15, fontWeight: "900", color: THEME.text, letterSpacing: 0.2 },
+	checkoutBtnText: { fontSize: 15, fontWeight: "900", color: THEME.text, letterSpacing: 0.8, fontFamily: FONTS.ui },
 	orderSuccess: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 },
 	orderSuccessIcon: { marginBottom: 16 },
 	orderSuccessTitle: { fontSize: 22, fontWeight: "900", color: THEME.text, marginBottom: 8 },
@@ -2697,28 +2737,28 @@ const styles = StyleSheet.create({
 	orderPerformanceRow: { width: "100%", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.07)", alignItems: "center" },
 	orderPerformerMeta: { fontSize: 12, color: THEME.textSubtle, textAlign: "center", fontWeight: "700" },
 	ticketSectionHeader: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", marginTop: 4, marginBottom: 10 },
-	ticketSectionTitle: { fontSize: 15, color: THEME.text, fontWeight: "900", letterSpacing: 0.2 },
+	ticketSectionTitle: { fontSize: 18, color: THEME.text, fontWeight: "700", letterSpacing: 0.2, fontFamily: FONTS.heading },
 	ticketSectionHint: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700" },
 	performanceList: { gap: 10, marginBottom: 18 },
 	performanceAccordionList: { gap: 10, marginBottom: 18 },
-	performanceDayGroup: { borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.04)", overflow: "hidden" },
+	performanceDayGroup: { borderRadius: 24, borderWidth: 1, borderColor: "rgba(216,180,254,0.16)", backgroundColor: "rgba(255,255,255,0.055)", overflow: "hidden", shadowColor: THEME.accent, shadowOpacity: 0.10, shadowRadius: 14, elevation: 4 },
 	performanceDayGroupWarning: { borderColor: "rgba(251,146,60,0.48)", backgroundColor: "rgba(249,115,22,0.07)" },
 	performanceDayHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 14, paddingHorizontal: 14 },
 	performanceDayHeaderLeft: { flexDirection: "row", alignItems: "center", flex: 1, gap: 10 },
 	performanceDayHeaderRight: { flexDirection: "row", alignItems: "center", gap: 8 },
-	performanceDayIcon: { width: 38, height: 38, borderRadius: 13, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: THEME.border, backgroundColor: "rgba(168,85,247,0.08)" },
+	performanceDayIcon: { width: 44, height: 44, borderRadius: 16, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(216,180,254,0.22)", backgroundColor: "rgba(168,85,247,0.10)" },
 	performanceDayIconActive: { borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.22)" },
-	performanceDayTitle: { fontSize: 16, color: THEME.text, fontWeight: "900" },
+	performanceDayTitle: { fontSize: 19, color: THEME.text, fontWeight: "700", fontFamily: FONTS.heading },
 	performanceDaySubtitle: { fontSize: 12, color: THEME.textSubtle, fontWeight: "700", marginTop: 3 },
 	performanceDayWarningBadge: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 7, paddingVertical: 4, borderRadius: 999, backgroundColor: "rgba(249,115,22,0.18)", borderWidth: 1, borderColor: "rgba(251,146,60,0.35)" },
 	performanceDayWarningText: { fontSize: 10, color: "#fed7aa", fontWeight: "900" },
 	performanceDayBody: { paddingHorizontal: 10, paddingBottom: 10, gap: 10 },
-	performanceTicketCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.045)" },
-	performanceTicketCardSelected: { borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.12)" },
+	performanceTicketCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 12, borderRadius: 22, borderWidth: 1, borderColor: "rgba(216,180,254,0.14)", backgroundColor: "rgba(255,255,255,0.055)" },
+	performanceTicketCardSelected: { borderColor: "rgba(245,208,254,0.52)", backgroundColor: "rgba(168,85,247,0.18)" },
 	performanceTicketCardConflicted: { borderColor: "rgba(251,146,60,0.7)", backgroundColor: "rgba(249,115,22,0.10)" },
-	performanceTicketVisual: { width: 72, height: 58, borderRadius: 14, overflow: "hidden", backgroundColor: "rgba(168,85,247,0.16)" },
+	performanceTicketVisual: { width: 78, height: 64, borderRadius: 18, overflow: "hidden", backgroundColor: "rgba(168,85,247,0.18)", borderWidth: 1, borderColor: "rgba(255,255,255,0.10)" },
 	performanceTicketInfo: { flex: 1 },
-	performanceTicketName: { fontSize: 15, color: THEME.text, fontWeight: "900", marginBottom: 3 },
+	performanceTicketName: { fontSize: 17, color: THEME.text, fontWeight: "700", marginBottom: 4, fontFamily: FONTS.heading },
 	performanceTicketMeta: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700", marginBottom: 6 },
 	performanceTicketTimeRow: { flexDirection: "row", alignItems: "center", gap: 5 },
 	performanceTicketTime: { fontSize: 11, color: THEME.textMuted, fontWeight: "700" },
@@ -2756,18 +2796,18 @@ const styles = StyleSheet.create({
 	refundRequestedText: { color: "#86efac", fontSize: 13, fontWeight: "900" },
 	discountSection: { marginBottom: 18 },
 	discountGrid: { gap: 10, marginBottom: 4 },
-	discountChip: { padding: 14, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.045)" },
-	discountChipActive: { borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.14)" },
+	discountChip: { padding: 16, borderRadius: 22, borderWidth: 1, borderColor: "rgba(216,180,254,0.14)", backgroundColor: "rgba(255,255,255,0.055)" },
+	discountChipActive: { borderColor: "rgba(134,239,172,0.48)", backgroundColor: "rgba(22,163,74,0.10)" },
 	discountChipDisabled: { opacity: 0.45 },
 	discountChipHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 5 },
 	discountChipTitle: { fontSize: 14, color: THEME.text, fontWeight: "900" },
 	discountChipTitleActive: { color: "#ffffff" },
 	discountChipPercent: { fontSize: 12, color: "#86efac", fontWeight: "900" },
 	discountChipDescription: { fontSize: 12, color: THEME.textSubtle, lineHeight: 17, fontWeight: "700" },
-	cartCard: { padding: 16, borderRadius: 20, borderWidth: 1, borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.09)", marginBottom: 18 },
+	cartCard: { padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(216,180,254,0.30)", backgroundColor: "rgba(168,85,247,0.12)", marginBottom: 18, shadowColor: THEME.accent, shadowOpacity: 0.18, shadowRadius: 18, elevation: 8 },
 	cartHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
 	cartEyebrow: { fontSize: 10, letterSpacing: 1.3, color: THEME.accent, fontWeight: "900", marginBottom: 3 },
-	cartTitle: { fontSize: 18, color: THEME.text, fontWeight: "900" },
+	cartTitle: { fontSize: 22, color: THEME.text, fontWeight: "700", fontFamily: FONTS.heading },
 	cartCountBadge: { minWidth: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(168,85,247,0.20)", borderWidth: 1, borderColor: THEME.borderStrong },
 	cartCountText: { color: THEME.text, fontSize: 13, fontWeight: "900" },
 	cartItemRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.08)" },
@@ -2784,7 +2824,7 @@ const styles = StyleSheet.create({
 	cartDiscountValue: { fontSize: 12, color: "#86efac", fontWeight: "900" },
 	cartGrandTotalLine: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 10, marginTop: 4, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.10)" },
 	cartGrandTotalLabel: { fontSize: 14, color: THEME.text, fontWeight: "900" },
-	cartGrandTotalValue: { fontSize: 20, color: THEME.text, fontWeight: "900" },
+	cartGrandTotalValue: { fontSize: 24, color: THEME.text, fontWeight: "900", fontFamily: FONTS.ui, textShadowColor: "rgba(192,132,252,0.35)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 10 },
 	cartLegalNote: { fontSize: 10, color: THEME.textSubtle, lineHeight: 15, marginTop: 12, fontWeight: "600" },
 	checkoutCartMini: { marginBottom: 10, paddingTop: 2 },
 	totalValueSmall: { fontSize: 13, fontWeight: "800", color: THEME.textMuted },
@@ -2813,7 +2853,7 @@ const styles = StyleSheet.create({
 	mapDetailDescription: { fontSize: 12, color: THEME.textMuted, lineHeight: 17 },
 	mapDetailClose: { padding: 12, justifyContent: "center" },
 	mapPointsList: { flex: 1, backgroundColor: "transparent", borderTopWidth: 1, borderTopColor: THEME.border },
-	mapPointItem: { flexDirection: "row", alignItems: "center", paddingVertical: 14, paddingHorizontal: 16, marginHorizontal: 16, marginBottom: 8, borderRadius: 14, borderWidth: 1, borderColor: THEME.border, backgroundColor: "rgba(255,255,255,0.035)", gap: 12 },
+	mapPointItem: { flexDirection: "row", alignItems: "center", paddingVertical: 14, paddingHorizontal: 16, marginHorizontal: 16, marginBottom: 10, borderRadius: 22, borderWidth: 1, borderColor: "rgba(216,180,254,0.15)", backgroundColor: "rgba(255,255,255,0.05)", gap: 12, shadowColor: THEME.accent, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
 	mapPointItemSelected: { backgroundColor: "rgba(168,85,247,0.12)", borderColor: THEME.borderStrong },
 	mapPointIconWrap: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
 	mapPointItemText: { flex: 1 },
@@ -2893,11 +2933,11 @@ const styles = StyleSheet.create({
 	// Schedule
 	scheduleScreen: { flex: 1 },
 	scheduleHeader: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 6 },
-	scheduleHeading: { fontSize: 30, fontWeight: "700", color: THEME.text, letterSpacing: 0.2, fontFamily: FONTS.heading },
+	scheduleHeading: { fontSize: 34, fontWeight: "700", color: THEME.text, letterSpacing: 0.2, fontFamily: FONTS.heading, textShadowColor: "rgba(192,132,252,0.35)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 16 },
 	scheduleSubheading: { fontSize: 13, color: THEME.textSubtle, marginTop: 4, fontFamily: FONTS.ui, letterSpacing: 0.3 },
 	scheduleViewSwitcher: { paddingHorizontal: 16, gap: 8, paddingVertical: 8, alignItems: "center" },
-	scheduleViewChip: { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface },
-	scheduleViewChipActive: { backgroundColor: THEME.surface2, borderColor: THEME.borderStrong },
+	scheduleViewChip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(216,180,254,0.16)", backgroundColor: "rgba(255,255,255,0.055)" },
+	scheduleViewChipActive: { backgroundColor: "rgba(168,85,247,0.20)", borderColor: "rgba(245,208,254,0.42)" },
 	scheduleViewChipText: { fontSize: 12, color: THEME.textSubtle, fontWeight: "700" },
 	scheduleViewChipTextActive: { color: THEME.text },
 	scheduleBody: { flex: 1 },
@@ -2926,12 +2966,12 @@ const styles = StyleSheet.create({
 
 	// Performer kártya
 	listContent: { padding: 16, paddingBottom: 32 },
-	card: { flexDirection: "row", alignItems: "center", backgroundColor: "rgba(255,255,255,0.05)", borderWidth: 1, borderColor: "rgba(255,255,255,0.09)", borderRadius: 18, marginBottom: 12, overflow: "hidden" },
+	card: { flexDirection: "row", alignItems: "center", backgroundColor: "rgba(255,255,255,0.06)", borderWidth: 1, borderColor: "rgba(216,180,254,0.14)", borderRadius: 24, marginBottom: 14, overflow: "hidden", shadowColor: THEME.accent, shadowOpacity: 0.10, shadowRadius: 14, elevation: 4 },
 	cardConflict: { borderColor: "rgba(245,158,11,0.55)", backgroundColor: "rgba(245,158,11,0.07)" },
 	cardAccent: { width: 3, alignSelf: "stretch", backgroundColor: THEME.accent2, opacity: 0.8 },
 	cardAccentConflict: { backgroundColor: "#f59e0b", opacity: 1 },
 	cardInfo: { flex: 1, paddingVertical: 14, paddingHorizontal: 14 },
-	performerName: { color: THEME.text, fontSize: 16, fontWeight: "900" },
+	performerName: { color: THEME.text, fontSize: 18, fontWeight: "700", fontFamily: FONTS.heading },
 	performerDetails: { color: THEME.textSubtle, fontSize: 12, marginTop: 4, letterSpacing: 0.2, fontWeight: "700" },
 	performerCardHint: { color: THEME.accent, fontSize: 11, marginTop: 6, fontWeight: "800", letterSpacing: 0.2 },
 	performerModalBackdrop: { flex: 1, backgroundColor: "rgba(3,1,8,0.78)", justifyContent: "center", paddingHorizontal: 18 },
@@ -2955,11 +2995,11 @@ const styles = StyleSheet.create({
 	favoriteBtn: { padding: 16 },
 
 	// Navigáció
-	navBar: { flexDirection: "row", backgroundColor: "rgba(9,3,20,0.98)", paddingBottom: 24, paddingTop: 10, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.08)" },
+	navBar: { flexDirection: "row", backgroundColor: "rgba(5,1,14,0.96)", paddingBottom: 24, paddingTop: 12, borderTopWidth: 1, borderTopColor: "rgba(216,180,254,0.14)", shadowColor: THEME.accent, shadowOpacity: 0.18, shadowRadius: 18, elevation: 12 },
 	navItem: { flex: 1, alignItems: "center", gap: 4 },
-	navIconWrap: { width: 40, height: 36, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-	navIconActive: { backgroundColor: "rgba(168,85,247,0.20)", borderWidth: 1, borderColor: "rgba(216,180,254,0.42)" },
-	navText: { fontSize: 10.5, color: "rgba(255,255,255,0.35)", letterSpacing: 0.2, fontWeight: "600" },
+	navIconWrap: { width: 46, height: 40, borderRadius: 18, alignItems: "center", justifyContent: "center" },
+	navIconActive: { backgroundColor: "rgba(168,85,247,0.24)", borderWidth: 1, borderColor: "rgba(245,208,254,0.46)", shadowColor: THEME.accent, shadowOpacity: 0.48, shadowRadius: 13, elevation: 7 },
+	navText: { fontSize: 10.5, color: "rgba(255,255,255,0.42)", letterSpacing: 0.4, fontWeight: "800", fontFamily: FONTS.ui },
 	navTextActive: { color: THEME.accent },
 	navBadge: { position: "absolute", top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: THEME.accent, alignItems: "center", justifyContent: "center", paddingHorizontal: 3 },
 	navBadgeText: { fontSize: 9, color: "#fff", fontWeight: "700" },
@@ -2996,22 +3036,26 @@ const styles = StyleSheet.create({
 	moreRow: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 12,
-		paddingVertical: 14,
-		paddingHorizontal: 14,
-		borderRadius: 14,
+		gap: 14,
+		paddingVertical: 16,
+		paddingHorizontal: 16,
+		borderRadius: 24,
 		borderWidth: 1,
-		borderColor: THEME.border,
-		backgroundColor: THEME.surface,
-		marginBottom: 10,
+		borderColor: "rgba(216,180,254,0.16)",
+		backgroundColor: "rgba(255,255,255,0.055)",
+		marginBottom: 12,
+		shadowColor: THEME.accent,
+		shadowOpacity: 0.10,
+		shadowRadius: 14,
+		elevation: 4,
 	},
 	moreRowIcon: {
-		width: 38,
-		height: 38,
-		borderRadius: 12,
-		backgroundColor: THEME.surface2,
+		width: 48,
+		height: 48,
+		borderRadius: 18,
+		backgroundColor: "rgba(168,85,247,0.18)",
 		borderWidth: 1,
-		borderColor: THEME.border,
+		borderColor: "rgba(216,180,254,0.24)",
 		alignItems: "center",
 		justifyContent: "center",
 	},
@@ -3056,14 +3100,14 @@ const styles = StyleSheet.create({
 
 	// Gasztró képernyő
 	gastroScreen: { flex: 1 },
-	gastroHeroCard: { marginHorizontal: 16, marginBottom: 16, borderRadius: 28, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.05)", overflow: "hidden" },
+	gastroHeroCard: { marginHorizontal: 16, marginBottom: 18, borderRadius: 34, borderWidth: 1, borderColor: "rgba(216,180,254,0.22)", backgroundColor: "rgba(255,255,255,0.06)", overflow: "hidden", shadowColor: THEME.accent, shadowOpacity: 0.22, shadowRadius: 22, elevation: 8 },
 	gastroHeroContent: { padding: 18 },
 	gastroHeroEyebrow: { fontSize: 11, color: THEME.accent, letterSpacing: 1.8, marginBottom: 8, fontWeight: "900", fontFamily: FONTS.ui },
 	gastroHeroTitle: { fontSize: 22, color: THEME.text, lineHeight: 28, marginBottom: 8, fontWeight: "700", fontFamily: FONTS.heading },
 	gastroHeroText: { fontSize: 13, lineHeight: 21, color: THEME.textMuted, fontFamily: FONTS.body },
 	gastroCategoryGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", marginHorizontal: 16, marginBottom: 18 },
-	gastroCategoryTile: { width: "48%", minHeight: 92, paddingHorizontal: 14, paddingVertical: 14, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.05)", marginBottom: 12, justifyContent: "center" },
-	gastroCategoryTileActive: { backgroundColor: "rgba(168,85,247,0.15)", borderColor: "rgba(168,85,247,0.45)" },
+	gastroCategoryTile: { width: "48%", minHeight: 104, paddingHorizontal: 14, paddingVertical: 14, borderRadius: 24, borderWidth: 1, borderColor: "rgba(216,180,254,0.14)", backgroundColor: "rgba(255,255,255,0.055)", marginBottom: 12, justifyContent: "center", shadowColor: THEME.accent, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
+	gastroCategoryTileActive: { backgroundColor: "rgba(168,85,247,0.20)", borderColor: "rgba(245,208,254,0.48)" },
 	gastroCategoryTileTopRow: { flexDirection: "row", alignItems: "center" },
 	gastroCategoryTextBlock: { flex: 1, paddingLeft: 12 },
 	gastroCategoryTileTitle: { fontSize: 17, color: THEME.text, fontWeight: "700", fontFamily: FONTS.heading },
@@ -3071,13 +3115,13 @@ const styles = StyleSheet.create({
 	gastroCategoryTileMeta: { fontSize: 12, color: THEME.textSubtle, marginTop: 4, fontFamily: FONTS.ui },
 	gastroCategoryTileMetaActive: { color: THEME.textMuted },
 	gastroList: { paddingBottom: 32 },
-	gastroCard: { backgroundColor: "rgba(255,255,255,0.045)", borderWidth: 1, borderColor: "rgba(255,255,255,0.09)", borderRadius: 24, marginHorizontal: 16, marginBottom: 18, overflow: "hidden" },
+	gastroCard: { backgroundColor: "rgba(255,255,255,0.055)", borderWidth: 1, borderColor: "rgba(216,180,254,0.14)", borderRadius: 30, marginHorizontal: 16, marginBottom: 18, overflow: "hidden", shadowColor: THEME.accent, shadowOpacity: 0.12, shadowRadius: 16, elevation: 5 },
 	gastroCardAccent: { height: 4, width: "100%" },
 	gastroCardBody: { padding: 18 },
 	gastroCardHeader: { flexDirection: "row", alignItems: "flex-start", gap: 12, marginBottom: 8 },
 	gastroEmoji: { fontSize: 20, lineHeight: 24 },
 	gastroCardTitles: { flex: 1 },
-	gastroName: { fontSize: 24, fontWeight: "700", color: THEME.text, marginBottom: 7, fontFamily: FONTS.heading },
+	gastroName: { fontSize: 25, fontWeight: "700", color: THEME.text, marginBottom: 7, fontFamily: FONTS.heading, textShadowColor: "rgba(192,132,252,0.22)", textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 8 },
 	gastroTagRow: { flexDirection: "row", alignItems: "center", gap: 6 },
 	gastroCatBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, backgroundColor: THEME.surface2, borderColor: THEME.border },
 	gastroCatText: { fontSize: 11, fontWeight: "900", letterSpacing: 0.5, fontFamily: FONTS.ui },
