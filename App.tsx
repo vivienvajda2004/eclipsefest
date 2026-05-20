@@ -6,6 +6,7 @@ import {
 	FlatList,
 	Image,
 	Linking,
+	Modal,
 	PanResponder,
 	Platform,
 	SafeAreaView,
@@ -1164,6 +1165,7 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 	lang: "en" | "hu";
 }) {
 	const [viewMode, setViewMode] = useState<ScheduleViewMode>("list");
+	const [selectedPerformer, setSelectedPerformer] = useState<Performer | null>(null);
 	const sorted = sortPerformersByTime(performers);
 
 	const stageSections = [...new Set(sorted.map((p) => p.stage))].sort().map((stage) => ({
@@ -1206,7 +1208,7 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 			contentContainerStyle={styles.scheduleListContent}
 			showsVerticalScrollIndicator={false}
 			renderItem={({ item }) => (
-				<PerformerCard item={item} isFavorite={favorites.includes(item.id)} onToggle={() => onToggleFavorite(item.id)} />
+				<PerformerCard item={item} isFavorite={favorites.includes(item.id)} onToggle={() => onToggleFavorite(item.id)} onPress={() => setSelectedPerformer(item)} />
 			)}
 		/>
 	);
@@ -1223,18 +1225,18 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 						<View style={styles.timelineDot} />
 						{index < sorted.length - 1 && <View style={styles.timelineLine} />}
 					</View>
-					<View style={styles.timelineCard}>
+					<TouchableOpacity style={styles.timelineCard} activeOpacity={0.86} onPress={() => setSelectedPerformer(item)}>
 						<View style={styles.timelineCardHeader}>
 							<View style={styles.timelineCardInfo}>
 								<Text style={styles.performerName}>{item.name}</Text>
 								<Text style={styles.performerDetails}>{item.stage}</Text>
 								<Text style={styles.timelineDescription} numberOfLines={2}>
-									{lang === "en" ? item.description_en : item.description_hu}
+									{(lang === "en" ? item.description_en : item.description_hu) || item.description_hu || item.description_en || "Leírás nem érhető el."}
 								</Text>
 							</View>
 							{renderFavoriteBtn(item.id)}
 						</View>
-					</View>
+					</TouchableOpacity>
 				</View>
 			))}
 		</ScrollView>
@@ -1254,7 +1256,7 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 				</View>
 			)}
 			renderItem={({ item }) => (
-				<PerformerCard item={item} isFavorite={favorites.includes(item.id)} onToggle={() => onToggleFavorite(item.id)} />
+				<PerformerCard item={item} isFavorite={favorites.includes(item.id)} onToggle={() => onToggleFavorite(item.id)} onPress={() => setSelectedPerformer(item)} />
 			)}
 		/>
 	);
@@ -1263,14 +1265,14 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 		<ScrollView contentContainerStyle={styles.scheduleGridContent} showsVerticalScrollIndicator={false}>
 			<View style={styles.scheduleGrid}>
 				{sorted.map((item) => (
-					<View key={item.id} style={styles.gridCard}>
+					<TouchableOpacity key={item.id} style={styles.gridCard} activeOpacity={0.86} onPress={() => setSelectedPerformer(item)}>
 						<View style={styles.gridCardTop}>
 							<Text style={styles.gridTime}>{item.startTime} – {item.endTime}</Text>
 							{renderFavoriteBtn(item.id, true)}
 						</View>
 						<Text style={styles.gridName} numberOfLines={2}>{item.name}</Text>
 						<Text style={styles.gridStage} numberOfLines={1}>{item.stage}</Text>
-					</View>
+					</TouchableOpacity>
 				))}
 			</View>
 		</ScrollView>
@@ -1289,25 +1291,115 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 				{viewMode === "stage" && renderStageView()}
 				{viewMode === "grid" && renderGridView()}
 			</View>
+
+			<PerformerDetailModal
+				performer={selectedPerformer}
+				lang={lang}
+				isFavorite={selectedPerformer ? favorites.includes(selectedPerformer.id) : false}
+				onClose={() => setSelectedPerformer(null)}
+				onToggleFavorite={() => {
+					if (selectedPerformer) onToggleFavorite(selectedPerformer.id);
+				}}
+			/>
 		</View>
 	);
 }
 
 // ─── Performer kártya ─────────────────────────────────────────────────────────
-function PerformerCard({ item, isFavorite, onToggle, conflictNames }: {
+function PerformerDetailModal({ performer, lang, isFavorite, onClose, onToggleFavorite }: {
+	performer: Performer | null;
+	lang: "en" | "hu";
+	isFavorite: boolean;
+	onClose: () => void;
+	onToggleFavorite: () => void;
+}) {
+	if (!performer) return null;
+	const description = (lang === "en" ? performer.description_en : performer.description_hu) || performer.description_hu || performer.description_en || "Leírás nem érhető el ehhez az előadóhoz.";
+	return (
+		<Modal visible={!!performer} transparent animationType="fade" onRequestClose={onClose}>
+			<View style={styles.performerModalBackdrop}>
+				<TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={onClose} />
+				<View style={styles.performerModalCard}>
+					<View style={styles.performerModalHero}>
+						<Svg width="100%" height="100%" viewBox="0 0 320 150">
+							<Defs>
+								<LinearGradient id="artistHero" x1="0" y1="0" x2="1" y2="1">
+									<Stop offset="0" stopColor="#7c3aed" stopOpacity="0.95" />
+									<Stop offset="0.55" stopColor="#26113f" stopOpacity="1" />
+									<Stop offset="1" stopColor="#05020a" stopOpacity="1" />
+								</LinearGradient>
+								<RadialGradient id="artistGlow" cx="0.62" cy="0.34" r="0.55">
+									<Stop offset="0" stopColor="#f0abfc" stopOpacity="0.8" />
+									<Stop offset="1" stopColor="#7c3aed" stopOpacity="0" />
+								</RadialGradient>
+							</Defs>
+							<Rect width="320" height="150" rx="22" fill="url(#artistHero)" />
+							<Rect width="320" height="150" rx="22" fill="url(#artistGlow)" />
+							{Array.from({ length: 14 }).map((_, i) => (
+								<Line key={`beam-${i}`} x1={18 + i * 22} y1="150" x2={40 + i * 18} y2={36 + (i % 4) * 12} stroke="#d8b4fe" strokeOpacity="0.16" strokeWidth="2" />
+							))}
+							{Array.from({ length: 16 }).map((_, i) => (
+								<Circle key={`light-${i}`} cx={18 + i * 20} cy={36 + (i % 3) * 11} r={i % 4 === 0 ? 3 : 2} fill="#f5d0fe" opacity={0.28 + (i % 5) * 0.08} />
+							))}
+							<Path d="M0 120 C45 92 88 126 130 94 C174 62 218 104 258 72 C286 50 304 54 320 42 L320 150 L0 150 Z" fill="#06020f" opacity="0.72" />
+							{Array.from({ length: 22 }).map((_, i) => (
+								<Path key={`crowd-${i}`} d={`M${8 + i * 15} 150 L${12 + i * 15} ${126 + (i % 5) * 4} L${16 + i * 15} 150 Z`} fill="#030108" opacity="0.92" />
+							))}
+						</Svg>
+					</View>
+					<View style={styles.performerModalContent}>
+						<View style={styles.performerModalTopRow}>
+							<View style={{ flex: 1 }}>
+								<Text style={styles.performerModalEyebrow}>ARTIST DETAIL</Text>
+								<Text style={styles.performerModalName}>{performer.name}</Text>
+							</View>
+							<TouchableOpacity style={styles.performerModalCloseBtn} onPress={onClose}>
+								<Ionicons name="close" size={20} color={THEME.text} />
+							</TouchableOpacity>
+						</View>
+
+						<View style={styles.performerModalMetaRow}>
+							<View style={styles.performerModalMetaChip}>
+								<Ionicons name="location-outline" size={14} color={THEME.accent} />
+								<Text style={styles.performerModalMetaText}>{performer.stage}</Text>
+							</View>
+							<View style={styles.performerModalMetaChip}>
+								<Ionicons name="time-outline" size={14} color={THEME.accent} />
+								<Text style={styles.performerModalMetaText}>{performer.startTime} – {performer.endTime}</Text>
+							</View>
+						</View>
+
+						<Text style={styles.performerModalSectionTitle}>{lang === "en" ? "About the artist" : "Az előadóról"}</Text>
+						<Text style={styles.performerModalDescription}>{description}</Text>
+
+						<TouchableOpacity style={styles.performerModalFavBtn} onPress={onToggleFavorite}>
+							<Ionicons name={isFavorite ? "heart" : "heart-outline"} size={18} color="#fff" />
+							<Text style={styles.performerModalFavText}>{isFavorite ? "Kedvencekből törlés" : "Hozzáadás a kedvencekhez"}</Text>
+						</TouchableOpacity>
+					</View>
+				</View>
+			</View>
+		</Modal>
+	);
+}
+
+// ─── Performer kártya ─────────────────────────────────────────────────────────
+function PerformerCard({ item, isFavorite, onToggle, conflictNames, onPress }: {
 	item: Performer;
 	isFavorite: boolean;
 	onToggle: () => void;
 	conflictNames?: string[];
+	onPress?: () => void;
 }) {
 	return (
-		<View style={[styles.card, conflictNames && conflictNames.length > 0 && styles.cardConflict]}>
+		<TouchableOpacity activeOpacity={0.86} onPress={onPress} style={[styles.card, conflictNames && conflictNames.length > 0 && styles.cardConflict]}>
 			<View style={[styles.cardAccent, conflictNames && conflictNames.length > 0 && styles.cardAccentConflict]} />
 			<View style={styles.cardInfo}>
 				<Text style={styles.performerName}>{item.name}</Text>
 				<Text style={styles.performerDetails}>
 					{item.stage}{"  ·  "}{item.startTime} – {item.endTime}
 				</Text>
+				<Text style={styles.performerCardHint}>Részletek megnyitása</Text>
 				{conflictNames && conflictNames.length > 0 && (
 					<View style={styles.conflictRow}>
 						<Ionicons name="warning-outline" size={12} color="#f59e0b" />
@@ -1320,7 +1412,7 @@ function PerformerCard({ item, isFavorite, onToggle, conflictNames }: {
 			<TouchableOpacity onPress={onToggle} style={styles.favoriteBtn}>
 				<Ionicons name={isFavorite ? "heart" : "heart-outline"} size={22} color={isFavorite ? "#a855f7" : "#555"} />
 			</TouchableOpacity>
-		</View>
+		</TouchableOpacity>
 	);
 }
 
@@ -2336,6 +2428,22 @@ const styles = StyleSheet.create({
 	cardInfo: { flex: 1, paddingVertical: 14, paddingHorizontal: 14 },
 	performerName: { color: THEME.text, fontSize: 16, fontWeight: "900" },
 	performerDetails: { color: THEME.textSubtle, fontSize: 12, marginTop: 4, letterSpacing: 0.2, fontWeight: "700" },
+	performerCardHint: { color: THEME.accent, fontSize: 11, marginTop: 6, fontWeight: "800", letterSpacing: 0.2 },
+	performerModalBackdrop: { flex: 1, backgroundColor: "rgba(3,1,8,0.78)", justifyContent: "center", paddingHorizontal: 18 },
+	performerModalCard: { borderRadius: 28, overflow: "hidden", backgroundColor: "#10091c", borderWidth: 1, borderColor: THEME.borderStrong, shadowColor: THEME.accent, shadowOpacity: 0.22, shadowRadius: 26, elevation: 12 },
+	performerModalHero: { height: 150, backgroundColor: "rgba(168,85,247,0.12)" },
+	performerModalContent: { padding: 20 },
+	performerModalTopRow: { flexDirection: "row", alignItems: "flex-start", gap: 12, marginBottom: 14 },
+	performerModalEyebrow: { color: THEME.accent, fontSize: 10, fontWeight: "900", letterSpacing: 1.8, marginBottom: 6 },
+	performerModalName: { color: THEME.text, fontSize: 26, fontWeight: "900", lineHeight: 31 },
+	performerModalCloseBtn: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.07)", borderWidth: 1, borderColor: THEME.border },
+	performerModalMetaRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 18 },
+	performerModalMetaChip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 12, backgroundColor: "rgba(168,85,247,0.12)", borderWidth: 1, borderColor: "rgba(168,85,247,0.22)" },
+	performerModalMetaText: { color: THEME.textMuted, fontSize: 12, fontWeight: "800" },
+	performerModalSectionTitle: { color: THEME.text, fontSize: 15, fontWeight: "900", marginBottom: 8 },
+	performerModalDescription: { color: THEME.textMuted, fontSize: 14, lineHeight: 22, marginBottom: 18, fontWeight: "600" },
+	performerModalFavBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 13, borderRadius: 16, backgroundColor: THEME.accent2 },
+	performerModalFavText: { color: "#fff", fontSize: 14, fontWeight: "900" },
 	conflictRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 6 },
 	conflictText: { fontSize: 11, color: "#f59e0b", flex: 1 },
 	conflictBadgeText: { color: "#f59e0b", fontSize: 12 },
