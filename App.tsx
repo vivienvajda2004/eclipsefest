@@ -402,14 +402,86 @@ function TicketCard({ ticket, selected, onSelect }: { ticket: Ticket; selected: 
 }
 
 // ─── Jegyvásárlás képernyő ────────────────────────────────────────────────────
-function PerformanceTicketCard({ performer, selected, onSelect }: { performer: Performer; selected: boolean; onSelect: () => void }) {
+function getPerformanceConflictPairs(selectedPerformances: Performer[]) {
+	const pairs: { a: Performer; b: Performer }[] = [];
+	for (let i = 0; i < selectedPerformances.length; i += 1) {
+		for (let j = i + 1; j < selectedPerformances.length; j += 1) {
+			if (selectedPerformances[i].day === selectedPerformances[j].day && hasTimeConflict(selectedPerformances[i], selectedPerformances[j])) {
+				pairs.push({ a: selectedPerformances[i], b: selectedPerformances[j] });
+			}
+		}
+	}
+	return pairs;
+}
+
+function getEarliestUpcomingPerformance(selectedPerformances: Performer[], now: Date) {
+	return [...selectedPerformances]
+		.sort((a, b) => getPerformanceDate(a).getTime() - getPerformanceDate(b).getTime())
+		.find((p) => getPerformanceDate(p).getTime() >= now.getTime()) ?? selectedPerformances[0] ?? null;
+}
+
+function getEarliestRefundDeadline(selectedPerformances: Performer[]) {
+	if (selectedPerformances.length === 0) return null;
+	return selectedPerformances
+		.map(getRefundDeadline)
+		.sort((a, b) => a.getTime() - b.getTime())[0];
+}
+
+function formatRefundDeadlineDate(deadline: Date | null) {
+	if (!deadline) return "-";
+	return `Júl. ${deadline.getDate()}. ${deadline.toLocaleTimeString("hu-HU", { hour: "2-digit", minute: "2-digit" })}`;
+}
+
+type DiscountKey = "none" | "early" | "student" | "bundle";
+
+const SERVICE_FEE_RATE = 0.055;
+const HANDLING_FEE_PER_CART_ITEM = 590;
+
+const DISCOUNT_OPTIONS: { key: DiscountKey; title: string; description: string; percent: number; minPerformances?: number }[] = [
+	{ key: "none", title: "Nincs kedvezmény", description: "Normál online ár", percent: 0 },
+	{ key: "early", title: "Early Bird", description: "Időszakos promóció · -10%", percent: 10 },
+	{ key: "student", title: "Diák kedvezmény", description: "Belépéskor igazolással · -15%", percent: 15 },
+	{ key: "bundle", title: "Multi-show csomag", description: "3+ fellépés választásakor · -8%", percent: 8, minPerformances: 3 },
+];
+
+function getDiscountOption(key: DiscountKey) {
+	return DISCOUNT_OPTIONS.find((option) => option.key === key) ?? DISCOUNT_OPTIONS[0];
+}
+
+function isDiscountAvailable(key: DiscountKey, selectedPerformanceCount: number) {
+	const option = getDiscountOption(key);
+	return !option.minPerformances || selectedPerformanceCount >= option.minPerformances;
+}
+
+function calculateDiscountAmount(key: DiscountKey, subtotal: number, selectedPerformanceCount: number) {
+	const option = getDiscountOption(key);
+	if (!isDiscountAvailable(key, selectedPerformanceCount)) return 0;
+	return Math.round(subtotal * (option.percent / 100));
+}
+
+function calculateServiceFee(amountAfterDiscount: number) {
+	return Math.round(amountAfterDiscount * SERVICE_FEE_RATE);
+}
+
+function calculateHandlingFee(cartItemCount: number) {
+	return cartItemCount > 0 ? cartItemCount * HANDLING_FEE_PER_CART_ITEM : 0;
+}
+
+function PerformanceTicketCard({ performer, selected, conflicted, onSelect }: { performer: Performer; selected: boolean; conflicted?: boolean; onSelect: () => void }) {
 	return (
-		<TouchableOpacity style={[styles.performanceTicketCard, selected && styles.performanceTicketCardSelected]} onPress={onSelect}>
+		<TouchableOpacity
+			style={[
+				styles.performanceTicketCard,
+				selected && styles.performanceTicketCardSelected,
+				conflicted && styles.performanceTicketCardConflicted,
+			]}
+			onPress={onSelect}
+		>
 			<View style={styles.performanceTicketVisual}>
 				<Svg width="100%" height="100%" viewBox="0 0 90 70">
 					<Defs>
 						<RadialGradient id={`ticketGlow${performer.id}`} cx="50%" cy="35%" r="65%">
-							<Stop offset="0" stopColor="#c084fc" stopOpacity="0.9" />
+							<Stop offset="0" stopColor={conflicted ? "#f97316" : "#c084fc"} stopOpacity="0.9" />
 							<Stop offset="1" stopColor="#0b041a" stopOpacity="1" />
 						</RadialGradient>
 					</Defs>
@@ -426,11 +498,15 @@ function PerformanceTicketCard({ performer, selected, onSelect }: { performer: P
 				<Text style={styles.performanceTicketName}>{performer.name}</Text>
 				<Text style={styles.performanceTicketMeta}>{performer.stage}</Text>
 				<View style={styles.performanceTicketTimeRow}>
-					<Ionicons name="calendar-outline" size={13} color={THEME.accent} />
-					<Text style={styles.performanceTicketTime}>{formatPerformanceDate(performer)}</Text>
+					<Ionicons name="calendar-outline" size={13} color={conflicted ? "#fb923c" : THEME.accent} />
+					<Text style={[styles.performanceTicketTime, conflicted && styles.performanceTicketTimeConflicted]}>{formatPerformanceDate(performer)}</Text>
 				</View>
 			</View>
-			<Ionicons name={selected ? "checkmark-circle" : "ellipse-outline"} size={22} color={selected ? THEME.accent : "rgba(255,255,255,0.35)"} />
+			<Ionicons
+				name={selected ? (conflicted ? "warning" : "checkmark-circle") : "ellipse-outline"}
+				size={22}
+				color={selected ? (conflicted ? "#fb923c" : THEME.accent) : "rgba(255,255,255,0.35)"}
+			/>
 		</TouchableOpacity>
 	);
 }
@@ -439,13 +515,13 @@ function TicketsScreen({
 	tickets,
 	performers,
 	selectedId,
-	selectedPerformanceId,
+	selectedPerformanceIds,
 	quantity,
 	email,
 	orderComplete,
 	refundRequested,
 	onSelect,
-	onSelectPerformance,
+	onTogglePerformance,
 	onChangeQuantity,
 	onEmailChange,
 	onPurchase,
@@ -455,13 +531,13 @@ function TicketsScreen({
 	tickets: Ticket[];
 	performers: Performer[];
 	selectedId: string | null;
-	selectedPerformanceId: string | null;
+	selectedPerformanceIds: string[];
 	quantity: number;
 	email: string;
 	orderComplete: boolean;
 	refundRequested: boolean;
 	onSelect: (id: string) => void;
-	onSelectPerformance: (id: string) => void;
+	onTogglePerformance: (id: string) => void;
 	onChangeQuantity: (delta: number) => void;
 	onEmailChange: (value: string) => void;
 	onPurchase: () => void;
@@ -469,6 +545,7 @@ function TicketsScreen({
 	onRequestRefund: () => void;
 }) {
 	const [now, setNow] = useState(() => new Date());
+	const [selectedDiscount, setSelectedDiscount] = useState<DiscountKey>("early");
 
 	useEffect(() => {
 		const timer = setInterval(() => setNow(new Date()), 60000);
@@ -477,16 +554,33 @@ function TicketsScreen({
 
 	const sortedPerformers = [...performers].sort((a, b) => getPerformanceDate(a).getTime() - getPerformanceDate(b).getTime());
 	const selected = tickets.find((t) => t.id === selectedId) ?? null;
-	const selectedPerformance = sortedPerformers.find((p) => p.id === selectedPerformanceId) ?? null;
-	const total = selected ? selected.price * quantity : 0;
+	const selectedPerformances = sortedPerformers.filter((p) => selectedPerformanceIds.includes(p.id));
+	const selectedPerformanceSet = new Set(selectedPerformanceIds);
+	const conflictPairs = getPerformanceConflictPairs(selectedPerformances);
+	const conflictedIds = new Set(conflictPairs.flatMap(({ a, b }) => [a.id, b.id]));
+	const hasConflicts = conflictPairs.length > 0;
+	const countdownTarget = getEarliestUpcomingPerformance(selectedPerformances, now);
+	const countdown = countdownTarget ? formatCountdown(getPerformanceDate(countdownTarget), now) : null;
+	const cartItems = selected ? selectedPerformances.map((performance) => ({
+		performance,
+		quantity,
+		unitPrice: selected.price,
+		lineTotal: selected.price * quantity,
+	})) : [];
+	const subtotal = cartItems.reduce((sum, item) => sum + item.lineTotal, 0);
+	const discountAmount = calculateDiscountAmount(selectedDiscount, subtotal, selectedPerformances.length);
+	const amountAfterDiscount = Math.max(0, subtotal - discountAmount);
+	const serviceFee = calculateServiceFee(amountAfterDiscount);
+	const handlingFee = calculateHandlingFee(cartItems.length);
+	const total = amountAfterDiscount + serviceFee + handlingFee;
+	const selectedDiscountOption = getDiscountOption(selectedDiscount);
 	const emailValid = isValidEmail(email);
 	const showEmailError = email.length > 0 && !emailValid;
-	const canCheckout = !!selected && !!selectedPerformance && emailValid;
-	const countdown = selectedPerformance ? formatCountdown(getPerformanceDate(selectedPerformance), now) : null;
-	const refundDeadline = selectedPerformance ? getRefundDeadline(selectedPerformance) : null;
-	const canRequestRefund = !!selectedPerformance && now.getTime() <= (refundDeadline?.getTime() ?? 0) && !refundRequested;
+	const canCheckout = !!selected && selectedPerformances.length > 0 && emailValid && !hasConflicts;
+	const earliestRefundDeadline = getEarliestRefundDeadline(selectedPerformances);
+	const canRequestRefund = selectedPerformances.length > 0 && !!earliestRefundDeadline && now.getTime() <= earliestRefundDeadline.getTime() && !refundRequested;
 
-	if (orderComplete && selected && selectedPerformance && countdown) {
+	if (orderComplete && selected && selectedPerformances.length > 0 && countdownTarget && countdown) {
 		return (
 			<View style={styles.ticketsScreen}>
 				<ScrollView contentContainerStyle={styles.orderSuccessScroll} showsVerticalScrollIndicator={false}>
@@ -500,14 +594,27 @@ function TicketsScreen({
 					<View style={styles.orderSummaryCard}>
 						<Text style={styles.orderSummaryLabel}>RENDELÉS</Text>
 						<Text style={styles.orderSummaryName}>{selected.name}</Text>
-						<Text style={styles.orderSummaryDetail}>{quantity} db · {formatPrice(total, selected.currency)}</Text>
+						<Text style={styles.orderSummaryDetail}>{quantity} db / fellépés · {selectedPerformances.length} fellépés · végösszeg: {formatPrice(total, selected.currency)}</Text>
 						<View style={styles.orderDivider} />
-						<Text style={styles.orderPerformerName}>{selectedPerformance.name}</Text>
-						<Text style={styles.orderPerformerMeta}>{selectedPerformance.stage} · {formatPerformanceDate(selectedPerformance)}</Text>
+						{cartItems.map(({ performance, lineTotal }) => (
+							<View key={performance.id} style={styles.orderPerformanceRow}>
+								<Text style={styles.orderPerformerName}>{performance.name}</Text>
+								<Text style={styles.orderPerformerMeta}>{performance.stage} · {formatPerformanceDate(performance)} · {formatPrice(lineTotal, selected.currency)}</Text>
+							</View>
+						))}
+						<View style={styles.orderDivider} />
+						<View style={styles.cartTotalsCompact}>
+							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>Részösszeg</Text><Text style={styles.cartTotalValue}>{formatPrice(subtotal, selected.currency)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartDiscountLabel}>Kedvezmény · {selectedDiscountOption.title}</Text><Text style={styles.cartDiscountValue}>− {formatPrice(discountAmount, selected.currency)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>Kezelési díj</Text><Text style={styles.cartTotalValue}>{formatPrice(handlingFee, selected.currency)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>Szolgáltatási díj</Text><Text style={styles.cartTotalValue}>{formatPrice(serviceFee, selected.currency)}</Text></View>
+							<View style={styles.cartGrandTotalLine}><Text style={styles.cartGrandTotalLabel}>Fizetendő</Text><Text style={styles.cartGrandTotalValue}>{formatPrice(total, selected.currency)}</Text></View>
+						</View>
 					</View>
 
 					<View style={styles.countdownCard}>
-						<Text style={styles.countdownLabel}>FELLÉPÉSIG HÁTRA VAN</Text>
+						<Text style={styles.countdownLabel}>KÖVETKEZŐ FELLÉPÉSIG HÁTRA VAN</Text>
+						<Text style={styles.countdownTargetName}>{countdownTarget.name}</Text>
 						<View style={styles.countdownGrid}>
 							<View style={styles.countdownBox}><Text style={styles.countdownNumber}>{countdown.days}</Text><Text style={styles.countdownUnit}>nap</Text></View>
 							<View style={styles.countdownBox}><Text style={styles.countdownNumber}>{countdown.hours}</Text><Text style={styles.countdownUnit}>óra</Text></View>
@@ -521,9 +628,9 @@ function TicketsScreen({
 							<Text style={styles.refundPolicyTitle}>Visszamondás & visszatérítés</Text>
 						</View>
 						<Text style={styles.refundPolicyText}>
-							A jegy ehhez a fellépéshez van társítva. Visszatérítési kérelmet legkésőbb {REFUND_DEADLINE_HOURS} órával a kezdés előtt lehet indítani.
+							A jegyek a kiválasztott fellépésekhez vannak társítva. Visszatérítési kérelmet legkésőbb {REFUND_DEADLINE_HOURS} órával az érintett fellépés kezdése előtt lehet indítani. Több fellépésnél a legkorábbi határidőt vesszük figyelembe.
 						</Text>
-						<Text style={styles.refundDeadlineText}>Határidő: {formatRefundDeadline(selectedPerformance)}</Text>
+						<Text style={styles.refundDeadlineText}>Legkorábbi határidő: {formatRefundDeadlineDate(earliestRefundDeadline)}</Text>
 						{refundRequested ? (
 							<View style={styles.refundRequestedBadge}><Text style={styles.refundRequestedText}>Visszatérítési kérelem elküldve</Text></View>
 						) : (
@@ -546,7 +653,7 @@ function TicketsScreen({
 		<View style={styles.ticketsScreen}>
 			<ScrollView contentContainerStyle={styles.ticketsScroll} showsVerticalScrollIndicator={false}>
 				<Text style={styles.ticketsHeading}>Jegyvásárlás</Text>
-				<Text style={styles.ticketsSubheading}>Válaszd ki a jegytípust, majd azt az előadót, akinek a fellépésére szeretnéd kötni a jegyet.</Text>
+				<Text style={styles.ticketsSubheading}>Válaszd ki a jegytípust és a fellépéseket, majd ellenőrizd a kosarat. A végösszegben külön látszanak a kedvezmények és a vásárláshoz kapcsolódó díjak.</Text>
 				<View style={styles.ticketSectionHeader}>
 					<Text style={styles.ticketSectionTitle}>1. Jegytípus</Text>
 					<Text style={styles.ticketSectionHint}>Belépő kategória</Text>
@@ -556,29 +663,105 @@ function TicketsScreen({
 				))}
 
 				<View style={styles.ticketSectionHeader}>
-					<Text style={styles.ticketSectionTitle}>2. Fellépés</Text>
-					<Text style={styles.ticketSectionHint}>Előadóhoz kötött jegy</Text>
+					<Text style={styles.ticketSectionTitle}>2. Fellépések</Text>
+					<Text style={styles.ticketSectionHint}>{selectedPerformances.length > 0 ? `${selectedPerformances.length} kiválasztva` : "Több is választható"}</Text>
 				</View>
 				<View style={styles.performanceList}>
 					{sortedPerformers.map((performer) => (
 						<PerformanceTicketCard
 							key={performer.id}
 							performer={performer}
-							selected={selectedPerformanceId === performer.id}
-							onSelect={() => onSelectPerformance(performer.id)}
+							selected={selectedPerformanceSet.has(performer.id)}
+							conflicted={conflictedIds.has(performer.id)}
+							onSelect={() => onTogglePerformance(performer.id)}
 						/>
 					))}
 				</View>
 
-				{selectedPerformance && countdown && (
-					<View style={styles.selectedPerformancePanel}>
-						<Text style={styles.selectedPerformanceLabel}>Kiválasztott fellépés</Text>
-						<Text style={styles.selectedPerformanceName}>{selectedPerformance.name}</Text>
-						<Text style={styles.selectedPerformanceMeta}>{selectedPerformance.stage} · {formatPerformanceDate(selectedPerformance)}</Text>
-						<View style={styles.miniCountdownRow}>
-							<Text style={styles.miniCountdownText}>{countdown.days} nap · {countdown.hours} óra · {countdown.minutes} perc van hátra</Text>
+				{hasConflicts && (
+					<View style={styles.performanceConflictPanel}>
+						<View style={styles.performanceConflictHeader}>
+							<Ionicons name="warning-outline" size={18} color="#fb923c" />
+							<Text style={styles.performanceConflictTitle}>Időpontütközés</Text>
 						</View>
-						<Text style={styles.selectedRefundInfo}>Visszamondási határidő: {formatRefundDeadline(selectedPerformance)}</Text>
+						<Text style={styles.performanceConflictText}>Ezek a fellépések átfedik egymást, ezért együtt nem vásárolhatók meg:</Text>
+						{conflictPairs.map(({ a, b }) => (
+							<Text key={`${a.id}-${b.id}`} style={styles.performanceConflictItem}>• {a.name} ({a.startTime}–{a.endTime}) és {b.name} ({b.startTime}–{b.endTime})</Text>
+						))}
+					</View>
+				)}
+
+				{selected && selectedPerformances.length > 0 && (
+					<View style={styles.discountSection}>
+						<View style={styles.ticketSectionHeader}>
+							<Text style={styles.ticketSectionTitle}>3. Kedvezmény</Text>
+							<Text style={styles.ticketSectionHint}>Sziget-szerű árkedvezmények</Text>
+						</View>
+						<View style={styles.discountGrid}>
+							{DISCOUNT_OPTIONS.map((option) => {
+								const active = selectedDiscount === option.key;
+								const disabled = !isDiscountAvailable(option.key, selectedPerformances.length);
+								return (
+									<TouchableOpacity
+										key={option.key}
+										style={[styles.discountChip, active && styles.discountChipActive, disabled && styles.discountChipDisabled]}
+										onPress={() => !disabled && setSelectedDiscount(option.key)}
+										disabled={disabled}
+									>
+										<View style={styles.discountChipHeader}>
+											<Text style={[styles.discountChipTitle, active && styles.discountChipTitleActive]}>{option.title}</Text>
+											{option.percent > 0 && <Text style={styles.discountChipPercent}>-{option.percent}%</Text>}
+										</View>
+										<Text style={styles.discountChipDescription}>{disabled ? `Legalább ${option.minPerformances} fellépés kell hozzá` : option.description}</Text>
+									</TouchableOpacity>
+								);
+							})}
+						</View>
+					</View>
+				)}
+
+				{selected && cartItems.length > 0 && (
+					<View style={styles.cartCard}>
+						<View style={styles.cartHeaderRow}>
+							<View>
+								<Text style={styles.cartEyebrow}>KOSÁR</Text>
+								<Text style={styles.cartTitle}>Rendelés áttekintése</Text>
+							</View>
+							<View style={styles.cartCountBadge}><Text style={styles.cartCountText}>{cartItems.length}</Text></View>
+						</View>
+						{cartItems.map(({ performance, lineTotal }) => (
+							<View key={performance.id} style={styles.cartItemRow}>
+								<View style={styles.cartItemInfo}>
+									<Text style={styles.cartItemName}>{performance.name}</Text>
+									<Text style={styles.cartItemMeta}>{selected.name} · {quantity} db · {formatPerformanceDate(performance)}</Text>
+								</View>
+								<Text style={styles.cartItemPrice}>{formatPrice(lineTotal, selected.currency)}</Text>
+							</View>
+						))}
+						<View style={styles.cartTotals}>
+							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>Részösszeg</Text><Text style={styles.cartTotalValue}>{formatPrice(subtotal, selected.currency)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartDiscountLabel}>Kedvezmény · {selectedDiscountOption.title}</Text><Text style={styles.cartDiscountValue}>− {formatPrice(discountAmount, selected.currency)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>Kezelési díj</Text><Text style={styles.cartTotalValue}>{formatPrice(handlingFee, selected.currency)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>Szolgáltatási díj ({Math.round(SERVICE_FEE_RATE * 1000) / 10}%)</Text><Text style={styles.cartTotalValue}>{formatPrice(serviceFee, selected.currency)}</Text></View>
+							<View style={styles.cartGrandTotalLine}><Text style={styles.cartGrandTotalLabel}>Fizetendő</Text><Text style={styles.cartGrandTotalValue}>{formatPrice(total, selected.currency)}</Text></View>
+						</View>
+						<Text style={styles.cartLegalNote}>A díjak és kedvezmények demo logikák. A kezelési díj tételenként, a szolgáltatási díj a kedvezménnyel csökkentett összeg után számolódik.</Text>
+					</View>
+				)}
+
+				{selectedPerformances.length > 0 && countdownTarget && countdown && (
+					<View style={styles.selectedPerformancePanel}>
+						<Text style={styles.selectedPerformanceLabel}>Kiválasztott fellépések</Text>
+						{selectedPerformances.map((performance) => (
+							<View key={performance.id} style={styles.selectedPerformanceLine}>
+								<Text style={styles.selectedPerformanceName}>{performance.name}</Text>
+								<Text style={styles.selectedPerformanceMeta}>{performance.stage} · {formatPerformanceDate(performance)}</Text>
+							</View>
+						))}
+						<View style={styles.miniCountdownRow}>
+							<Text style={styles.miniCountdownText}>{countdownTarget.name}: {countdown.days} nap · {countdown.hours} óra · {countdown.minutes} perc van hátra</Text>
+						</View>
+						<Text style={styles.selectedRefundInfo}>Legkorábbi visszamondási határidő: {formatRefundDeadlineDate(earliestRefundDeadline)}</Text>
 					</View>
 				)}
 			</ScrollView>
@@ -586,7 +769,7 @@ function TicketsScreen({
 				{selected ? (
 					<>
 						<View style={styles.quantityRow}>
-							<Text style={styles.quantityLabel}>Mennyiség</Text>
+							<Text style={styles.quantityLabel}>Mennyiség / fellépés</Text>
 							<View style={styles.quantityControls}>
 								<TouchableOpacity style={[styles.quantityBtn, quantity <= 1 && styles.quantityBtnDisabled]} onPress={() => onChangeQuantity(-1)} disabled={quantity <= 1}>
 									<Ionicons name="remove" size={18} color="#e8d8ff" />
@@ -612,14 +795,22 @@ function TicketsScreen({
 							/>
 							{showEmailError && <Text style={styles.emailErrorText}>Érvényes e-mail címet adj meg</Text>}
 						</View>
-						<View style={styles.totalRow}>
-							<Text style={styles.totalLabel}>Összesen</Text>
-							<Text style={styles.totalValue}>{formatPrice(total, selected.currency)}</Text>
+						<View style={styles.checkoutCartMini}>
+							<View style={styles.totalRow}>
+								<Text style={styles.totalLabel}>{selectedPerformances.length || 0} fellépés · részösszeg</Text>
+								<Text style={styles.totalValueSmall}>{formatPrice(subtotal, selected.currency)}</Text>
+							</View>
+							{discountAmount > 0 && <View style={styles.totalRow}><Text style={styles.totalLabel}>Kedvezmény</Text><Text style={styles.totalDiscountValue}>− {formatPrice(discountAmount, selected.currency)}</Text></View>}
+							<View style={styles.totalRow}>
+								<Text style={styles.totalLabel}>Díjakkal együtt fizetendő</Text>
+								<Text style={styles.totalValue}>{formatPrice(total, selected.currency)}</Text>
+							</View>
 						</View>
 					</>
 				) : (
-					<Text style={styles.checkoutHint}>Válassz jegytípust és fellépést a folytatáshoz</Text>
+					<Text style={styles.checkoutHint}>Válassz jegytípust és legalább egy fellépést a folytatáshoz</Text>
 				)}
+				{hasConflicts && <Text style={styles.checkoutWarningText}>Előbb oldd fel az időpontütközést.</Text>}
 				<TouchableOpacity style={[styles.checkoutBtn, !canCheckout && styles.checkoutBtnDisabled]} onPress={onPurchase} disabled={!canCheckout}>
 					<Ionicons name="card-outline" size={18} color="#f0e8ff" />
 					<Text style={styles.checkoutBtnText}>Fizetés</Text>
@@ -628,6 +819,7 @@ function TicketsScreen({
 		</View>
 	);
 }
+
 
 // ─── Canvas térkép segédfüggvények ────────────────────────────────────────────
 
@@ -2165,7 +2357,7 @@ export default function App() {
 	const [favorites, setFavorites] = useState<string[]>([]);
 	const [lang, setLang] = useState<"en" | "hu">("en");
 	const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
-	const [selectedPerformanceId, setSelectedPerformanceId] = useState<string | null>(null);
+	const [selectedPerformanceIds, setSelectedPerformanceIds] = useState<string[]>([]);
 	const [ticketQuantity, setTicketQuantity] = useState(1);
 	const [buyerEmail, setBuyerEmail] = useState("");
 	const [orderComplete, setOrderComplete] = useState(false);
@@ -2203,10 +2395,18 @@ export default function App() {
 	};
 
 	const handleSelectTicket = (id: string) => { setSelectedTicketId(id); setTicketQuantity(1); setOrderComplete(false); setRefundRequested(false); };
-	const handleSelectPerformance = (id: string) => { setSelectedPerformanceId(id); setOrderComplete(false); setRefundRequested(false); };
+	const handleTogglePerformance = (id: string) => {
+		setSelectedPerformanceIds((prev) => prev.includes(id) ? prev.filter((performanceId) => performanceId !== id) : [...prev, id]);
+		setOrderComplete(false);
+		setRefundRequested(false);
+	};
 	const handleChangeQuantity = (delta: number) => { setTicketQuantity((prev) => Math.max(1, Math.min(10, prev + delta))); };
-	const handlePurchase = () => { if (selectedTicketId && selectedPerformanceId && isValidEmail(buyerEmail)) setOrderComplete(true); };
-	const handleResetOrder = () => { setOrderComplete(false); setRefundRequested(false); setSelectedTicketId(null); setSelectedPerformanceId(null); setTicketQuantity(1); setBuyerEmail(""); };
+	const handlePurchase = () => {
+		const selectedPerformancesForCheckout = performers.filter((p) => selectedPerformanceIds.includes(p.id));
+		const noTimeConflicts = getPerformanceConflictPairs(selectedPerformancesForCheckout).length === 0;
+		if (selectedTicketId && selectedPerformanceIds.length > 0 && noTimeConflicts && isValidEmail(buyerEmail)) setOrderComplete(true);
+	};
+	const handleResetOrder = () => { setOrderComplete(false); setRefundRequested(false); setSelectedTicketId(null); setSelectedPerformanceIds([]); setTicketQuantity(1); setBuyerEmail(""); };
 	const handleRequestRefund = () => { setRefundRequested(true); };
 
 	const navTabs: { key: TabKey | "More"; icon: string; label: string }[] = [
@@ -2279,13 +2479,13 @@ export default function App() {
 						tickets={tickets}
 						performers={performers}
 						selectedId={selectedTicketId}
-						selectedPerformanceId={selectedPerformanceId}
+						selectedPerformanceIds={selectedPerformanceIds}
 						quantity={ticketQuantity}
 						email={buyerEmail}
 						orderComplete={orderComplete}
 						refundRequested={refundRequested}
 						onSelect={handleSelectTicket}
-						onSelectPerformance={handleSelectPerformance}
+						onTogglePerformance={handleTogglePerformance}
 						onChangeQuantity={handleChangeQuantity}
 						onEmailChange={setBuyerEmail}
 						onPurchase={handlePurchase}
@@ -2455,6 +2655,7 @@ const styles = StyleSheet.create({
 	orderSuccessScroll: { padding: 20, paddingBottom: 32, alignItems: "center" },
 	orderDivider: { width: "100%", height: 1, backgroundColor: THEME.border, marginVertical: 14 },
 	orderPerformerName: { fontSize: 18, fontWeight: "900", color: THEME.text, textAlign: "center", marginBottom: 5 },
+	orderPerformanceRow: { width: "100%", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.07)", alignItems: "center" },
 	orderPerformerMeta: { fontSize: 12, color: THEME.textSubtle, textAlign: "center", fontWeight: "700" },
 	ticketSectionHeader: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", marginTop: 4, marginBottom: 10 },
 	ticketSectionTitle: { fontSize: 15, color: THEME.text, fontWeight: "900", letterSpacing: 0.2 },
@@ -2462,21 +2663,31 @@ const styles = StyleSheet.create({
 	performanceList: { gap: 10, marginBottom: 18 },
 	performanceTicketCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.045)" },
 	performanceTicketCardSelected: { borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.12)" },
+	performanceTicketCardConflicted: { borderColor: "rgba(251,146,60,0.7)", backgroundColor: "rgba(249,115,22,0.10)" },
 	performanceTicketVisual: { width: 72, height: 58, borderRadius: 14, overflow: "hidden", backgroundColor: "rgba(168,85,247,0.16)" },
 	performanceTicketInfo: { flex: 1 },
 	performanceTicketName: { fontSize: 15, color: THEME.text, fontWeight: "900", marginBottom: 3 },
 	performanceTicketMeta: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700", marginBottom: 6 },
 	performanceTicketTimeRow: { flexDirection: "row", alignItems: "center", gap: 5 },
 	performanceTicketTime: { fontSize: 11, color: THEME.textMuted, fontWeight: "700" },
+	performanceTicketTimeConflicted: { color: "#fed7aa" },
 	selectedPerformancePanel: { padding: 16, borderRadius: 18, borderWidth: 1, borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.10)", marginBottom: 110 },
 	selectedPerformanceLabel: { fontSize: 10, color: THEME.accent, fontWeight: "900", letterSpacing: 1.3, marginBottom: 8 },
 	selectedPerformanceName: { fontSize: 20, color: THEME.text, fontWeight: "900", marginBottom: 5 },
 	selectedPerformanceMeta: { fontSize: 12, color: THEME.textMuted, fontWeight: "700", marginBottom: 12 },
+	selectedPerformanceLine: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.07)" },
+	performanceConflictPanel: { padding: 14, borderRadius: 16, borderWidth: 1, borderColor: "rgba(251,146,60,0.45)", backgroundColor: "rgba(249,115,22,0.10)", marginBottom: 14 },
+	performanceConflictHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 },
+	performanceConflictTitle: { fontSize: 14, color: "#fed7aa", fontWeight: "900" },
+	performanceConflictText: { fontSize: 12, color: "rgba(255,237,213,0.88)", lineHeight: 18, marginBottom: 8 },
+	performanceConflictItem: { fontSize: 12, color: "#fed7aa", lineHeight: 18, fontWeight: "700" },
+	checkoutWarningText: { color: "#fed7aa", fontSize: 12, fontWeight: "800", textAlign: "center", marginBottom: 8 },
 	miniCountdownRow: { paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, backgroundColor: "rgba(0,0,0,0.18)", borderWidth: 1, borderColor: THEME.border, marginBottom: 10 },
 	miniCountdownText: { fontSize: 13, color: THEME.text, fontWeight: "900", textAlign: "center" },
 	selectedRefundInfo: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700", textAlign: "center" },
 	countdownCard: { width: "100%", padding: 18, borderRadius: 18, borderWidth: 1, borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.12)", marginBottom: 14 },
-	countdownLabel: { fontSize: 10, color: THEME.accent, fontWeight: "900", letterSpacing: 1.4, textAlign: "center", marginBottom: 12 },
+	countdownLabel: { fontSize: 10, color: THEME.accent, fontWeight: "900", letterSpacing: 1.4, textAlign: "center", marginBottom: 8 },
+	countdownTargetName: { fontSize: 16, color: THEME.text, fontWeight: "900", textAlign: "center", marginBottom: 12 },
 	countdownGrid: { flexDirection: "row", gap: 10 },
 	countdownBox: { flex: 1, paddingVertical: 12, borderRadius: 14, backgroundColor: "rgba(0,0,0,0.22)", alignItems: "center", borderWidth: 1, borderColor: THEME.border },
 	countdownNumber: { fontSize: 24, color: THEME.text, fontWeight: "900" },
@@ -2491,6 +2702,41 @@ const styles = StyleSheet.create({
 	refundBtnText: { color: THEME.text, fontSize: 13, fontWeight: "900" },
 	refundRequestedBadge: { paddingVertical: 12, borderRadius: 14, backgroundColor: "rgba(34,197,94,0.12)", borderWidth: 1, borderColor: "rgba(34,197,94,0.35)", alignItems: "center" },
 	refundRequestedText: { color: "#86efac", fontSize: 13, fontWeight: "900" },
+	discountSection: { marginBottom: 18 },
+	discountGrid: { gap: 10, marginBottom: 4 },
+	discountChip: { padding: 14, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.045)" },
+	discountChipActive: { borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.14)" },
+	discountChipDisabled: { opacity: 0.45 },
+	discountChipHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 5 },
+	discountChipTitle: { fontSize: 14, color: THEME.text, fontWeight: "900" },
+	discountChipTitleActive: { color: "#ffffff" },
+	discountChipPercent: { fontSize: 12, color: "#86efac", fontWeight: "900" },
+	discountChipDescription: { fontSize: 12, color: THEME.textSubtle, lineHeight: 17, fontWeight: "700" },
+	cartCard: { padding: 16, borderRadius: 20, borderWidth: 1, borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.09)", marginBottom: 18 },
+	cartHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
+	cartEyebrow: { fontSize: 10, letterSpacing: 1.3, color: THEME.accent, fontWeight: "900", marginBottom: 3 },
+	cartTitle: { fontSize: 18, color: THEME.text, fontWeight: "900" },
+	cartCountBadge: { minWidth: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(168,85,247,0.20)", borderWidth: 1, borderColor: THEME.borderStrong },
+	cartCountText: { color: THEME.text, fontSize: 13, fontWeight: "900" },
+	cartItemRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.08)" },
+	cartItemInfo: { flex: 1 },
+	cartItemName: { fontSize: 14, color: THEME.text, fontWeight: "900", marginBottom: 4 },
+	cartItemMeta: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700", lineHeight: 16 },
+	cartItemPrice: { fontSize: 13, color: THEME.text, fontWeight: "900" },
+	cartTotals: { paddingTop: 12, gap: 8 },
+	cartTotalsCompact: { width: "100%", gap: 8 },
+	cartTotalLine: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
+	cartTotalLabel: { flex: 1, fontSize: 12, color: THEME.textSubtle, fontWeight: "700" },
+	cartTotalValue: { fontSize: 12, color: THEME.textMuted, fontWeight: "800" },
+	cartDiscountLabel: { flex: 1, fontSize: 12, color: "#86efac", fontWeight: "800" },
+	cartDiscountValue: { fontSize: 12, color: "#86efac", fontWeight: "900" },
+	cartGrandTotalLine: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 10, marginTop: 4, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.10)" },
+	cartGrandTotalLabel: { fontSize: 14, color: THEME.text, fontWeight: "900" },
+	cartGrandTotalValue: { fontSize: 20, color: THEME.text, fontWeight: "900" },
+	cartLegalNote: { fontSize: 10, color: THEME.textSubtle, lineHeight: 15, marginTop: 12, fontWeight: "600" },
+	checkoutCartMini: { marginBottom: 10, paddingTop: 2 },
+	totalValueSmall: { fontSize: 13, fontWeight: "800", color: THEME.textMuted },
+	totalDiscountValue: { fontSize: 13, fontWeight: "900", color: "#86efac" },
 
 	// Térkép
 	mapScreen: { flex: 1, paddingTop: 8 },
