@@ -1184,7 +1184,7 @@ function MapScreen({ map }: { map: FestivalMap }) {
           )}
 
           <Text style={styles.mapImageHint}>
-            Érintsd meg az alábbi helyszíneket a részletekhez. A térképkép az assets/enhanced_ready.png fájlból töltődik be.
+            Válassz egy helyszínt az alábbi listából, és a részletek mellett a térképen is megmutatjuk, hol találod.
           </Text>
 
           {/* Jelmagyarázat */}
