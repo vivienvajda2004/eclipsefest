@@ -35,6 +35,30 @@ import Svg, {
 } from "react-native-svg";
 import festivalData from "./assets/data/eclipsefest_data.json";
 
+// B) prémium / elegáns – sötét alap, finom lila akcentus, visszafogott glow
+const THEME = {
+	bg: "#06020f",
+	surface: "rgba(255,255,255,0.045)",
+	surface2: "rgba(168,85,247,0.11)",
+	border: "rgba(216,180,254,0.16)",
+	borderStrong: "rgba(168,85,247,0.42)",
+	text: "#f0e8ff",
+	textMuted: "rgba(232,216,255,0.82)",
+	textSubtle: "rgba(168,85,247,0.55)",
+	accent: "#a855f7",
+	accent2: "#7c3aed",
+	danger: "#ef4444",
+	warn: "#f59e0b",
+	navBg: "rgba(10,4,21,0.98)",
+};
+
+const FONTS = {
+	heading: Platform.select({ ios: "Georgia", android: "serif", default: "serif" }),
+	subheading: Platform.select({ ios: "Avenir Next", android: "sans-serif-medium", default: "sans-serif" }),
+	body: Platform.select({ ios: "System", android: "sans-serif", default: "sans-serif" }),
+	ui: Platform.select({ ios: "Avenir Next", android: "sans-serif-medium", default: "sans-serif" }),
+};
+
 // ─── Nyelvi szótár ────────────────────────────────────────────────────────────
 const translations = {
 	en: {
@@ -467,35 +491,35 @@ const MAP_H = 520;
 
 // ─── Térkép konstansok ────────────────────────────────────────────────────────
 const COLORS = {
-  grass:       "#2d5a1b",
-  grassLight:  "#3a7023",
-  grassDark:   "#1e4012",
-  path:        "#c8b99a",
-  pathDark:    "#a89070",
-  road:        "#8b7355",
-  fence:       "#6b4c2a",
-  stageMain:   "#4a0080",
-  stagePurple: "#6b21a8",
+  grass:       "#070212",       // Deep obsidian background
+  grassLight:  "#0b041a",       // Slightly lighter obsidian
+  grassDark:   "#040108",       // Darkest obsidian
+  path:        "rgba(168,85,247,0.12)",   // Glowing purple translucent path
+  pathDark:    "rgba(168,85,247,0.25)",
+  road:        "rgba(124,58,237,0.15)",
+  fence:       "rgba(168,85,247,0.35)",  // Neon purple fence outline
+  stageMain:   "#581c87",       // Glowing stage bases
+  stagePurple: "#7c3aed",
   stageBlue:   "#1d4ed8",
   stageGold:   "#b45309",
-  water:       "#1e40af",
-  waterLight:  "#3b82f6",
-  campTeal:    "#0d9488",
+  water:       "rgba(168,85,247,0.06)",   // Ethereal purple pond
+  waterLight:  "rgba(168,85,247,0.15)",
+  campTeal:    "rgba(13,148,136,0.25)",
   campLight:   "#14b8a6",
   food:        "#d97706",
   foodLight:   "#fbbf24",
   service:     "#0891b2",
   merch:       "#be185d",
   vip:         "#7c3aed",
-  entrance:    "#16a34a",
-  parking:     "#475569",
-  tree:        "#166534",
-  treeLight:   "#15803d",
-  treeShadow:  "#14532d",
+  entrance:    "#a855f7",
+  parking:     "rgba(71,85,105,0.2)",
+  tree:        "rgba(168,85,247,0.2)",   // Glowing abstract neon trees
+  treeLight:   "rgba(168,85,247,0.4)",
+  treeShadow:  "rgba(168,85,247,0.05)",
   text:        "#f0e8ff",
-  textDark:    "#1a0a30",
+  textDark:    "#06020f",
   white:       "#ffffff",
-  shadow:      "rgba(0,0,0,0.3)",
+  shadow:      "rgba(0,0,0,0.5)",
 };
 
 // ─── Segéd komponensek ────────────────────────────────────────────────────────
@@ -504,11 +528,12 @@ const COLORS = {
 function MapTree({ x, y, r = 14 }: { x: number; y: number; r?: number }) {
   return (
     <G>
-      <Ellipse cx={x+2} cy={y+r*0.6} rx={r*0.55} ry={r*0.22} fill={COLORS.treeShadow} opacity={0.5} />
-      <Circle cx={x} cy={y} r={r} fill={COLORS.treeShadow} opacity={0.3} />
-      <Circle cx={x} cy={y} r={r*0.85} fill={COLORS.tree} />
-      <Circle cx={x-r*0.2} cy={y-r*0.2} r={r*0.7} fill={COLORS.treeLight} />
-      <Circle cx={x+r*0.1} cy={y-r*0.3} r={r*0.45} fill="#22c55e" opacity={0.6} />
+      {/* Outer ambient glow */}
+      <Circle cx={x} cy={y} r={r * 1.3} fill="rgba(168,85,247,0.04)" />
+      {/* Concentric rings */}
+      <Circle cx={x} cy={y} r={r} fill="none" stroke="rgba(168,85,247,0.2)" strokeWidth={1} />
+      <Circle cx={x} cy={y} r={r * 0.7} fill="none" stroke="rgba(168,85,247,0.4)" strokeWidth={1} />
+      <Circle cx={x} cy={y} r={r * 0.3} fill="#a855f7" opacity={0.6} />
     </G>
   );
 }
@@ -517,10 +542,8 @@ function MapTree({ x, y, r = 14 }: { x: number; y: number; r?: number }) {
 function MapBush({ x, y }: { x: number; y: number }) {
   return (
     <G>
-      <Ellipse cx={x+1} cy={y+5} rx={9} ry={4} fill={COLORS.treeShadow} opacity={0.3} />
-      <Circle cx={x-4} cy={y+1} r={6} fill={COLORS.tree} />
-      <Circle cx={x+4} cy={y+1} r={6} fill={COLORS.tree} />
-      <Circle cx={x} cy={y-2} r={7} fill={COLORS.treeLight} />
+      <Circle cx={x} cy={y} r={6} fill="none" stroke="rgba(192,132,252,0.35)" strokeWidth={0.8} />
+      <Circle cx={x} cy={y} r={2.5} fill="#c084fc" opacity={0.7} />
     </G>
   );
 }
@@ -529,30 +552,19 @@ function MapBush({ x, y }: { x: number; y: number }) {
 function MapStage({
   x, y, w, h, color, label, sublabel, icon,
 }: { x: number; y: number; w: number; h: number; color: string; label: string; sublabel?: string; icon: string }) {
-  const depth = 8;
-  const sideColor = color + "88";
   return (
     <G>
-      {/* Árnyék */}
-      <Rect x={x+4} y={y+4} width={w} height={h} rx={4} fill="rgba(0,0,0,0.4)" />
-      {/* Oldalsó 3D hatás */}
-      <Polygon
-        points={`${x+w},${y} ${x+w+depth},${y+depth} ${x+w+depth},${y+h+depth} ${x+w},${y+h}`}
-        fill={sideColor}
-      />
-      <Polygon
-        points={`${x},${y+h} ${x+depth},${y+h+depth} ${x+w+depth},${y+h+depth} ${x+w},${y+h}`}
-        fill={sideColor}
-      />
-      {/* Fő felület */}
-      <Rect x={x} y={y} width={w} height={h} rx={4} fill={color} />
-      {/* Tető sáv */}
-      <Rect x={x} y={y} width={w} height={h*0.3} rx={4} fill="rgba(255,255,255,0.15)" />
-      {/* Ikon */}
-      <SvgText x={x+w/2} y={y+h*0.45} fontSize={16} textAnchor="middle" fill={COLORS.white}>{icon}</SvgText>
-      {/* Felirat */}
-      <SvgText x={x+w/2} y={y+h*0.68} fontSize={8} fontWeight="bold" textAnchor="middle" fill={COLORS.white} letterSpacing={0.5}>{label}</SvgText>
-      {sublabel && <SvgText x={x+w/2} y={y+h*0.82} fontSize={6.5} textAnchor="middle" fill="rgba(255,255,255,0.8)">{sublabel}</SvgText>}
+      {/* Ambient Outer Glow */}
+      <Rect x={x-3} y={y-3} width={w+6} height={h+6} rx={12} fill="none" stroke={`${color}22`} strokeWidth={3} />
+      {/* Main Glassmorphic Panel */}
+      <Rect x={x} y={y} width={w} height={h} rx={10} fill="rgba(15,7,32,0.85)" stroke={color} strokeWidth={1.5} />
+      {/* Top Gloss Line */}
+      <Rect x={x+2} y={y+2} width={w-4} height={4} rx={2} fill="rgba(255,255,255,0.1)" />
+      {/* Icon */}
+      <SvgText x={x+w/2} y={y+h*0.42} fontSize={14} textAnchor="middle" fill={COLORS.white}>{icon}</SvgText>
+      {/* Text Labels */}
+      <SvgText x={x+w/2} y={y+h*0.68} fontSize={8.5} fontWeight="bold" textAnchor="middle" fill="#f0e8ff" letterSpacing={0.8}>{label}</SvgText>
+      {sublabel && <SvgText x={x+w/2} y={y+h*0.84} fontSize={7} textAnchor="middle" fill="rgba(216,180,254,0.65)">{sublabel}</SvgText>}
     </G>
   );
 }
@@ -578,9 +590,11 @@ function MapPin({
 function MapTent({ x, y, color = COLORS.campTeal }: { x: number; y: number; color?: string }) {
   return (
     <G>
-      <Polygon points={`${x},${y-12} ${x-10},${y+4} ${x+10},${y+4}`} fill={color} />
-      <Polygon points={`${x},${y-12} ${x-6},${y+4} ${x+6},${y+4}`} fill="rgba(255,255,255,0.2)" />
-      <Rect x={x-4} y={y-2} width={8} height={6} rx={1} fill={COLORS.textDark} opacity={0.5} />
+      {/* Outer subtle shape */}
+      <Polygon points={`${x},${y-10} ${x-8},${y+4} ${x+8},${y+4}`} fill="none" stroke={color} strokeWidth={1} />
+      {/* Inner cross vector line */}
+      <Line x1={x} y1={y-10} x2={x} y2={y+4} stroke={color} strokeWidth={0.5} />
+      <Polygon points={`${x},${y-4} ${x-4},${y+4} ${x+4},${y+4}`} fill={`${color}22`} />
     </G>
   );
 }
@@ -674,7 +688,7 @@ function MapScreen({ map }: { map: FestivalMap }) {
 
       {/* SVG TÉRKÉP NÉZET */}
       {mapView === "map" && (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
           {/* Térkép konténer */}
           <View
             style={styles.svgMapContainer}
@@ -706,22 +720,22 @@ function MapScreen({ map }: { map: FestivalMap }) {
 
               {/* Textura rács */}
               {Array.from({ length: 20 }, (_, i) => (
-                <Line key={`gh${i}`} x1={0} y1={i*26} x2={MAP_W} y2={i*26} stroke="rgba(0,0,0,0.06)" strokeWidth={0.5} />
+                <Line key={`gh${i}`} x1={0} y1={i*26} x2={MAP_W} y2={i*26} stroke="rgba(120,60,200,0.06)" strokeWidth={0.5} />
               ))}
               {Array.from({ length: 16 }, (_, i) => (
-                <Line key={`gv${i}`} x1={i*26} y1={0} x2={i*26} y2={MAP_H} stroke="rgba(0,0,0,0.06)" strokeWidth={0.5} />
+                <Line key={`gv${i}`} x1={i*26} y1={0} x2={i*26} y2={MAP_H} stroke="rgba(120,60,200,0.06)" strokeWidth={0.5} />
               ))}
 
               {/* ═══ HELYSZÍN KERÍTÉS ═══ */}
               <Rect x={8} y={8} width={MAP_W-16} height={MAP_H-16} rx={12}
-                fill="none" stroke={COLORS.fence} strokeWidth={3} strokeDasharray="8,4" />
+                fill="none" stroke={COLORS.fence} strokeWidth={2} strokeDasharray="8,4" />
               <Rect x={12} y={12} width={MAP_W-24} height={MAP_H-24} rx={10}
-                fill="none" stroke="rgba(107,76,42,0.4)" strokeWidth={1} />
+                fill="none" stroke="rgba(168,85,247,0.15)" strokeWidth={1} />
 
               {/* ═══ TAVACSKA / VÍZ ═══ */}
-              <Ellipse cx={340} cy={80} rx={55} ry={35} fill={COLORS.water} opacity={0.85} />
-              <Ellipse cx={338} cy={77} rx={50} ry={29} fill={COLORS.waterLight} opacity={0.4} />
-              <SvgText x={340} y={82} fontSize={8} textAnchor="middle" fill="rgba(255,255,255,0.7)" fontStyle="italic">tó</SvgText>
+              <Ellipse cx={340} cy={80} rx={55} ry={35} fill={COLORS.water} stroke="rgba(168,85,247,0.3)" strokeWidth={1} />
+              <Ellipse cx={338} cy={77} rx={50} ry={29} fill={COLORS.waterLight} stroke="rgba(168,85,247,0.15)" strokeWidth={0.5} />
+              <SvgText x={340} y={82} fontSize={8.5} fontWeight="600" textAnchor="middle" fill="rgba(216,180,254,0.6)" letterSpacing={0.5}>AMETHYST LAKE</SvgText>
 
               {/* ═══ FŐ ÚTVONALAK ═══ */}
               {/* Középső főút - vízszintes */}
@@ -741,146 +755,146 @@ function MapScreen({ map }: { map: FestivalMap }) {
               <Path d="M 100,380 Q 200,350 300,380" stroke={COLORS.path} strokeWidth={10} fill="none" strokeLinecap="round" />
 
               {/* Útvonal jelölések (nyilak) */}
-              <SvgText x={201} y={440} fontSize={7} fill="rgba(255,255,255,0.4)" textAnchor="middle">↑↓</SvgText>
-              <SvgText x={300} y={277} fontSize={7} fill="rgba(255,255,255,0.4)" textAnchor="middle">→</SvgText>
+              <SvgText x={201} y={440} fontSize={7} fill="rgba(168,85,247,0.4)" textAnchor="middle">↑↓</SvgText>
+              <SvgText x={300} y={277} fontSize={7} fill="rgba(168,85,247,0.4)" textAnchor="middle">→</SvgText>
 
               {/* ═══ KEMPING ZÓNA ═══ */}
               <Rect x={20} y={30} width={120} height={140} rx={8}
-                fill={COLORS.campTeal} opacity={0.12}
-                stroke={COLORS.campTeal} strokeWidth={1.5} strokeDasharray="6,3" />
+                fill="rgba(13,148,136,0.06)"
+                stroke={COLORS.campTeal} strokeWidth={1.2} strokeDasharray="6,3" />
               <SvgText x={80} y={50} fontSize={8} fontWeight="bold" textAnchor="middle"
-                fill={COLORS.campTeal} letterSpacing={1.5}>KEMPING ZÓNA</SvgText>
+                fill="#2dd4bf" letterSpacing={1.5}>KEMPING ZÓNA</SvgText>
               {/* Sátrak */}
               <MapTent x={45} y={85} />
               <MapTent x={75} y={85} />
               <MapTent x={105} y={85} />
               <MapTent x={60} y={115} />
               <MapTent x={90} y={115} />
-              <MapTent x={45} y={148} color="#0e7490" />
-              <MapTent x={75} y={148} color="#0e7490" />
-              <MapTent x={105} y={148} color="#0e7490" />
+              <MapTent x={45} y={148} color="#0d9488" />
+              <MapTent x={75} y={148} color="#0d9488" />
+              <MapTent x={105} y={148} color="#0d9488" />
 
               {/* ═══ PARKOLÓ ═══ */}
               <Rect x={20} y={380} width={80} height={110} rx={6}
                 fill={COLORS.parking} opacity={0.25}
-                stroke={COLORS.parking} strokeWidth={1.5} />
+                stroke="rgba(71,85,105,0.4)" strokeWidth={1.5} />
               <SvgText x={60} y={438} fontSize={28} fontWeight="900" textAnchor="middle"
-                fill="rgba(148,163,184,0.8)">P</SvgText>
+                fill="rgba(148,163,184,0.4)">P</SvgText>
               <SvgText x={60} y={455} fontSize={7} textAnchor="middle"
-                fill="rgba(148,163,184,0.6)">PARKOLÓ</SvgText>
+                fill="rgba(148,163,184,0.4)">PARKOLÓ</SvgText>
               {/* Parkoló sorok */}
               {[0,1,2].map(i => (
                 <Line key={`ps${i}`} x1={28+i*24} y1={385} x2={28+i*24} y2={485}
-                  stroke="rgba(148,163,184,0.3)" strokeWidth={1} strokeDasharray="4,4" />
+                  stroke="rgba(148,163,184,0.15)" strokeWidth={1} strokeDasharray="4,4" />
               ))}
 
               {/* ═══ MAIN STAGE – ÉSZAK-KÖZÉP ═══ */}
               <Circle cx={201} cy={100} r={45} fill="url(#stageGlow)" />
-              <MapStage x={160} y={55} w={82} h={60} color="#5b21b6"
-                label="MAIN STAGE" sublabel="EclipseFest" icon="🎤" />
+              <MapStage x={160} y={55} w={82} h={60} color="#a855f7"
+                label="MAIN STAGE" sublabel="EclipseFest" icon="◆" />
 
               {/* ═══ ELECTRONIC STAGE – NYUGAT ═══ */}
               <Circle cx={100} cy={220} r={30} fill="#1d4ed8" opacity={0.1} />
               <MapStage x={50} y={190} w={72} h={52} color="#1d4ed8"
-                label="ELECTRONIC" sublabel="STAGE" icon="🎧" />
+                label="ELECTRONIC" sublabel="STAGE" icon="◆" />
 
               {/* ═══ ACOUSTIC STAGE – KELET ═══ */}
               <Circle cx={320} cy={210} r={30} fill="#b45309" opacity={0.1} />
               <MapStage x={278} y={178} w={72} h={52} color="#b45309"
-                label="ACOUSTIC" sublabel="STAGE" icon="🎸" />
+                label="ACOUSTIC" sublabel="STAGE" icon="◆" />
 
               {/* ═══ SUNRISE STAGE – DÉL ═══ */}
               <Circle cx={201} cy={390} r={28} fill="#7c3aed" opacity={0.12} />
-              <MapStage x={160} y={360} w={82} h={52} color="#6d28d9"
-                label="SUNRISE" sublabel="STAGE" icon="🌅" />
+              <MapStage x={160} y={360} w={82} h={52} color="#7c3aed"
+                label="SUNRISE" sublabel="STAGE" icon="◆" />
 
               {/* ═══ FOOD COURT – KÖZÉP-NYUGAT ═══ */}
-              <Rect x={108} y={290} width={70} height={52} rx={8}
-                fill="#92400e" opacity={0.3} stroke="#d97706" strokeWidth={1} />
-              <SvgText x={143} y={308} fontSize={16} textAnchor="middle">🍔</SvgText>
+              <Rect x={108} y={290} width={70} height={52} rx={10}
+                fill="rgba(15,7,32,0.85)" stroke="#f59e0b" strokeWidth={1} />
+              <SvgText x={143} y={309} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#f59e0b">F&B</SvgText>
               <SvgText x={143} y={323} fontSize={7} fontWeight="bold" textAnchor="middle"
-                fill="#fbbf24">FOOD COURT</SvgText>
-              <SvgText x={143} y={334} fontSize={6} textAnchor="middle" fill="rgba(251,191,36,0.7)">étel & ital</SvgText>
+                fill="#f59e0b" letterSpacing={0.4}>FOOD COURT</SvgText>
+              <SvgText x={143} y={334} fontSize={6} textAnchor="middle" fill="rgba(245,158,11,0.7)">étel & ital</SvgText>
 
               {/* ═══ STREET FOOD – NYUGAT ═══ */}
-              <Rect x={22} y={290} width={60} height={48} rx={8}
-                fill="#92400e" opacity={0.25} stroke="#d97706" strokeWidth={1} />
-              <SvgText x={52} y={308} fontSize={14} textAnchor="middle">🌮</SvgText>
+              <Rect x={22} y={290} width={60} height={48} rx={10}
+                fill="rgba(15,7,32,0.85)" stroke="#fbbf24" strokeWidth={1} />
+              <SvgText x={52} y={309} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#fbbf24">FOOD</SvgText>
               <SvgText x={52} y={322} fontSize={6.5} fontWeight="bold" textAnchor="middle"
-                fill="#fbbf24">STREET FOOD</SvgText>
-              <SvgText x={52} y={332} fontSize={6} textAnchor="middle" fill="rgba(251,191,36,0.7)">gyors falatkák</SvgText>
+                fill="#fbbf24" letterSpacing={0.4}>STREET FOOD</SvgText>
+              <SvgText x={52} y={332} fontSize={6} textAnchor="middle" fill="rgba(251,191,36,0.7)">gyors falatok</SvgText>
 
               {/* ═══ BÁRKÖZPONT – KELET ═══ */}
-              <Rect x={248} y={290} width={62} height={48} rx={8}
-                fill="#92400e" opacity={0.25} stroke="#d97706" strokeWidth={1} />
-              <SvgText x={279} y={308} fontSize={14} textAnchor="middle">🍺</SvgText>
+              <Rect x={248} y={290} width={62} height={48} rx={10}
+                fill="rgba(15,7,32,0.85)" stroke="#fbbf24" strokeWidth={1} />
+              <SvgText x={279} y={309} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#fbbf24">BAR</SvgText>
               <SvgText x={279} y={322} fontSize={6.5} fontWeight="bold" textAnchor="middle"
-                fill="#fbbf24">BÁRKÖZPONT</SvgText>
+                fill="#fbbf24" letterSpacing={0.4}>BÁRKÖZPONT</SvgText>
               <SvgText x={279} y={332} fontSize={6} textAnchor="middle" fill="rgba(251,191,36,0.7)">koktél & sör</SvgText>
 
               {/* ═══ MERCH VILLAGE ═══ */}
-              <Rect x={228} y={160} width={44} height={38} rx={6}
-                fill="#831843" opacity={0.35} stroke="#ec4899" strokeWidth={1} />
-              <SvgText x={250} y={178} fontSize={13} textAnchor="middle">👕</SvgText>
+              <Rect x={228} y={160} width={44} height={38} rx={8}
+                fill="rgba(15,7,32,0.85)" stroke="#ec4899" strokeWidth={1} />
+              <SvgText x={250} y={179} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#f9a8d4">SHOP</SvgText>
               <SvgText x={250} y={192} fontSize={6} fontWeight="bold" textAnchor="middle"
-                fill="#f9a8d4">MERCH</SvgText>
+                fill="#f9a8d4" letterSpacing={0.4}>MERCH</SvgText>
 
               {/* ═══ VIP LOUNGE – ÉSZAK-KELET ═══ */}
-              <Rect x={318} y={130} width={80} height={40} rx={8}
-                fill="#4c1d95" opacity={0.4} stroke="#7c3aed" strokeWidth={1.5} />
-              <SvgText x={358} y={147} fontSize={12} textAnchor="middle">⭐</SvgText>
-              <SvgText x={358} y={161} fontSize={7} fontWeight="bold" textAnchor="middle"
-                fill="#c4b5fd">VIP LOUNGE</SvgText>
+              <Rect x={318} y={130} width={80} height={40} rx={10}
+                fill="rgba(15,7,32,0.85)" stroke="#a855f7" strokeWidth={1.2} />
+              <SvgText x={358} y={148} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#c4b5fd">VIP</SvgText>
+              <SvgText x={358} y={161} fontSize={7.5} fontWeight="bold" textAnchor="middle"
+                fill="#c4b5fd" letterSpacing={0.5}>VIP LOUNGE</SvgText>
 
               {/* ═══ ARTIST MERCH ═══ */}
-              <Rect x={318} y={178} width={80} height={36} rx={6}
-                fill="#831843" opacity={0.3} stroke="#ec4899" strokeWidth={1} />
-              <SvgText x={358} y={193} fontSize={11} textAnchor="middle">🏷️</SvgText>
+              <Rect x={318} y={178} width={80} height={36} rx={8}
+                fill="rgba(15,7,32,0.85)" stroke="#ec4899" strokeWidth={1} />
+              <SvgText x={358} y={194} fontSize={7} fontWeight="bold" textAnchor="middle" fill="#f9a8d4">MERCH</SvgText>
               <SvgText x={358} y={207} fontSize={6.5} fontWeight="bold" textAnchor="middle"
-                fill="#f9a8d4">ELŐADÓI STAND</SvgText>
+                fill="#f9a8d4" letterSpacing={0.4}>ELŐADÓI STAND</SvgText>
 
               {/* ═══ FOTÓPONT ═══ */}
-              <Rect x={318} y={222} width={80} height={36} rx={6}
-                fill="#831843" opacity={0.25} stroke="#ec4899" strokeWidth={1} />
-              <SvgText x={358} y={237} fontSize={11} textAnchor="middle">📸</SvgText>
+              <Rect x={318} y={222} width={80} height={36} rx={8}
+                fill="rgba(15,7,32,0.85)" stroke="#ec4899" strokeWidth={1} />
+              <SvgText x={358} y={238} fontSize={7} fontWeight="bold" textAnchor="middle" fill="#f9a8d4">PHOTO</SvgText>
               <SvgText x={358} y={251} fontSize={6.5} fontWeight="bold" textAnchor="middle"
-                fill="#f9a8d4">FOTÓPONT</SvgText>
+                fill="#f9a8d4" letterSpacing={0.4}>FOTÓPONT</SvgText>
 
               {/* ═══ SZOLGÁLTATÁSOK – DÉLI SÁV ═══ */}
               {/* Elsősegély */}
-              <Rect x={148} y={350} width={36} height={36} rx={6}
-                fill="#7f1d1d" opacity={0.4} stroke="#ef4444" strokeWidth={1.5} />
-              <SvgText x={166} y={368} fontSize={14} textAnchor="middle">🏥</SvgText>
-              <SvgText x={166} y={381} fontSize={6} textAnchor="middle" fill="#fca5a5">SEGÉLY</SvgText>
+              <Rect x={148} y={350} width={36} height={36} rx={8}
+                fill="rgba(15,7,32,0.85)" stroke="#ef4444" strokeWidth={1.2} />
+              <SvgText x={166} y={369} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#fca5a5">SOS</SvgText>
+              <SvgText x={166} y={381} fontSize={6} textAnchor="middle" fill="#fca5a5" letterSpacing={0.3}>SEGÉLY</SvgText>
 
               {/* Mosdó 1 – észak */}
-              <Rect x={150} y={140} width={32} height={32} rx={5}
-                fill="#164e63" opacity={0.5} stroke="#38bdf8" strokeWidth={1} />
-              <SvgText x={166} y={156} fontSize={13} textAnchor="middle">🚻</SvgText>
-              <SvgText x={166} y={167} fontSize={6} textAnchor="middle" fill="#7dd3fc">WC</SvgText>
+              <Rect x={150} y={140} width={32} height={32} rx={6}
+                fill="rgba(15,7,32,0.85)" stroke="#38bdf8" strokeWidth={1} />
+              <SvgText x={166} y={157} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#7dd3fc">WC</SvgText>
+              <SvgText x={166} y={167} fontSize={6.5} textAnchor="middle" fill="#7dd3fc" letterSpacing={0.3}>WC</SvgText>
 
               {/* Mosdó 2 – dél */}
-              <Rect x={150} y={290} width={32} height={32} rx={5}
-                fill="#164e63" opacity={0.5} stroke="#38bdf8" strokeWidth={1} />
-              <SvgText x={166} y={306} fontSize={13} textAnchor="middle">🚻</SvgText>
-              <SvgText x={166} y={317} fontSize={6} textAnchor="middle" fill="#7dd3fc">WC</SvgText>
+              <Rect x={150} y={290} width={32} height={32} rx={6}
+                fill="rgba(15,7,32,0.85)" stroke="#38bdf8" strokeWidth={1} />
+              <SvgText x={166} y={307} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#7dd3fc">WC</SvgText>
+              <SvgText x={166} y={317} fontSize={6.5} textAnchor="middle" fill="#7dd3fc" letterSpacing={0.3}>WC</SvgText>
 
               {/* Infópont */}
-              <Rect x={238} y={350} width={36} height={36} rx={6}
-                fill="#1e1b4b" opacity={0.5} stroke="#a855f7" strokeWidth={1.5} />
-              <SvgText x={256} y={368} fontSize={14} textAnchor="middle">ℹ️</SvgText>
-              <SvgText x={256} y={381} fontSize={6} textAnchor="middle" fill="#c4b5fd">INFÓ</SvgText>
+              <Rect x={238} y={350} width={36} height={36} rx={8}
+                fill="rgba(15,7,32,0.85)" stroke="#a855f7" strokeWidth={1.2} />
+              <SvgText x={256} y={369} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#c4b5fd">INFO</SvgText>
+              <SvgText x={256} y={381} fontSize={6} textAnchor="middle" fill="#c4b5fd" letterSpacing={0.3}>INFÓ</SvgText>
 
               {/* ═══ FŐBEJÁRAT – DÉL KÖZÉP ═══ */}
-              <Rect x={148} y={470} width={106} height={36} rx={8}
-                fill={COLORS.entrance} opacity={0.9} stroke="#16a34a" strokeWidth={2} />
-              <SvgText x={201} y={487} fontSize={11} textAnchor="middle">🚪</SvgText>
+              <Rect x={148} y={470} width={106} height={36} rx={10}
+                fill="rgba(15,7,32,0.95)" stroke="#a855f7" strokeWidth={1.5} />
+              <SvgText x={201} y={488} fontSize={8} fontWeight="bold" textAnchor="middle" fill="#a855f7">ENTRY</SvgText>
               <SvgText x={201} y={500} fontSize={8} fontWeight="bold" textAnchor="middle"
-                fill={COLORS.white} letterSpacing={1}>FŐBEJÁRAT</SvgText>
+                fill="#f0e8ff" letterSpacing={1.2}>FŐBEJÁRAT</SvgText>
 
               {/* Bejárat nyilak */}
-              <Line x1={201} y1={450} x2={201} y2={468} stroke="#22c55e" strokeWidth={2} />
-              <Polygon points="196,458 201,448 206,458" fill="#22c55e" />
+              <Line x1={201} y1={450} x2={201} y2={468} stroke="#a855f7" strokeWidth={2} />
+              <Polygon points="196,458 201,448 206,458" fill="#a855f7" />
 
               {/* ═══ FÁK ═══ */}
               {/* Északi fasor */}
@@ -930,13 +944,13 @@ function MapScreen({ map }: { map: FestivalMap }) {
               <SvgText x={382} y={37} fontSize={7} fontWeight="bold" textAnchor="middle" fill="#f0e8ff">N</SvgText>
 
               {/* ═══ SKÁLA ═══ */}
-              <Rect x={20} y={500} width={60} height={6} rx={3} fill="rgba(255,255,255,0.3)" />
-              <Rect x={20} y={500} width={30} height={6} rx={3} fill="rgba(255,255,255,0.6)" />
-              <SvgText x={20} y={496} fontSize={6} fill="rgba(255,255,255,0.5)">0</SvgText>
-              <SvgText x={75} y={496} fontSize={6} fill="rgba(255,255,255,0.5)">200m</SvgText>
+              <Rect x={20} y={500} width={60} height={6} rx={3} fill="rgba(255,255,255,0.15)" />
+              <Rect x={20} y={500} width={30} height={6} rx={3} fill="rgba(168,85,247,0.4)" />
+              <SvgText x={20} y={496} fontSize={6} fill="rgba(255,255,255,0.4)">0</SvgText>
+              <SvgText x={75} y={496} fontSize={6} fill="rgba(255,255,255,0.4)">200m</SvgText>
 
               {/* ═══ CÍM / BRAND ═══ */}
-              <Rect x={MAP_W-120} y={MAP_H-38} width={112} height={30} rx={6} fill="rgba(0,0,0,0.5)" />
+              <Rect x={MAP_W-120} y={MAP_H-38} width={112} height={30} rx={6} fill="rgba(10,4,21,0.8)" stroke="rgba(168,85,247,0.3)" strokeWidth={0.8} />
               <SvgText x={MAP_W-64} y={MAP_H-23} fontSize={9} fontWeight="bold" textAnchor="middle"
                 fill="#a855f7" letterSpacing={1}>ECLIPSEFEST</SvgText>
               <SvgText x={MAP_W-64} y={MAP_H-12} fontSize={7} textAnchor="middle"
@@ -963,31 +977,32 @@ function MapScreen({ map }: { map: FestivalMap }) {
             {map.points
               .filter(p => filter === "all" || p.category === filter)
               .map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={[styles.mapPointItem, selectedId === item.id && styles.mapPointItemSelected]}
-                onPress={() => setSelectedId(selectedId === item.id ? null : item.id)}
-              >
-                <View style={[styles.mapPointIconWrap, { backgroundColor: `${MAP_CATEGORY_META[item.category].color}22` }]}>
-                  <Ionicons name={MAP_CATEGORY_META[item.category].icon as keyof typeof Ionicons.glyphMap}
-                    size={18} color={MAP_CATEGORY_META[item.category].color} />
-                </View>
-                <View style={styles.mapPointItemText}>
-                  <Text style={styles.mapPointItemName}>{item.name}</Text>
-                  <Text style={styles.mapPointItemCategory}>{MAP_CATEGORY_META[item.category].label}</Text>
-                </View>
-                <Ionicons name={selectedId === item.id ? "chevron-up" : "chevron-down"}
-                  size={16} color="rgba(168,85,247,0.4)" />
-              </TouchableOpacity>
+              <React.Fragment key={item.id}>
+                <TouchableOpacity
+                  style={[styles.mapPointItem, selectedId === item.id && styles.mapPointItemSelected]}
+                  onPress={() => setSelectedId(selectedId === item.id ? null : item.id)}
+                >
+                  <View style={[styles.mapPointIconWrap, { backgroundColor: `${MAP_CATEGORY_META[item.category].color}22` }]}>
+                    <Ionicons name={MAP_CATEGORY_META[item.category].icon as keyof typeof Ionicons.glyphMap}
+                      size={18} color={MAP_CATEGORY_META[item.category].color} />
+                  </View>
+                  <View style={styles.mapPointItemText}>
+                    <Text style={styles.mapPointItemName}>{item.name}</Text>
+                    <Text style={styles.mapPointItemCategory}>{MAP_CATEGORY_META[item.category].label}</Text>
+                  </View>
+                  <Ionicons name={selectedId === item.id ? "chevron-up" : "chevron-down"}
+                    size={16} color="rgba(168,85,247,0.4)" />
+                </TouchableOpacity>
+                {selectedId === item.id && renderDetailCard(item)}
+              </React.Fragment>
             ))}
-            {selected && renderDetailCard(selected)}
           </View>
         </ScrollView>
       )}
 
       {/* LISTA NÉZET */}
       {mapView === "list" && (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
           {/* Kategória szűrő */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mapFilters}>
             {MAP_FILTERS.map((item) => {
@@ -1008,24 +1023,27 @@ function MapScreen({ map }: { map: FestivalMap }) {
           {map.points
             .filter(p => filter === "all" || p.category === filter)
             .map((item) => (
-            <TouchableOpacity key={item.id}
-              style={[styles.mapPointItem, selectedId === item.id && styles.mapPointItemSelected]}
-              onPress={() => setSelectedId(selectedId === item.id ? null : item.id)}>
-              <View style={[styles.mapPointIconWrap, { backgroundColor: `${MAP_CATEGORY_META[item.category].color}22` }]}>
-                <Ionicons name={MAP_CATEGORY_META[item.category].icon as keyof typeof Ionicons.glyphMap}
-                  size={18} color={MAP_CATEGORY_META[item.category].color} />
-              </View>
-              <View style={styles.mapPointItemText}>
-                <Text style={styles.mapPointItemName}>{item.name}</Text>
-                <Text style={styles.mapPointItemCategory}>{MAP_CATEGORY_META[item.category].label}</Text>
-              </View>
-              <Ionicons name={selectedId === item.id ? "chevron-up" : "chevron-down"}
-                size={16} color="rgba(168,85,247,0.4)" />
-            </TouchableOpacity>
+            <React.Fragment key={item.id}>
+              <TouchableOpacity
+                style={[styles.mapPointItem, selectedId === item.id && styles.mapPointItemSelected]}
+                onPress={() => setSelectedId(selectedId === item.id ? null : item.id)}>
+                <View style={[styles.mapPointIconWrap, { backgroundColor: `${MAP_CATEGORY_META[item.category].color}22` }]}>
+                  <Ionicons name={MAP_CATEGORY_META[item.category].icon as keyof typeof Ionicons.glyphMap}
+                    size={18} color={MAP_CATEGORY_META[item.category].color} />
+                </View>
+                <View style={styles.mapPointItemText}>
+                  <Text style={styles.mapPointItemName}>{item.name}</Text>
+                  <Text style={styles.mapPointItemCategory}>{MAP_CATEGORY_META[item.category].label}</Text>
+                </View>
+                <Ionicons name={selectedId === item.id ? "chevron-up" : "chevron-down"}
+                  size={16} color="rgba(168,85,247,0.4)" />
+              </TouchableOpacity>
+              {selectedId === item.id && renderDetailCard(item)}
+            </React.Fragment>
           ))}
-          {selected && renderDetailCard(selected)}
         </ScrollView>
       )}
+
     </View>
   );
 }
@@ -1037,7 +1055,7 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers }: {
 	favoritePerformers: Performer[];
 }) {
 	const stars = useRef(
-		Array.from({ length: 80 }, (_, i) => ({
+		Array.from({ length: 42 }, (_, i) => ({
 			id: i,
 			top: `${Math.random() * 100}%` as `${number}%`,
 			left: `${Math.random() * 100}%` as `${number}%`,
@@ -1061,6 +1079,14 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers }: {
 				<View style={styles.titleZone}>
 					<Text style={styles.festName}>EclipseFest</Text>
 					<Text style={styles.tagline}>WHEN DARKNESS FALLS, MUSIC RISES</Text>
+				</View>
+
+				<View style={styles.homeHeroCard}>
+					<EventVisual accent={THEME.accent} />
+					<View style={styles.homeHeroOverlay}>
+						<Text style={styles.homeHeroEyebrow}>LIVE MUSIC · NIGHT EXPERIENCE</Text>
+						<Text style={styles.homeHeroTitle}>Három este, négy színpad, prémium fesztiválhangulat.</Text>
+					</View>
 				</View>
 
 				{/* Következő kedvenc chip */}
@@ -1155,12 +1181,17 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 	};
 
 	const renderViewSwitcher = () => (
-		<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scheduleViewSwitcher}>
+		<ScrollView
+			horizontal
+			showsHorizontalScrollIndicator={false}
+			style={{ maxHeight: 58 }}
+			contentContainerStyle={styles.scheduleViewSwitcher}
+		>
 			{SCHEDULE_VIEWS.map((view) => {
 				const active = viewMode === view.key;
 				return (
 					<TouchableOpacity key={view.key} style={[styles.scheduleViewChip, active && styles.scheduleViewChipActive]} onPress={() => setViewMode(view.key)}>
-						<Ionicons name={view.icon} size={14} color={active ? "#a855f7" : "rgba(168,85,247,0.45)"} />
+						<Ionicons name={view.icon} size={13} color={active ? THEME.accent : "rgba(168,85,247,0.45)"} />
 						<Text style={[styles.scheduleViewChipText, active && styles.scheduleViewChipTextActive]}>{view.label}</Text>
 					</TouchableOpacity>
 				);
@@ -1294,11 +1325,12 @@ function PerformerCard({ item, isFavorite, onToggle, conflictNames }: {
 }
 
 // ─── Favorites képernyő ───────────────────────────────────────────────────────
-function FavoritesScreen({ performers, favorites, onToggleFavorite, onGoToSchedule }: {
+function FavoritesScreen({ performers, favorites, onToggleFavorite, onGoToSchedule, onBack }: {
 	performers: Performer[];
 	favorites: string[];
 	onToggleFavorite: (id: string) => void;
 	onGoToSchedule: () => void;
+	onBack: () => void;
 }) {
 	const [dayFilter, setDayFilter] = useState<"all" | 18 | 19 | 20>("all");
 
@@ -1318,76 +1350,122 @@ function FavoritesScreen({ performers, favorites, onToggleFavorite, onGoToSchedu
 		(p) => getConflictsForPerformer(p, favoritePerformers).length > 0
 	).length;
 
-	if (favoritePerformers.length === 0) {
-		return (
-			<View style={styles.favEmptyContainer}>
-				<View style={styles.favEmptyIconWrap}>
-					<Ionicons name="heart-outline" size={36} color="rgba(168,85,247,0.35)" />
-				</View>
-				<Text style={styles.favEmptyTitle}>Még nincsenek kedvenceid</Text>
-				<Text style={styles.favEmptySubtitle}>
-					A műsor nézetben szívecskével jelölheted az előadókat, akiket nem akarsz kihagyni.
-				</Text>
-				<TouchableOpacity style={styles.favEmptyBtn} onPress={onGoToSchedule}>
-					<Ionicons name="calendar-outline" size={16} color="#f0e8ff" />
-					<Text style={styles.favEmptyBtnText}>Műsor megtekintése</Text>
-				</TouchableOpacity>
-			</View>
-		);
-	}
-
 	return (
 		<View style={styles.favScreen}>
-			<View style={styles.scheduleHeader}>
-				<Text style={styles.scheduleHeading}>Saját menetrend</Text>
-				<Text style={styles.scheduleSubheading}>
-					{favoritePerformers.length} kedvenc előadó
-					{conflictCount > 0 && (
-						<Text style={styles.conflictBadgeText}>  ⚠ {conflictCount} ütközés</Text>
-					)}
-				</Text>
-			</View>
 
-			{/* Nap szerinti szűrő */}
-			<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dayFilterRow}>
-				{FESTIVAL_DAYS.map((d) => {
-					const active = dayFilter === d.key;
-					return (
-						<TouchableOpacity
-							key={String(d.key)}
-							style={[styles.dayFilterChip, active && styles.dayFilterChipActive]}
-							onPress={() => setDayFilter(d.key as "all" | 18 | 19 | 20)}
-						>
-							<Text style={[styles.dayFilterChipText, active && styles.dayFilterChipTextActive]}>
-								{d.label}
-							</Text>
-						</TouchableOpacity>
-					);
-				})}
-			</ScrollView>
-
-			{filtered.length === 0 ? (
+			{favoritePerformers.length === 0 ? (
 				<View style={styles.favEmptyContainer}>
-					<Ionicons name="calendar-outline" size={36} color="rgba(168,85,247,0.3)" />
-					<Text style={styles.favEmptyTitle}>Ezen a napon nincs kedvenced</Text>
-					<Text style={styles.favEmptySubtitle}>Válassz másik napot vagy jelölj be új előadókat.</Text>
+					<View style={styles.favEmptyIconWrap}>
+						<Ionicons name="heart-outline" size={36} color="rgba(168,85,247,0.35)" />
+					</View>
+					<Text style={styles.favEmptyTitle}>Még nincsenek kedvenceid</Text>
+					<Text style={styles.favEmptySubtitle}>
+						A műsor nézetben szívecskével jelölheted az előadókat, akiket nem akarsz kihagyni.
+					</Text>
+					<TouchableOpacity style={styles.favEmptyBtn} onPress={onGoToSchedule}>
+						<Ionicons name="calendar-outline" size={16} color="#f0e8ff" />
+						<Text style={styles.favEmptyBtnText}>Műsor megtekintése</Text>
+					</TouchableOpacity>
 				</View>
 			) : (
-				<FlatList
-					data={filtered}
-					keyExtractor={(item) => item.id}
-					contentContainerStyle={styles.scheduleListContent}
-					showsVerticalScrollIndicator={false}
-					renderItem={({ item }) => (
-						<PerformerCard
-							item={item}
-							isFavorite={true}
-							onToggle={() => onToggleFavorite(item.id)}
-							conflictNames={getConflicts(item)}
+				<>
+					<View style={styles.scheduleHeader}>
+						<Text style={styles.scheduleHeading}>Saját menetrend</Text>
+						<Text style={styles.scheduleSubheading}>
+							{favoritePerformers.length} kedvenc előadó
+							{conflictCount > 0 && (
+								<Text style={styles.conflictBadgeText}>  ⚠ {conflictCount} ütközés</Text>
+							)}
+						</Text>
+					</View>
+
+					{/* Nap szerinti szűrő */}
+					<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dayFilterRow}>
+						{FESTIVAL_DAYS.map((d) => {
+							const active = dayFilter === d.key;
+							return (
+								<TouchableOpacity
+									key={String(d.key)}
+									style={[styles.dayFilterChip, active && styles.dayFilterChipActive]}
+									onPress={() => setDayFilter(d.key as "all" | 18 | 19 | 20)}
+								>
+									<Text style={[styles.dayFilterChipText, active && styles.dayFilterChipTextActive]}>
+										{d.label}
+									</Text>
+								</TouchableOpacity>
+							);
+						})}
+					</ScrollView>
+
+					{filtered.length === 0 ? (
+						<View style={styles.favEmptyContainer}>
+							<Ionicons name="calendar-outline" size={36} color="rgba(168,85,247,0.3)" />
+							<Text style={styles.favEmptyTitle}>Ezen a napon nincs kedvenced</Text>
+							<Text style={styles.favEmptySubtitle}>Válassz másik napot vagy jelölj be új előadókat.</Text>
+						</View>
+					) : (
+						<FlatList
+							data={filtered}
+							keyExtractor={(item) => item.id}
+							contentContainerStyle={styles.scheduleListContent}
+							showsVerticalScrollIndicator={false}
+							renderItem={({ item }) => (
+								<PerformerCard
+									item={item}
+									isFavorite={true}
+									onToggle={() => onToggleFavorite(item.id)}
+									conflictNames={getConflicts(item)}
+								/>
+							)}
 						/>
 					)}
-				/>
+				</>
 			)}
+		</View>
+	);
+}
+
+
+// ─── Prémium event visual / pseudo-image komponens ─────────────────────────────
+function EventVisual({ accent = THEME.accent, compact = false }: { accent?: string; compact?: boolean }) {
+	const h = compact ? 138 : 210;
+	return (
+		<View style={[styles.eventVisualFrame, compact && styles.eventVisualFrameCompact]}>
+			<Svg width="100%" height={h} viewBox={`0 0 360 ${h}`} preserveAspectRatio="xMidYMid slice">
+				<Defs>
+					<LinearGradient id="eventSky" x1="0" y1="0" x2="1" y2="1">
+						<Stop offset="0" stopColor="#312e81" />
+						<Stop offset="0.45" stopColor="#111827" />
+						<Stop offset="1" stopColor="#05020d" />
+					</LinearGradient>
+					<RadialGradient id="eventGlow" cx="50%" cy="38%" r="55%">
+						<Stop offset="0" stopColor={accent} stopOpacity="0.82" />
+						<Stop offset="1" stopColor={accent} stopOpacity="0" />
+					</RadialGradient>
+					<LinearGradient id="stageFade" x1="0" y1="0" x2="0" y2="1">
+						<Stop offset="0" stopColor="rgba(0,0,0,0)" />
+						<Stop offset="1" stopColor="#05020d" />
+					</LinearGradient>
+				</Defs>
+				<Rect width="360" height={h} fill="url(#eventSky)" />
+				<Circle cx="180" cy={compact ? 52 : 76} r={compact ? 112 : 145} fill="url(#eventGlow)" />
+				<Path d={`M26 ${h * 0.70} C92 ${h * 0.42} 126 ${h * 0.44} 186 ${h * 0.64} C240 ${h * 0.82} 286 ${h * 0.50} 342 ${h * 0.64}`} stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none" />
+				<Rect x="55" y={compact ? 54 : 76} width="250" height={compact ? 42 : 58} rx="14" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.12)" />
+				<Line x1="88" y1={compact ? 62 : 87} x2="42" y2={h - 26} stroke="rgba(255,255,255,0.20)" strokeWidth="3" />
+				<Line x1="272" y1={compact ? 62 : 87} x2="320" y2={h - 26} stroke="rgba(255,255,255,0.20)" strokeWidth="3" />
+				<Line x1="180" y1={compact ? 54 : 76} x2="180" y2={h - 32} stroke="rgba(255,255,255,0.10)" strokeWidth="2" />
+				{[0, 1, 2, 3, 4].map((i) => (
+					<Circle key={`light-${i}`} cx={82 + i * 48} cy={compact ? 66 : 90} r={compact ? 8 : 11} fill={i % 2 === 0 ? accent : "#f0e8ff"} opacity={0.78} />
+				))}
+				<Path d={`M0 ${h - 48} C36 ${h - 72} 72 ${h - 50} 110 ${h - 68} C150 ${h - 88} 194 ${h - 50} 232 ${h - 70} C282 ${h - 96} 318 ${h - 58} 360 ${h - 78} L360 ${h} L0 ${h} Z`} fill="rgba(0,0,0,0.56)" />
+				{[18, 44, 76, 108, 140, 172, 204, 236, 268, 300, 332].map((x, i) => (
+					<G key={`crowd-${i}`}> 
+						<Circle cx={x} cy={h - 36 - (i % 3) * 5} r={6 + (i % 2)} fill="rgba(4,2,8,0.96)" />
+						<Rect x={x - 4} y={h - 31 - (i % 3) * 5} width="8" height="28" rx="4" fill="rgba(4,2,8,0.96)" />
+					</G>
+				))}
+				<Path d={`M0 ${h - 54} L360 ${h - 54} L360 ${h} L0 ${h} Z`} fill="url(#stageFade)" />
+			</Svg>
 		</View>
 	);
 }
@@ -1490,70 +1568,112 @@ const GASTRO_STANDS: GastroStand[] = [
 	},
 ];
 
+// ─── Gasztró kategória meta ──────────────────────────────────────────────────
+const GASTRO_CATEGORY_META: Record<
+	GastroCategory,
+	{ label: string; icon: keyof typeof Ionicons.glyphMap }
+> = {
+	Mind: { label: "Mind", icon: "grid-outline" },
+	Étel: { label: "Étel", icon: "restaurant-outline" },
+	Ital: { label: "Ital", icon: "beer-outline" },
+	Desszert: { label: "Desszert", icon: "ice-cream-outline" },
+};
+
 // ─── Gasztró képernyő ─────────────────────────────────────────────────────────
-function GastroScreen() {
+function GastroScreen({ onBack }: { onBack: () => void }) {
 	const [activeCategory, setActiveCategory] = useState<GastroCategory | "Mind">("Mind");
 
 	const filtered = activeCategory === "Mind"
 		? GASTRO_STANDS
 		: GASTRO_STANDS.filter((s) => s.category === activeCategory);
 
+	const counts: Record<GastroCategory, number> = {
+		Mind: GASTRO_STANDS.length,
+		Étel: GASTRO_STANDS.filter((s) => s.category === "Étel").length,
+		Ital: GASTRO_STANDS.filter((s) => s.category === "Ital").length,
+		Desszert: GASTRO_STANDS.filter((s) => s.category === "Desszert").length,
+	};
+
 	return (
 		<View style={styles.gastroScreen}>
-			<View style={styles.scheduleHeader}>
-				<Text style={styles.scheduleHeading}>Gasztró</Text>
-				<Text style={styles.scheduleSubheading}>
-					{GASTRO_STANDS.length} stand · fesztiválos ízek
-				</Text>
-			</View>
-
-			{/* Kategória szűrő */}
-			<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dayFilterRow}>
-				{GASTRO_CATEGORIES.map((cat) => {
-					const active = activeCategory === cat;
-					return (
-						<TouchableOpacity
-							key={cat}
-							style={[styles.dayFilterChip, active && styles.dayFilterChipActive]}
-							onPress={() => setActiveCategory(cat)}
-						>
-							<Text style={[styles.dayFilterChipText, active && styles.dayFilterChipTextActive]}>
-								{cat}
-							</Text>
-						</TouchableOpacity>
-					);
-				})}
-			</ScrollView>
-
 			<FlatList
 				data={filtered}
 				keyExtractor={(item) => item.id}
 				contentContainerStyle={styles.gastroList}
 				showsVerticalScrollIndicator={false}
+				ListHeaderComponent={(
+					<>
+						<View style={styles.scheduleHeader}>
+							<Text style={styles.scheduleHeading}>Gasztró</Text>
+							<Text style={styles.scheduleSubheading}>
+								{GASTRO_STANDS.length} stand · letisztult gasztro kínálat
+							</Text>
+						</View>
+
+						<View style={styles.gastroHeroCard}>
+							<EventVisual accent={THEME.accent} />
+							<View style={styles.gastroHeroContent}>
+								<Text style={styles.gastroHeroEyebrow}>CURATED FESTIVAL DINING</Text>
+								<Text style={styles.gastroHeroTitle}>Prémium gasztro élmény a színpadok között</Text>
+								<Text style={styles.gastroHeroText}>
+									Képes, event-app jellegű kártyák, nagyobb tipográfia és átláthatóbb kategóriák.
+								</Text>
+							</View>
+						</View>
+
+						<View style={styles.gastroCategoryGrid}>
+							{GASTRO_CATEGORIES.map((cat) => {
+								const active = activeCategory === cat;
+								const meta = GASTRO_CATEGORY_META[cat];
+								return (
+									<TouchableOpacity
+										key={cat}
+										style={[styles.gastroCategoryTile, active && styles.gastroCategoryTileActive]}
+										onPress={() => setActiveCategory(cat)}
+									>
+										<View style={styles.gastroCategoryTileTopRow}>
+											<View style={[styles.gastroCategoryIconCircle, active && styles.gastroCategoryIconCircleActive]}>
+												<Ionicons
+													name={meta.icon}
+													size={24}
+													color={active ? THEME.text : THEME.accent}
+												/>
+											</View>
+											<View style={styles.gastroCategoryTextBlock}>
+												<Text style={[styles.gastroCategoryTileTitle, active && styles.gastroCategoryTileTitleActive]}>{meta.label}</Text>
+												<Text style={[styles.gastroCategoryTileMeta, active && styles.gastroCategoryTileMetaActive]}>{counts[cat]} stand</Text>
+											</View>
+										</View>
+									</TouchableOpacity>
+								);
+							})}
+						</View>
+					</>
+				)}
 				renderItem={({ item }) => (
 					<View style={styles.gastroCard}>
+						<EventVisual accent={item.color} compact />
 						<View style={[styles.gastroCardAccent, { backgroundColor: item.color }]} />
 						<View style={styles.gastroCardBody}>
-							{/* Fejléc */}
 							<View style={styles.gastroCardHeader}>
-								<Text style={styles.gastroEmoji}>{item.emoji}</Text>
+								<View style={[styles.gastroIconBox, { borderColor: `${item.color}55`, backgroundColor: `${item.color}14` }]}> 
+									<Ionicons name={GASTRO_CATEGORY_META[item.category].icon} size={22} color={item.color} />
+								</View>
 								<View style={styles.gastroCardTitles}>
 									<Text style={styles.gastroName}>{item.name}</Text>
 									<View style={styles.gastroTagRow}>
-										<View style={[styles.gastroCatBadge, { backgroundColor: `${item.color}22`, borderColor: `${item.color}55` }]}>
+										<View style={[styles.gastroCatBadge, { backgroundColor: `${item.color}18`, borderColor: `${item.color}40` }]}> 
 											<Text style={[styles.gastroCatText, { color: item.color }]}>{item.category}</Text>
 										</View>
-										<Text style={styles.gastroArtist}>· {item.artist}</Text>
+										<Text style={styles.gastroArtist}>{item.artist}</Text>
 									</View>
 								</View>
 							</View>
 
-							{/* Leírás */}
 							<Text style={styles.gastroDescription}>{item.description}</Text>
 
-							{/* Ajánlatok */}
 							<View style={styles.gastroOffers}>
-								<Text style={styles.gastroOffersLabel}>KIEMELT AJÁNLAT</Text>
+								<Text style={styles.gastroOffersLabel}>AJÁNLOTT TÉTELEK</Text>
 								{item.offers.map((offer, i) => (
 									<View key={i} style={styles.gastroOfferRow}>
 										<View style={[styles.gastroOfferDot, { backgroundColor: item.color }]} />
@@ -1570,20 +1690,22 @@ function GastroScreen() {
 }
 
 // ─── Sponsors képernyő ────────────────────────────────────────────────────────
-function SponsorsScreen({ t }: { t: typeof translations.en }) {
+function SponsorsScreen({ t, onBack }: { t: typeof translations.en; onBack: () => void }) {
 	const sponsors = festivalData.sponsors as Sponsor[];
+	const sponsorColumns = SCREEN_W < 430 ? 1 : 2;
 	return (
 		<View style={styles.infoScreenContainer}>
-			<Text style={[styles.sectionTitle, { textAlign: "center" }]}>{t.sponsorsTitle}</Text>
+			<Text style={[styles.sectionTitle, { textAlign: "center", marginTop: 8 }]}>{t.sponsorsTitle}</Text>
 			<FlatList
+				key={sponsorColumns}
 				data={sponsors}
 				keyExtractor={(item) => item.id}
-				numColumns={2}
+				numColumns={sponsorColumns}
 				contentContainerStyle={styles.sponsorListContent}
-				columnWrapperStyle={styles.sponsorColumnWrapper}
+				columnWrapperStyle={sponsorColumns > 1 ? styles.sponsorColumnWrapper : undefined}
 				renderItem={({ item }) => (
-					<View style={styles.sponsorCard}>
-						<Image source={{ uri: item.logoUrl }} style={styles.sponsorLogo} resizeMode="contain" />
+					<View style={[styles.sponsorCard, sponsorColumns === 1 && styles.sponsorCardSingle]}>
+						<SponsorLogo sponsorId={item.id} name={item.name} logoUrl={item.logoUrl} />
 						<Text style={styles.sponsorName}>{item.name}</Text>
 					</View>
 				)}
@@ -1592,15 +1714,224 @@ function SponsorsScreen({ t }: { t: typeof translations.en }) {
 	);
 }
 
+const SPONSOR_LOGO_STYLES = ["novara", "lunex", "velora", "orbita", "aethon", "zentra"] as const;
+type SponsorLogoStyle = typeof SPONSOR_LOGO_STYLES[number];
+
+const SPONSOR_STYLE_ALIASES: Record<string, SponsorLogoStyle> = {
+	novara: "novara",
+	nebulaenergy: "novara",
+	lunex: "lunex",
+	lumenlighting: "lunex",
+	velora: "velora",
+	velorabeauty: "velora",
+	orbita: "orbita",
+	vibestech: "orbita",
+	aethon: "aethon",
+	pulsesound: "aethon",
+	zentra: "zentra",
+	wavorawater: "zentra",
+};
+
+function normalizeSponsorKey(value: string) {
+	return value
+		.toLowerCase()
+		.trim()
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.replace(/[^a-z0-9]/g, "");
+}
+
+function getSponsorLogoStyle(sponsorId: string | undefined, name: string): SponsorLogoStyle {
+	const directKey = normalizeSponsorKey(sponsorId ?? "");
+	const nameKey = normalizeSponsorKey(name);
+	return SPONSOR_STYLE_ALIASES[directKey] ?? SPONSOR_STYLE_ALIASES[nameKey] ?? SPONSOR_LOGO_STYLES[nameKey.length % SPONSOR_LOGO_STYLES.length];
+}
+
+function SponsorLogo({ sponsorId, name }: { sponsorId?: string; name: string; logoUrl?: string }) {
+	const logoStyle = getSponsorLogoStyle(sponsorId, name);
+	const displayName = name.toUpperCase();
+	const markColor = "#111827";
+	const accent = "#7c3aed";
+	const accentSoft = "#a78bfa";
+
+	const isLongName = displayName.length >= 13;
+	const isVeryLongName = displayName.length >= 16;
+	const logoFontSize = logoStyle === "velora" || logoStyle === "novara"
+		? (isVeryLongName ? 14 : isLongName ? 15 : 16)
+		: (isVeryLongName ? 13 : isLongName ? 14 : 15.5);
+	const logoLetterSpacing = logoStyle === "velora" || logoStyle === "novara"
+		? (isLongName ? 2 : 3)
+		: (isLongName ? 0.8 : 1.3);
+
+	const renderMark = () => {
+		switch (logoStyle) {
+			case "novara":
+				return (
+					<G>
+						<Path d="M16 42 L16 10 L30 10 L52 38 L52 10 L66 10 L66 42 L52 42 L30 14 L30 42 Z" fill={markColor} />
+						<Path d="M31 29 L42 39 L42 25 L31 15 Z" fill={accentSoft} opacity={0.75} />
+					</G>
+				);
+			case "lunex":
+				return (
+					<G>
+						<Path d="M52 10 A18 18 0 1 0 52 42 A24 24 0 1 1 52 10" fill={accent} />
+						<Circle cx={47} cy={26} r={15} fill={markColor} />
+						<Path d="M10 26 L38 23 L74 26 L38 29 Z" fill={accent} opacity={0.95} />
+						<Path d="M28 20 L31 25 L36 26 L31 29 L28 34 L25 29 L20 26 L25 25 Z" fill="#ffffff" opacity={0.95} />
+					</G>
+				);
+			case "velora":
+				return (
+					<G>
+						<Path d="M18 14 C30 16 35 30 38 43 C42 31 50 18 64 12" stroke={markColor} strokeWidth={5} fill="none" strokeLinecap="round" />
+						<Path d="M19 29 C27 25 34 29 37 39 C28 38 21 35 19 29 Z" fill={accentSoft} opacity={0.85} />
+						<Path d="M31 20 C39 23 40 33 37 41 C31 35 29 27 31 20 Z" fill={accentSoft} opacity={0.55} />
+					</G>
+				);
+			case "orbita":
+				return (
+					<G>
+						<Circle cx={38} cy={26} r={20} fill="none" stroke={markColor} strokeWidth={6} strokeDasharray="76 18" />
+						<Circle cx={36} cy={27} r={10} fill={markColor} />
+						<Path d="M10 38 C28 30 49 20 70 13" stroke={accent} strokeWidth={4} fill="none" strokeLinecap="round" />
+						<Circle cx={21} cy={34} r={5} fill={accent} />
+						<Circle cx={62} cy={16} r={5} fill={accent} />
+					</G>
+				);
+			case "aethon":
+				return (
+					<G>
+						<Polygon points="38,8 68,44 53,44 38,25 23,44 8,44" fill={markColor} />
+						<Polygon points="38,31 49,46 27,46" fill={accent} />
+					</G>
+				);
+			case "zentra":
+			default:
+				return (
+					<G>
+						<Circle cx={38} cy={25} r={20} fill="none" stroke={markColor} strokeWidth={4} />
+						<Path d="M18 28 Q38 12 58 28 Q49 41 38 41 Q27 41 18 28 Z" fill="none" stroke={markColor} strokeWidth={4} />
+						<Circle cx={38} cy={18} r={5} fill={accentSoft} />
+						<Path d="M20 45 Q38 52 56 45" stroke={accentSoft} strokeWidth={4} fill="none" strokeLinecap="round" />
+					</G>
+				);
+		}
+	};
+
+	return (
+		<View style={styles.sponsorLogoWrap}>
+			<Svg width="100%" height="100%" viewBox="0 0 280 60">
+				<G transform="translate(2 2)">
+					{renderMark()}
+				</G>
+				<SvgText
+					x={88}
+					y={36}
+					fontSize={logoFontSize}
+					fontWeight={logoStyle === "velora" || logoStyle === "novara" ? "500" : "800"}
+					fill={markColor}
+					letterSpacing={logoLetterSpacing}
+				>
+					{displayName}
+				</SvgText>
+			</Svg>
+		</View>
+	);
+}
+
+function MoreScreen({
+	onGoToFavorites,
+	onGoToGastro,
+	onGoToSponsors,
+	favoritesCount,
+}: {
+	onGoToFavorites: () => void;
+	onGoToGastro: () => void;
+	onGoToSponsors: () => void;
+	favoritesCount: number;
+}) {
+	const items: { key: string; title: string; subtitle: string; icon: keyof typeof Ionicons.glyphMap; onPress: () => void; right?: string }[] = [
+		{
+			key: "favorites",
+			title: "Kedvencek",
+			subtitle: "Saját menetrend és ütközések",
+			icon: "heart",
+			onPress: onGoToFavorites,
+			right: favoritesCount > 0 ? String(favoritesCount) : undefined,
+		},
+		{
+			key: "gastro",
+			title: "Gasztró",
+			subtitle: "Standok, ajánlatok, kategóriák",
+			icon: "restaurant",
+			onPress: onGoToGastro,
+		},
+		{
+			key: "sponsors",
+			title: "Támogatók",
+			subtitle: "Partnereink és logók",
+			icon: "star",
+			onPress: onGoToSponsors,
+		},
+	];
+
+	return (
+		<View style={styles.moreScreen}>
+			<View style={styles.scheduleHeader}>
+				<Text style={styles.scheduleHeading}>Több</Text>
+				<Text style={styles.scheduleSubheading}>Gyors elérés a többi szekcióhoz</Text>
+			</View>
+
+			<View style={styles.moreList}>
+				{items.map((item) => (
+					<TouchableOpacity key={item.key} style={styles.moreRow} onPress={item.onPress} activeOpacity={0.85}>
+						<View style={styles.moreRowIcon}>
+						<Ionicons name={item.icon} size={18} color={THEME.accent} />
+						</View>
+						<View style={styles.moreRowText}>
+							<Text style={styles.moreRowTitle}>{item.title}</Text>
+							<Text style={styles.moreRowSub}>{item.subtitle}</Text>
+						</View>
+						{item.right ? (
+							<View style={styles.moreRowBadge}>
+								<Text style={styles.moreRowBadgeText}>{item.right}</Text>
+							</View>
+						) : (
+							<Ionicons name="chevron-forward" size={18} color={THEME.textSubtle} />
+						)}
+					</TouchableOpacity>
+				))}
+			</View>
+		</View>
+	);
+}
+
 // ─── Fő App komponens ─────────────────────────────────────────────────────────
 export default function App() {
-	const [activeTab, setActiveTab] = useState<TabKey>("Home");
+	const [activeTab, setActiveTab] = useState<TabKey | "More">("Home");
 	const [favorites, setFavorites] = useState<string[]>([]);
 	const [lang, setLang] = useState<"en" | "hu">("en");
 	const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
 	const [ticketQuantity, setTicketQuantity] = useState(1);
 	const [buyerEmail, setBuyerEmail] = useState("");
 	const [orderComplete, setOrderComplete] = useState(false);
+	const [tabHistory, setTabHistory] = useState<(TabKey | "More")[]>([]);
+
+	const navigateTo = (tab: TabKey | "More") => {
+		if (tab === activeTab) return;
+		setTabHistory((prev) => [...prev, activeTab]);
+		setActiveTab(tab);
+	};
+
+	const goBack = () => {
+		setTabHistory((prev) => {
+			const next = [...prev];
+			const previous = next.pop() ?? "Home";
+			setActiveTab(previous);
+			return next;
+		});
+	};
 
 	const t = translations[lang];
 	const tickets = festivalData.tickets as Ticket[];
@@ -1623,28 +1954,38 @@ export default function App() {
 	const handlePurchase = () => { if (selectedTicketId && isValidEmail(buyerEmail)) setOrderComplete(true); };
 	const handleResetOrder = () => { setOrderComplete(false); setSelectedTicketId(null); setTicketQuantity(1); setBuyerEmail(""); };
 
-	const navTabs: { key: TabKey; icon: string; label: string }[] = [
+	const navTabs: { key: TabKey | "More"; icon: string; label: string }[] = [
 		{ key: "Home", icon: "home", label: t.home },
 		{ key: "Schedule", icon: "calendar", label: t.schedule },
 		{ key: "Map", icon: "map", label: t.map },
-		{ key: "Favorites", icon: "heart", label: "Kedvencek" },
-		{ key: "Gastro", icon: "restaurant", label: "Gasztró" },
 		{ key: "Tickets", icon: "ticket", label: t.tickets },
-		{ key: "Sponsors", icon: "star", label: t.sponsors },
+		{ key: "More", icon: "grid", label: "Több" },
 	];
 
 	return (
-		<SafeAreaView style={styles.container}>
-			<StatusBar barStyle="light-content" backgroundColor="#06020f" />
+		<SafeAreaView
+			style={[
+				styles.container,
+				{ paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight ?? 0) : 0 },
+			]}
+		>
+			<StatusBar barStyle="light-content" backgroundColor={THEME.bg} />
+			<View pointerEvents="none" style={[styles.screenGlow, styles.screenGlowTop]} />
+			<View pointerEvents="none" style={[styles.screenGlow, styles.screenGlowBottom]} />
 
-			<View style={[styles.header, { flexDirection: "row", justifyContent: "space-between" }]}>
-				<Text style={styles.headerBadge}>ECLIPSEFEST · 2026</Text>
+			<View style={styles.header}>
 				<TouchableOpacity
-					style={{ padding: 5, backgroundColor: "rgba(124,58,237,0.2)", borderRadius: 8 }}
-					onPress={() => setLang(lang === "en" ? "hu" : "en")}
+					style={[styles.headerBackBtn, activeTab === "Home" && styles.headerBackBtnHidden]}
+					onPress={goBack}
+					disabled={activeTab === "Home"}
+					accessibilityLabel="Vissza az előző oldalra"
 				>
-					<Text style={{ color: "#a855f7", fontWeight: "bold" }}>
-						{lang === "en" ? "EN 🔄" : "HU 🔄"}
+					<Ionicons name="chevron-back" size={22} color={THEME.text} />
+				</TouchableOpacity>
+				<Text style={styles.headerBadge}>ECLIPSEFEST · 2026</Text>
+				<TouchableOpacity style={styles.langSwitch} onPress={() => setLang(lang === "en" ? "hu" : "en")}>
+					<Text style={styles.langSwitchText}>
+						{lang === "en" ? "EN" : "HU"}
 					</Text>
 				</TouchableOpacity>
 			</View>
@@ -1652,8 +1993,8 @@ export default function App() {
 			<View style={styles.mainArea}>
 				{activeTab === "Home" && (
 					<HomeScreen
-						onGoToTickets={() => setActiveTab("Tickets")}
-						onGoToFavorites={() => setActiveTab("Favorites")}
+						onGoToTickets={() => navigateTo("Tickets")}
+						onGoToFavorites={() => navigateTo("Favorites")}
 						favoritePerformers={favoritePerformers}
 					/>
 				)}
@@ -1673,10 +2014,11 @@ export default function App() {
 						performers={performers}
 						favorites={favorites}
 						onToggleFavorite={toggleFavorite}
-						onGoToSchedule={() => setActiveTab("Schedule")}
+						onGoToSchedule={() => navigateTo("Schedule")}
+					onBack={goBack}
 					/>
 				)}
-				{activeTab === "Gastro" && <GastroScreen />}
+				{activeTab === "Gastro" && <GastroScreen onBack={goBack} />}
 				{activeTab === "Tickets" && (
 					<TicketsScreen
 						tickets={tickets}
@@ -1691,7 +2033,15 @@ export default function App() {
 						onReset={handleResetOrder}
 					/>
 				)}
-				{activeTab === "Sponsors" && <SponsorsScreen t={t} />}
+				{activeTab === "Sponsors" && <SponsorsScreen t={t} onBack={goBack} />}
+				{activeTab === "More" && (
+					<MoreScreen
+						onGoToFavorites={() => navigateTo("Favorites")}
+						onGoToGastro={() => navigateTo("Gastro")}
+						onGoToSponsors={() => navigateTo("Sponsors")}
+						favoritesCount={favorites.length}
+					/>
+				)}
 			</View>
 
 			<View style={styles.navBar}>
@@ -1699,7 +2049,7 @@ export default function App() {
 					const active = activeTab === tab.key;
 					const showBadge = tab.key === "Favorites" && favorites.length > 0;
 					return (
-						<TouchableOpacity key={tab.key} style={styles.navItem} onPress={() => setActiveTab(tab.key)}>
+						<TouchableOpacity key={tab.key} style={styles.navItem} onPress={() => navigateTo(tab.key)}>
 							<View style={[styles.navIconWrap, active && styles.navIconActive]}>
 								<Ionicons
 									name={active ? (tab.icon as keyof typeof Ionicons.glyphMap) : (`${tab.icon}-outline` as keyof typeof Ionicons.glyphMap)}
@@ -1719,15 +2069,28 @@ export default function App() {
 
 // ─── Stílusok ─────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-	container: { flex: 1, backgroundColor: "#06020f" },
-	header: { paddingVertical: 12, paddingHorizontal: 24, backgroundColor: "transparent", alignItems: "center", borderBottomWidth: 0.5, borderBottomColor: "rgba(120,60,200,0.2)" },
-	headerBadge: { fontSize: 10, letterSpacing: 3, color: "rgba(168,85,247,0.55)", fontWeight: "400" },
+	container: { flex: 1, backgroundColor: THEME.bg },
+	header: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 12, paddingHorizontal: 14, backgroundColor: "rgba(6,2,15,0.82)", alignItems: "center", borderBottomWidth: 1, borderBottomColor: THEME.border, shadowColor: THEME.accent, shadowOpacity: 0.08, shadowRadius: 14, elevation: 6 },
+	headerBackBtn: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.06)", borderWidth: 1, borderColor: THEME.borderStrong, shadowColor: THEME.accent, shadowOpacity: 0.12, shadowRadius: 10, elevation: 4 },
+	headerBackBtnHidden: { opacity: 0 },
+	headerBadge: { flex: 1, textAlign: "center", fontSize: 12, letterSpacing: 2.8, color: THEME.accent, fontWeight: "900", fontFamily: FONTS.ui },
+	langSwitch: { minWidth: 44, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 22, borderWidth: 1, borderColor: THEME.borderStrong, shadowColor: THEME.accent, shadowOpacity: 0.12, shadowRadius: 10, elevation: 4 },
+	langSwitchText: { color: THEME.accent, fontWeight: "900", letterSpacing: 0.9, fontSize: 13 },
 	mainArea: { flex: 1 },
+	screenGlow: { position: "absolute", borderRadius: 999, opacity: 0.22 },
+	screenGlowTop: { width: 220, height: 220, top: -70, right: -50, backgroundColor: "rgba(124,58,237,0.22)" },
+	screenGlowBottom: { width: 260, height: 260, bottom: 70, left: -90, backgroundColor: "rgba(236,72,153,0.10)" },
 
 	// Home
-	homeScreen: { flex: 1, backgroundColor: "#06020f", position: "relative", overflow: "hidden" },
-	homeScroll: { alignItems: "center", paddingBottom: 32 },
-	star: { position: "absolute", backgroundColor: "#ffffff", borderRadius: 99 },
+	homeScreen: { flex: 1, backgroundColor: THEME.bg, position: "relative", overflow: "hidden" },
+	homeScroll: { alignItems: "center", paddingBottom: 32, paddingTop: 8 },
+	homeHeroCard: { width: "100%", maxWidth: 430, marginHorizontal: 20, marginTop: 18, borderRadius: 28, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.05)" },
+	homeHeroOverlay: { position: "absolute", left: 18, right: 18, bottom: 18 },
+	homeHeroEyebrow: { color: "rgba(216,180,254,0.86)", fontSize: 10, letterSpacing: 1.6, fontWeight: "900", fontFamily: FONTS.ui, marginBottom: 6 },
+	homeHeroTitle: { color: "#fff", fontSize: 22, lineHeight: 27, fontWeight: "700", fontFamily: FONTS.heading },
+	eventVisualFrame: { width: "100%", height: 210, overflow: "hidden", backgroundColor: "#111827" },
+	eventVisualFrameCompact: { height: 138, borderTopLeftRadius: 22, borderTopRightRadius: 22 },
+	star: { position: "absolute", backgroundColor: "rgba(255,255,255,0.55)", borderRadius: 99 },
 
 	// Következő kedvenc chip
 	nextFavChip: {
@@ -1739,126 +2102,126 @@ const styles = StyleSheet.create({
 		paddingVertical: 10,
 		paddingHorizontal: 14,
 		borderRadius: 14,
-		backgroundColor: "rgba(168,85,247,0.1)",
-		borderWidth: 0.5,
-		borderColor: "rgba(168,85,247,0.35)",
+		backgroundColor: THEME.surface,
+		borderWidth: 1,
+		borderColor: THEME.borderStrong,
 	},
-	nextFavText: { flex: 1, fontSize: 12, color: "rgba(216,200,240,0.75)" },
-	nextFavName: { color: "#e8d8ff", fontWeight: "600" },
-	nextFavTime: { fontSize: 11, color: "#a855f7", fontWeight: "600" },
+	nextFavText: { flex: 1, fontSize: 12, color: THEME.textMuted },
+	nextFavName: { color: THEME.text, fontWeight: "600" },
+	nextFavTime: { fontSize: 11, color: THEME.accent, fontWeight: "600" },
 
 	// Eclipse
-	eclipseContainer: { width: 260, height: 260, alignItems: "center", justifyContent: "center", marginTop: 12, position: "relative" },
+	eclipseContainer: { width: 240, height: 240, alignItems: "center", justifyContent: "center", marginTop: 8, position: "relative" },
 	haloRing: { position: "absolute", borderRadius: 999 },
-	haloOuter: { width: 200, height: 200, shadowColor: "#9333ea", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.45, shadowRadius: 35, elevation: 0, borderWidth: 0, backgroundColor: "transparent" },
-	haloMid: { width: 155, height: 155, shadowColor: "#c084fc", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.35, shadowRadius: 25, elevation: 0, backgroundColor: "transparent" },
-	haloInner: { width: 115, height: 115, shadowColor: "#e9d5ff", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.25, shadowRadius: 18, elevation: 0, backgroundColor: "transparent" },
-	coronaWrapper: { position: "absolute", width: 220, height: 220, alignItems: "center", justifyContent: "center" },
-	spikeContainer: { position: "absolute", alignItems: "center", justifyContent: "flex-start", width: 220, height: 220, top: 0, left: 0 },
-	spike: { backgroundColor: "rgba(192,132,252,0.65)", borderRadius: 1, position: "absolute", top: 0 },
-	planetDisk: { width: 100, height: 100, borderRadius: 50, overflow: "hidden", borderWidth: 1, borderColor: "rgba(168,85,247,0.3)" },
+	haloOuter: { width: 176, height: 176, shadowColor: THEME.accent2, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.18, shadowRadius: 18, elevation: 0, borderWidth: 0, backgroundColor: "transparent" },
+	haloMid: { width: 138, height: 138, shadowColor: THEME.accent, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.14, shadowRadius: 14, elevation: 0, backgroundColor: "transparent" },
+	haloInner: { width: 104, height: 104, shadowColor: "#fff", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 0, backgroundColor: "transparent" },
+	coronaWrapper: { position: "absolute", width: 196, height: 196, alignItems: "center", justifyContent: "center" },
+	spikeContainer: { position: "absolute", alignItems: "center", justifyContent: "flex-start", width: 196, height: 196, top: 0, left: 0 },
+	spike: { backgroundColor: "rgba(167,139,250,0.42)", borderRadius: 1, position: "absolute", top: 0 },
+	planetDisk: { width: 92, height: 92, borderRadius: 46, overflow: "hidden", borderWidth: 1, borderColor: THEME.border },
 	logoImage: { width: "100%", height: "100%" },
 
 	titleZone: { alignItems: "center", marginTop: -4, paddingHorizontal: 24 },
-	festName: { fontSize: 42, fontWeight: "700", color: "#f0e8ff", letterSpacing: 1 },
-	tagline: { fontSize: 9, letterSpacing: 3, color: "rgba(168,85,247,0.5)", marginTop: 6, textAlign: "center" },
+	festName: { fontSize: 40, fontWeight: "700", color: THEME.text, letterSpacing: 0.6 },
+	tagline: { fontSize: 10, letterSpacing: 1.2, color: THEME.textSubtle, marginTop: 6, textAlign: "center" },
 
-	dateStrip: { flexDirection: "row", alignItems: "center", marginHorizontal: 24, marginTop: 12, paddingVertical: 14, paddingHorizontal: 20, borderWidth: 0.5, borderColor: "rgba(120,60,200,0.25)", borderRadius: 18, backgroundColor: "rgba(120,60,200,0.05)" },
+	dateStrip: { flexDirection: "row", alignItems: "center", marginHorizontal: 24, marginTop: 12, paddingVertical: 14, paddingHorizontal: 18, borderWidth: 1, borderColor: THEME.border, borderRadius: 16, backgroundColor: THEME.surface },
 	dateItem: { alignItems: "center", paddingHorizontal: 12 },
-	dateNum: { fontSize: 26, fontWeight: "600", color: "#e8d8ff", lineHeight: 28 },
-	dateSub: { fontSize: 9, letterSpacing: 2, color: "rgba(168,85,247,0.45)", marginTop: 3 },
-	dateSep: { width: 0.5, height: 36, backgroundColor: "rgba(120,60,200,0.25)" },
+	dateNum: { fontSize: 26, fontWeight: "600", color: THEME.text, lineHeight: 28 },
+	dateSub: { fontSize: 9, letterSpacing: 1.2, color: THEME.textSubtle, marginTop: 3 },
+	dateSep: { width: 1, height: 36, backgroundColor: THEME.border },
 	dateRight: { alignItems: "flex-end", paddingLeft: 12 },
-	dateYear: { fontSize: 14, fontWeight: "500", color: "#d8c8f0" },
+	dateYear: { fontSize: 14, fontWeight: "600", color: THEME.textMuted },
 
 	infoRow: { flexDirection: "row", gap: 8, marginHorizontal: 24, marginTop: 12 },
-	infoChip: { flex: 1, padding: 12, borderWidth: 0.5, borderColor: "rgba(120,60,200,0.2)", borderRadius: 14, backgroundColor: "rgba(120,60,200,0.04)", alignItems: "center" },
-	chipLabel: { fontSize: 8, letterSpacing: 1.5, color: "rgba(168,85,247,0.45)", marginBottom: 5 },
-	chipValue: { fontSize: 13, fontWeight: "500", color: "#d8c8f0" },
+	infoChip: { flex: 1, padding: 12, borderWidth: 1, borderColor: THEME.border, borderRadius: 14, backgroundColor: THEME.surface, alignItems: "center" },
+	chipLabel: { fontSize: 9, letterSpacing: 0.8, color: THEME.textSubtle, marginBottom: 5, fontWeight: "600" },
+	chipValue: { fontSize: 13, fontWeight: "600", color: THEME.textMuted },
 
-	ticketCta: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, marginHorizontal: 24, marginTop: 12, paddingVertical: 14, borderRadius: 16, backgroundColor: "rgba(124,58,237,0.25)", borderWidth: 0.5, borderColor: "rgba(168,85,247,0.45)" },
-	ticketCtaText: { fontSize: 14, fontWeight: "600", color: "#f0e8ff", letterSpacing: 0.5 },
+	ticketCta: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, marginHorizontal: 32, marginTop: 12, paddingVertical: 14, borderRadius: 14, backgroundColor: "rgba(167,139,250,0.16)", borderWidth: 1, borderColor: THEME.borderStrong, alignSelf: "center", width: "100%", maxWidth: 420 },
+	ticketCtaText: { fontSize: 14, fontWeight: "700", color: THEME.text, letterSpacing: 0.2 },
 
 	// Jegyvásárlás
 	ticketsScreen: { flex: 1 },
 	ticketsScroll: { padding: 16, paddingBottom: 24 },
-	ticketsHeading: { fontSize: 24, fontWeight: "700", color: "#f0e8ff", marginBottom: 6 },
-	ticketsSubheading: { fontSize: 13, color: "rgba(168,85,247,0.55)", marginBottom: 16, lineHeight: 18 },
-	ticketCard: { flexDirection: "row", backgroundColor: "rgba(120,60,200,0.07)", borderWidth: 0.5, borderColor: "rgba(120,60,200,0.2)", borderRadius: 14, marginBottom: 12, overflow: "hidden", position: "relative" },
-	ticketCardSelected: { borderColor: "rgba(168,85,247,0.55)", backgroundColor: "rgba(124,58,237,0.12)" },
-	ticketAccentSelected: { backgroundColor: "#a855f7", opacity: 1 },
-	popularBadge: { position: "absolute", top: 10, right: 44, zIndex: 1, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: "rgba(168,85,247,0.25)", borderWidth: 0.5, borderColor: "rgba(168,85,247,0.4)" },
-	popularBadgeText: { fontSize: 8, letterSpacing: 1.5, color: "#c084fc", fontWeight: "600" },
+	ticketsHeading: { fontSize: 24, fontWeight: "800", color: THEME.text, marginBottom: 6, letterSpacing: 0.2 },
+	ticketsSubheading: { fontSize: 13, color: THEME.textSubtle, marginBottom: 16, lineHeight: 18 },
+	ticketCard: { flexDirection: "row", backgroundColor: "rgba(255,255,255,0.055)", borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", borderRadius: 20, marginBottom: 14, overflow: "hidden", position: "relative" },
+	ticketCardSelected: { borderColor: THEME.borderStrong, backgroundColor: THEME.surface2 },
+	ticketAccentSelected: { backgroundColor: THEME.accent, opacity: 1 },
+	popularBadge: { position: "absolute", top: 10, right: 44, zIndex: 1, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: THEME.surface2, borderWidth: 1, borderColor: THEME.borderStrong },
+	popularBadgeText: { fontSize: 8.5, letterSpacing: 1, color: THEME.accent, fontWeight: "800" },
 	ticketCardBody: { flex: 1, paddingVertical: 14, paddingHorizontal: 14 },
 	ticketCardHeader: { marginBottom: 6 },
 	ticketTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
-	ticketName: { color: "#e8d8ff", fontSize: 17, fontWeight: "600" },
-	ticketBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, backgroundColor: "rgba(120,60,200,0.15)", borderWidth: 0.5, borderColor: "rgba(120,60,200,0.3)" },
-	ticketBadgeText: { fontSize: 9, letterSpacing: 1, color: "rgba(168,85,247,0.7)", fontWeight: "500" },
-	ticketPrice: { fontSize: 18, fontWeight: "700", color: "#c084fc" },
-	ticketDescription: { fontSize: 12, color: "rgba(216,200,240,0.75)", lineHeight: 17, marginBottom: 10 },
+	ticketName: { color: THEME.text, fontSize: 17, fontWeight: "800" },
+	ticketBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, backgroundColor: THEME.surface2, borderWidth: 1, borderColor: THEME.border },
+	ticketBadgeText: { fontSize: 9, letterSpacing: 0.6, color: THEME.textSubtle, fontWeight: "700" },
+	ticketPrice: { fontSize: 18, fontWeight: "900", color: THEME.accent },
+	ticketDescription: { fontSize: 12, color: THEME.textMuted, lineHeight: 17, marginBottom: 10 },
 	ticketFeatures: { gap: 5 },
 	ticketFeatureRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-	ticketFeatureText: { fontSize: 11, color: "rgba(168,85,247,0.65)" },
+	ticketFeatureText: { fontSize: 11, color: THEME.textSubtle, fontWeight: "600" },
 	ticketSelectIndicator: { justifyContent: "center", paddingRight: 14 },
-	checkoutBar: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8, borderTopWidth: 0.5, borderTopColor: "rgba(120,60,200,0.25)", backgroundColor: "#0a0415" },
+	checkoutBar: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8, borderTopWidth: 1, borderTopColor: THEME.border, backgroundColor: THEME.navBg },
 	quantityRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 },
-	quantityLabel: { fontSize: 13, color: "#d8c8f0" },
+	quantityLabel: { fontSize: 13, color: THEME.textMuted, fontWeight: "700" },
 	quantityControls: { flexDirection: "row", alignItems: "center", gap: 12 },
-	quantityBtn: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(124,58,237,0.2)", borderWidth: 0.5, borderColor: "rgba(124,58,237,0.35)" },
+	quantityBtn: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: THEME.surface, borderWidth: 1, borderColor: THEME.border },
 	quantityBtnDisabled: { opacity: 0.35 },
-	quantityValue: { fontSize: 16, fontWeight: "600", color: "#f0e8ff", minWidth: 24, textAlign: "center" },
+	quantityValue: { fontSize: 16, fontWeight: "900", color: THEME.text, minWidth: 24, textAlign: "center" },
 	emailField: { marginBottom: 12 },
-	emailLabel: { fontSize: 13, color: "#d8c8f0", marginBottom: 8 },
-	emailInput: { paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, borderWidth: 0.5, borderColor: "rgba(120,60,200,0.3)", backgroundColor: "rgba(120,60,200,0.08)", color: "#f0e8ff", fontSize: 15 },
-	emailInputError: { borderColor: "rgba(239,68,68,0.6)" },
+	emailLabel: { fontSize: 13, color: THEME.textMuted, marginBottom: 8, fontWeight: "700" },
+	emailInput: { paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface, color: THEME.text, fontSize: 15 },
+	emailInputError: { borderColor: "rgba(239,68,68,0.7)" },
 	emailErrorText: { fontSize: 11, color: "#f87171", marginTop: 6 },
 	totalRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
-	totalLabel: { fontSize: 12, letterSpacing: 1.5, color: "rgba(168,85,247,0.5)" },
-	totalValue: { fontSize: 20, fontWeight: "700", color: "#e8d8ff" },
-	checkoutHint: { fontSize: 12, color: "rgba(168,85,247,0.45)", textAlign: "center", marginBottom: 12 },
-	checkoutBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 14, borderRadius: 14, backgroundColor: "#7c3aed", borderWidth: 0.5, borderColor: "rgba(168,85,247,0.5)" },
+	totalLabel: { fontSize: 12, letterSpacing: 0.9, color: THEME.textSubtle, fontWeight: "800" },
+	totalValue: { fontSize: 20, fontWeight: "900", color: THEME.text },
+	checkoutHint: { fontSize: 12, color: THEME.textSubtle, textAlign: "center", marginBottom: 12 },
+	checkoutBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 14, borderRadius: 14, backgroundColor: "rgba(167,139,250,0.18)", borderWidth: 1, borderColor: THEME.borderStrong },
 	checkoutBtnDisabled: { opacity: 0.4 },
-	checkoutBtnText: { fontSize: 15, fontWeight: "600", color: "#f0e8ff" },
+	checkoutBtnText: { fontSize: 15, fontWeight: "900", color: THEME.text, letterSpacing: 0.2 },
 	orderSuccess: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 },
 	orderSuccessIcon: { marginBottom: 16 },
-	orderSuccessTitle: { fontSize: 22, fontWeight: "700", color: "#f0e8ff", marginBottom: 8 },
-	orderSuccessSub: { fontSize: 13, color: "rgba(168,85,247,0.55)", textAlign: "center", lineHeight: 20, marginBottom: 8 },
-	orderSuccessEmail: { fontSize: 15, fontWeight: "600", color: "#e8d8ff", textAlign: "center", marginBottom: 24 },
-	orderSummaryCard: { width: "100%", padding: 20, borderRadius: 16, borderWidth: 0.5, borderColor: "rgba(120,60,200,0.25)", backgroundColor: "rgba(120,60,200,0.07)", marginBottom: 24, alignItems: "center" },
-	orderSummaryLabel: { fontSize: 9, letterSpacing: 2, color: "rgba(168,85,247,0.45)", marginBottom: 8 },
-	orderSummaryName: { fontSize: 18, fontWeight: "600", color: "#e8d8ff", marginBottom: 4 },
-	orderSummaryDetail: { fontSize: 14, color: "#c084fc" },
+	orderSuccessTitle: { fontSize: 22, fontWeight: "900", color: THEME.text, marginBottom: 8 },
+	orderSuccessSub: { fontSize: 13, color: THEME.textSubtle, textAlign: "center", lineHeight: 20, marginBottom: 8 },
+	orderSuccessEmail: { fontSize: 15, fontWeight: "900", color: THEME.text, textAlign: "center", marginBottom: 24 },
+	orderSummaryCard: { width: "100%", padding: 20, borderRadius: 16, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface, marginBottom: 24, alignItems: "center" },
+	orderSummaryLabel: { fontSize: 9, letterSpacing: 1.2, color: THEME.textSubtle, marginBottom: 8, fontWeight: "800" },
+	orderSummaryName: { fontSize: 18, fontWeight: "900", color: THEME.text, marginBottom: 4 },
+	orderSummaryDetail: { fontSize: 14, color: THEME.accent, fontWeight: "800" },
 
 	// Térkép
 	mapScreen: { flex: 1, paddingTop: 8 },
 	mapHeader: { paddingHorizontal: 16, marginBottom: 10 },
-	mapHeading: { fontSize: 24, fontWeight: "700", color: "#f0e8ff" },
-	mapVenue: { fontSize: 12, color: "rgba(168,85,247,0.55)", marginTop: 4 },
+	mapHeading: { fontSize: 24, fontWeight: "900", color: THEME.text, letterSpacing: 0.2 },
+	mapVenue: { fontSize: 12, color: THEME.textSubtle, marginTop: 4 },
 	mapFilters: { paddingHorizontal: 16, gap: 8, paddingBottom: 12 },
-	mapFilterChip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, borderWidth: 0.5, borderColor: "rgba(120,60,200,0.25)", backgroundColor: "rgba(120,60,200,0.06)" },
-	mapFilterChipActive: { backgroundColor: "rgba(124,58,237,0.22)", borderColor: "rgba(168,85,247,0.45)" },
-	mapFilterChipText: { fontSize: 11, color: "rgba(168,85,247,0.5)", fontWeight: "500" },
+	mapFilterChip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface },
+	mapFilterChipActive: { backgroundColor: THEME.surface2, borderColor: THEME.borderStrong },
+	mapFilterChipText: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700" },
 	mapFilterChipTextActive: { color: "#e8d8ff" },
-	mapViewWrap: { flex: 1, marginHorizontal: 16, marginBottom: 8, borderRadius: 18, overflow: "hidden", borderWidth: 0.5, borderColor: "rgba(120,60,200,0.3)", position: "relative" },
+	mapViewWrap: { flex: 1, marginHorizontal: 16, marginBottom: 8, borderRadius: 18, overflow: "hidden", borderWidth: 1, borderColor: THEME.border, position: "relative" },
 	mapOpenExternalBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 10 },
-	mapOpenExternalText: { fontSize: 12, color: "#c084fc", fontWeight: "500" },
-	mapDetailCard: { flexDirection: "row", marginHorizontal: 16, marginBottom: 4, borderRadius: 14, borderWidth: 0.5, borderColor: "rgba(120,60,200,0.25)", backgroundColor: "rgba(120,60,200,0.08)", overflow: "hidden" },
+	mapOpenExternalText: { fontSize: 12, color: THEME.accent, fontWeight: "800" },
+	mapDetailCard: { flexDirection: "row", marginHorizontal: 16, marginTop: -4, marginBottom: 12, borderRadius: 14, borderWidth: 1, borderColor: THEME.borderStrong, backgroundColor: "rgba(15,7,32,0.96)", overflow: "hidden" },
 	mapDetailAccent: { width: 3 },
 	mapDetailBody: { flex: 1, paddingVertical: 12, paddingHorizontal: 12 },
 	mapDetailHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
-	mapDetailName: { fontSize: 15, fontWeight: "600", color: "#e8d8ff", flex: 1 },
-	mapDetailBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, backgroundColor: "rgba(120,60,200,0.15)" },
-	mapDetailBadgeText: { fontSize: 9, color: "rgba(168,85,247,0.7)" },
-	mapDetailDescription: { fontSize: 12, color: "rgba(216,200,240,0.75)", lineHeight: 17 },
+	mapDetailName: { fontSize: 15, fontWeight: "900", color: THEME.text, flex: 1 },
+	mapDetailBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, backgroundColor: THEME.surface2, borderWidth: 1, borderColor: THEME.border },
+	mapDetailBadgeText: { fontSize: 9, color: THEME.textSubtle, fontWeight: "800" },
+	mapDetailDescription: { fontSize: 12, color: THEME.textMuted, lineHeight: 17 },
 	mapDetailClose: { padding: 12, justifyContent: "center" },
-	mapPointsList: { flex: 1, backgroundColor: "rgba(120,60,200,0.03)", borderTopWidth: 0.5, borderTopColor: "rgba(120,60,200,0.2)" },
-	mapPointItem: { flexDirection: "row", alignItems: "center", padding: 16, borderBottomWidth: 0.5, borderBottomColor: "rgba(120,60,200,0.1)", gap: 12 },
-	mapPointItemSelected: { backgroundColor: "rgba(168,85,247,0.1)" },
+	mapPointsList: { flex: 1, backgroundColor: "transparent", borderTopWidth: 1, borderTopColor: THEME.border },
+	mapPointItem: { flexDirection: "row", alignItems: "center", paddingVertical: 14, paddingHorizontal: 16, marginHorizontal: 16, marginBottom: 8, borderRadius: 14, borderWidth: 1, borderColor: THEME.border, backgroundColor: "rgba(255,255,255,0.035)", gap: 12 },
+	mapPointItemSelected: { backgroundColor: "rgba(168,85,247,0.12)", borderColor: THEME.borderStrong },
 	mapPointIconWrap: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
 	mapPointItemText: { flex: 1 },
-	mapPointItemName: { color: "#e8d8ff", fontSize: 14, fontWeight: "600", marginBottom: 2 },
-	mapPointItemCategory: { color: "rgba(168,85,247,0.55)", fontSize: 11, letterSpacing: 0.3 },
+	mapPointItemName: { color: THEME.text, fontSize: 14, fontWeight: "900", marginBottom: 2 },
+	mapPointItemCategory: { color: THEME.textSubtle, fontSize: 11, letterSpacing: 0.2, fontWeight: "700" },
 
 	// Illusztrált térkép stílusok
 	mapCanvasWrap: { flex: 1 },
@@ -1922,117 +2285,250 @@ const styles = StyleSheet.create({
 	mapLegendItem: { flexDirection: "row", alignItems: "center", gap: 5 },
 	mapLegendDot: { width: 8, height: 8, borderRadius: 4 },
 	mapLegendText: { fontSize: 10, color: "rgba(216,200,240,0.6)" },
-	mapCanvasHint: { fontSize: 10, color: "rgba(168,85,247,0.35)", textAlign: "center", paddingVertical: 4 },
-	mapViewToggle: { flexDirection: "row", marginHorizontal: 16, marginBottom: 8, borderRadius: 12, borderWidth: 0.5, borderColor: "rgba(120,60,200,0.25)", overflow: "hidden", backgroundColor: "rgba(120,60,200,0.05)" },
+	mapCanvasHint: { fontSize: 10, color: THEME.textSubtle, textAlign: "center", paddingVertical: 4 },
+	mapViewToggle: { flexDirection: "row", marginHorizontal: 16, marginBottom: 8, borderRadius: 12, borderWidth: 1, borderColor: THEME.border, overflow: "hidden", backgroundColor: THEME.surface },
 	mapViewToggleBtn: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 9 },
-	mapViewToggleBtnActive: { backgroundColor: "rgba(124,58,237,0.2)" },
-	mapViewToggleText: { fontSize: 12, color: "rgba(168,85,247,0.45)", fontWeight: "500" },
-	mapViewToggleTextActive: { color: "#e8d8ff" },
+	mapViewToggleBtnActive: { backgroundColor: THEME.surface2 },
+	mapViewToggleText: { fontSize: 12, color: THEME.textSubtle, fontWeight: "800" },
+	mapViewToggleTextActive: { color: THEME.text },
 
 
 	// Schedule
 	scheduleScreen: { flex: 1 },
-	scheduleHeader: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 4 },
-	scheduleHeading: { fontSize: 24, fontWeight: "700", color: "#f0e8ff" },
-	scheduleSubheading: { fontSize: 12, color: "rgba(168,85,247,0.55)", marginTop: 4 },
-	scheduleViewSwitcher: { paddingHorizontal: 16, gap: 8, paddingVertical: 10 },
-	scheduleViewChip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 0.5, borderColor: "rgba(120,60,200,0.25)", backgroundColor: "rgba(120,60,200,0.06)" },
-	scheduleViewChipActive: { backgroundColor: "rgba(124,58,237,0.22)", borderColor: "rgba(168,85,247,0.45)" },
-	scheduleViewChipText: { fontSize: 11, color: "rgba(168,85,247,0.5)", fontWeight: "500" },
-	scheduleViewChipTextActive: { color: "#e8d8ff" },
+	scheduleHeader: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 6 },
+	scheduleHeading: { fontSize: 30, fontWeight: "700", color: THEME.text, letterSpacing: 0.2, fontFamily: FONTS.heading },
+	scheduleSubheading: { fontSize: 13, color: THEME.textSubtle, marginTop: 4, fontFamily: FONTS.ui, letterSpacing: 0.3 },
+	scheduleViewSwitcher: { paddingHorizontal: 16, gap: 8, paddingVertical: 8, alignItems: "center" },
+	scheduleViewChip: { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface },
+	scheduleViewChipActive: { backgroundColor: THEME.surface2, borderColor: THEME.borderStrong },
+	scheduleViewChipText: { fontSize: 12, color: THEME.textSubtle, fontWeight: "700" },
+	scheduleViewChipTextActive: { color: THEME.text },
 	scheduleBody: { flex: 1 },
 	scheduleListContent: { paddingHorizontal: 16, paddingBottom: 32 },
 	scheduleGridContent: { paddingHorizontal: 16, paddingBottom: 32 },
 	scheduleGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-	gridCard: { width: "48%", flexGrow: 1, minWidth: 150, padding: 12, borderRadius: 14, borderWidth: 0.5, borderColor: "rgba(120,60,200,0.2)", backgroundColor: "rgba(120,60,200,0.07)" },
+	gridCard: { width: "48%", flexGrow: 1, minWidth: 150, padding: 12, borderRadius: 14, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface },
 	gridCardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 },
-	gridTime: { fontSize: 10, color: "rgba(168,85,247,0.55)", letterSpacing: 0.3, flex: 1 },
-	gridName: { fontSize: 15, fontWeight: "600", color: "#e8d8ff", marginBottom: 4 },
-	gridStage: { fontSize: 11, color: "rgba(168,85,247,0.55)" },
+	gridTime: { fontSize: 10, color: THEME.textSubtle, letterSpacing: 0.2, flex: 1, fontWeight: "700" },
+	gridName: { fontSize: 15, fontWeight: "900", color: THEME.text, marginBottom: 4 },
+	gridStage: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700" },
 	gridFavoriteBtn: { padding: 2, marginLeft: 4 },
-	stageSectionHeader: { flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 10, paddingHorizontal: 4, marginBottom: 4, backgroundColor: "#06020f" },
-	stageSectionTitle: { fontSize: 13, fontWeight: "600", color: "#c084fc", letterSpacing: 0.5 },
+	stageSectionHeader: { flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 10, paddingHorizontal: 4, marginBottom: 4, backgroundColor: THEME.bg },
+	stageSectionTitle: { fontSize: 13, fontWeight: "900", color: THEME.accent, letterSpacing: 0.2 },
 	timelineRow: { flexDirection: "row", marginBottom: 4 },
 	timelineTimeCol: { width: 48, paddingTop: 14 },
-	timelineTime: { fontSize: 13, fontWeight: "600", color: "#e8d8ff" },
-	timelineTimeEnd: { fontSize: 10, color: "rgba(168,85,247,0.45)", marginTop: 2 },
+	timelineTime: { fontSize: 13, fontWeight: "900", color: THEME.text },
+	timelineTimeEnd: { fontSize: 10, color: THEME.textSubtle, marginTop: 2, fontWeight: "700" },
 	timelineTrack: { width: 20, alignItems: "center", paddingTop: 18 },
-	timelineDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "#a855f7", borderWidth: 2, borderColor: "rgba(168,85,247,0.35)" },
-	timelineLine: { flex: 1, width: 2, backgroundColor: "rgba(120,60,200,0.25)", marginTop: 4, marginBottom: -8 },
-	timelineCard: { flex: 1, marginLeft: 8, marginBottom: 12, borderRadius: 14, borderWidth: 0.5, borderColor: "rgba(120,60,200,0.2)", backgroundColor: "rgba(120,60,200,0.07)", overflow: "hidden" },
+	timelineDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: THEME.accent, borderWidth: 2, borderColor: "rgba(167,139,250,0.35)" },
+	timelineLine: { flex: 1, width: 2, backgroundColor: THEME.border, marginTop: 4, marginBottom: -8 },
+	timelineCard: { flex: 1, marginLeft: 8, marginBottom: 12, borderRadius: 14, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface, overflow: "hidden" },
 	timelineCardHeader: { flexDirection: "row", alignItems: "flex-start" },
 	timelineCardInfo: { flex: 1, paddingVertical: 14, paddingHorizontal: 14 },
-	timelineDescription: { fontSize: 11, color: "rgba(216,200,240,0.65)", marginTop: 6, lineHeight: 16 },
+	timelineDescription: { fontSize: 11, color: THEME.textMuted, marginTop: 6, lineHeight: 16 },
 
 	// Performer kártya
 	listContent: { padding: 16, paddingBottom: 32 },
-	card: { flexDirection: "row", alignItems: "center", backgroundColor: "rgba(120,60,200,0.07)", borderWidth: 0.5, borderColor: "rgba(120,60,200,0.2)", borderRadius: 14, marginBottom: 10, overflow: "hidden" },
-	cardConflict: { borderColor: "rgba(245,158,11,0.45)", backgroundColor: "rgba(245,158,11,0.05)" },
-	cardAccent: { width: 3, alignSelf: "stretch", backgroundColor: "#7c3aed", opacity: 0.8 },
+	card: { flexDirection: "row", alignItems: "center", backgroundColor: "rgba(255,255,255,0.05)", borderWidth: 1, borderColor: "rgba(255,255,255,0.09)", borderRadius: 18, marginBottom: 12, overflow: "hidden" },
+	cardConflict: { borderColor: "rgba(245,158,11,0.55)", backgroundColor: "rgba(245,158,11,0.07)" },
+	cardAccent: { width: 3, alignSelf: "stretch", backgroundColor: THEME.accent2, opacity: 0.8 },
 	cardAccentConflict: { backgroundColor: "#f59e0b", opacity: 1 },
 	cardInfo: { flex: 1, paddingVertical: 14, paddingHorizontal: 14 },
-	performerName: { color: "#e8d8ff", fontSize: 16, fontWeight: "600" },
-	performerDetails: { color: "rgba(168,85,247,0.55)", fontSize: 12, marginTop: 4, letterSpacing: 0.3 },
+	performerName: { color: THEME.text, fontSize: 16, fontWeight: "900" },
+	performerDetails: { color: THEME.textSubtle, fontSize: 12, marginTop: 4, letterSpacing: 0.2, fontWeight: "700" },
 	conflictRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 6 },
 	conflictText: { fontSize: 11, color: "#f59e0b", flex: 1 },
 	conflictBadgeText: { color: "#f59e0b", fontSize: 12 },
 	favoriteBtn: { padding: 16 },
 
 	// Navigáció
-	navBar: { flexDirection: "row", backgroundColor: "#0a0415", paddingBottom: 24, paddingTop: 10, borderTopWidth: 0.5, borderTopColor: "rgba(120,60,200,0.2)" },
+	navBar: { flexDirection: "row", backgroundColor: "rgba(9,3,20,0.98)", paddingBottom: 24, paddingTop: 10, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.08)" },
 	navItem: { flex: 1, alignItems: "center", gap: 4 },
 	navIconWrap: { width: 40, height: 36, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-	navIconActive: { backgroundColor: "rgba(124,58,237,0.18)", borderWidth: 0.5, borderColor: "rgba(124,58,237,0.35)" },
-	navText: { fontSize: 10, color: "#444", letterSpacing: 0.5 },
-	navTextActive: { color: "#a855f7" },
-	navBadge: { position: "absolute", top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: "#a855f7", alignItems: "center", justifyContent: "center", paddingHorizontal: 3 },
+	navIconActive: { backgroundColor: "rgba(168,85,247,0.20)", borderWidth: 1, borderColor: "rgba(216,180,254,0.42)" },
+	navText: { fontSize: 10.5, color: "rgba(255,255,255,0.35)", letterSpacing: 0.2, fontWeight: "600" },
+	navTextActive: { color: THEME.accent },
+	navBadge: { position: "absolute", top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: THEME.accent, alignItems: "center", justifyContent: "center", paddingHorizontal: 3 },
 	navBadgeText: { fontSize: 9, color: "#fff", fontWeight: "700" },
 
 	// Info & Sponsors
 	infoScreenContainer: { flex: 1, paddingTop: 16 },
-	contactCard: { backgroundColor: "rgba(120,60,200,0.07)", borderWidth: 0.5, borderColor: "rgba(120,60,200,0.2)", borderRadius: 14, padding: 20, marginHorizontal: 24, marginBottom: 10 },
-	sectionTitle: { color: "#a855f7", fontSize: 14, fontWeight: "600", letterSpacing: 2, marginBottom: 12 },
-	infoText: { color: "#d8c8f0", fontSize: 14, marginBottom: 8, letterSpacing: 0.5 },
+	contactCard: { backgroundColor: THEME.surface, borderWidth: 1, borderColor: THEME.border, borderRadius: 14, padding: 20, marginHorizontal: 24, marginBottom: 10 },
+	sectionTitle: { color: THEME.accent, fontSize: 16, fontWeight: "900", letterSpacing: 1.8, marginBottom: 14, fontFamily: FONTS.ui },
+	infoText: { color: THEME.textMuted, fontSize: 14, marginBottom: 8, letterSpacing: 0.2, fontWeight: "600" },
 	sponsorListContent: { paddingHorizontal: 16, paddingBottom: 32 },
 	sponsorColumnWrapper: { justifyContent: "space-between", marginBottom: 16 },
-	sponsorCard: { backgroundColor: "#120a26", borderWidth: 0.5, borderColor: "rgba(168,85,247,0.15)", borderRadius: 12, padding: 16, width: "48%", alignItems: "center" },
-	sponsorLogo: { width: 60, height: 40, marginBottom: 12 },
-	sponsorName: { color: "rgba(232,216,255,0.8)", fontSize: 12, fontWeight: "500", textAlign: "center" },
+	sponsorCard: { backgroundColor: "rgba(255,255,255,0.06)", borderWidth: 1, borderColor: THEME.borderStrong, borderRadius: 22, padding: 14, width: "48%", alignItems: "center", shadowColor: THEME.accent, shadowOpacity: 0.12, shadowRadius: 14, elevation: 5 },
+	sponsorCardSingle: { width: "100%", marginBottom: 16 },
+	sponsorLogoWrap: {
+		width: "100%",
+		height: 78,
+		borderRadius: 18,
+		backgroundColor: "rgba(255,255,255,0.96)",
+		borderWidth: 1,
+		borderColor: "rgba(255,255,255,0.75)",
+		alignItems: "center",
+		justifyContent: "center",
+		paddingHorizontal: 10,
+		paddingVertical: 8,
+		marginBottom: 12,
+	},
+	sponsorLogo: { width: "100%", height: "100%" },
+	sponsorLogoFallback: { fontSize: 20, fontWeight: "900", letterSpacing: 2, color: THEME.accent },
+	sponsorName: { color: THEME.text, fontSize: 14, fontWeight: "800", textAlign: "center", marginTop: 2, fontFamily: FONTS.ui },
+
+	// More képernyő
+	moreScreen: { flex: 1 },
+	moreList: { paddingHorizontal: 16, paddingTop: 8 },
+	moreRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 12,
+		paddingVertical: 14,
+		paddingHorizontal: 14,
+		borderRadius: 14,
+		borderWidth: 1,
+		borderColor: THEME.border,
+		backgroundColor: THEME.surface,
+		marginBottom: 10,
+	},
+	moreRowIcon: {
+		width: 38,
+		height: 38,
+		borderRadius: 12,
+		backgroundColor: THEME.surface2,
+		borderWidth: 1,
+		borderColor: THEME.border,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	moreRowText: { flex: 1 },
+	moreRowTitle: { fontSize: 15, fontWeight: "900", color: THEME.text },
+	moreRowSub: { fontSize: 12, color: THEME.textSubtle, marginTop: 4, fontWeight: "600" },
+	moreRowBadge: {
+		minWidth: 30,
+		height: 26,
+		paddingHorizontal: 8,
+		borderRadius: 13,
+		alignItems: "center",
+		justifyContent: "center",
+		backgroundColor: THEME.surface2,
+		borderWidth: 1,
+		borderColor: THEME.borderStrong,
+	},
+	moreRowBadgeText: { fontSize: 12, fontWeight: "900", color: THEME.text },
 
 	// Favorites képernyő
 	favScreen: { flex: 1 },
 	favEmptyContainer: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, gap: 12 },
-	favEmptyIconWrap: { width: 80, height: 80, borderRadius: 40, borderWidth: 0.5, borderColor: "rgba(120,60,200,0.25)", backgroundColor: "rgba(120,60,200,0.07)", alignItems: "center", justifyContent: "center", marginBottom: 8 },
-	favEmptyTitle: { fontSize: 18, fontWeight: "600", color: "#e8d8ff", textAlign: "center" },
-	favEmptySubtitle: { fontSize: 13, color: "rgba(168,85,247,0.5)", textAlign: "center", lineHeight: 20 },
-	favEmptyBtn: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8, paddingVertical: 12, paddingHorizontal: 22, borderRadius: 14, backgroundColor: "rgba(124,58,237,0.25)", borderWidth: 0.5, borderColor: "rgba(168,85,247,0.45)" },
-	favEmptyBtnText: { fontSize: 14, fontWeight: "600", color: "#f0e8ff" },
+	favEmptyIconWrap: { width: 80, height: 80, borderRadius: 40, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface, alignItems: "center", justifyContent: "center", marginBottom: 8 },
+	favEmptyTitle: { fontSize: 18, fontWeight: "900", color: THEME.text, textAlign: "center" },
+	favEmptySubtitle: { fontSize: 13, color: THEME.textSubtle, textAlign: "center", lineHeight: 20, fontWeight: "600" },
+	favEmptyBtn: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8, paddingVertical: 12, paddingHorizontal: 22, borderRadius: 14, backgroundColor: THEME.surface2, borderWidth: 1, borderColor: THEME.borderStrong },
+	favEmptyBtnText: { fontSize: 14, fontWeight: "900", color: THEME.text },
 
 	// Nap szűrő
 	dayFilterRow: { paddingHorizontal: 16, gap: 8, paddingVertical: 10 },
-	dayFilterChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 0.5, borderColor: "rgba(120,60,200,0.25)", backgroundColor: "rgba(120,60,200,0.06)" },
-	dayFilterChipActive: { backgroundColor: "rgba(124,58,237,0.22)", borderColor: "rgba(168,85,247,0.45)" },
-	dayFilterChipText: { fontSize: 12, color: "rgba(168,85,247,0.5)", fontWeight: "500" },
-	dayFilterChipTextActive: { color: "#e8d8ff" },
+	dayFilterChip: {
+		paddingHorizontal: 14,
+		paddingVertical: 9,
+		borderRadius: 20,
+		borderWidth: 0.8,
+		borderColor: THEME.border,
+		backgroundColor: THEME.surface,
+	},
+	dayFilterChipActive: { backgroundColor: THEME.surface2, borderColor: THEME.borderStrong },
+	dayFilterChipText: { fontSize: 12, color: THEME.textSubtle, fontWeight: "800" },
+	dayFilterChipTextActive: { color: THEME.text },
 
 	// Gasztró képernyő
 	gastroScreen: { flex: 1 },
-	gastroList: { paddingHorizontal: 16, paddingBottom: 32 },
-	gastroCard: { flexDirection: "row", backgroundColor: "rgba(120,60,200,0.07)", borderWidth: 0.5, borderColor: "rgba(120,60,200,0.2)", borderRadius: 16, marginBottom: 12, overflow: "hidden" },
-	gastroCardAccent: { width: 4 },
-	gastroCardBody: { flex: 1, padding: 14 },
+	gastroHeroCard: { marginHorizontal: 16, marginBottom: 16, borderRadius: 28, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.05)", overflow: "hidden" },
+	gastroHeroContent: { padding: 18 },
+	gastroHeroEyebrow: { fontSize: 11, color: THEME.accent, letterSpacing: 1.8, marginBottom: 8, fontWeight: "900", fontFamily: FONTS.ui },
+	gastroHeroTitle: { fontSize: 22, color: THEME.text, lineHeight: 28, marginBottom: 8, fontWeight: "700", fontFamily: FONTS.heading },
+	gastroHeroText: { fontSize: 13, lineHeight: 21, color: THEME.textMuted, fontFamily: FONTS.body },
+	gastroCategoryGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", marginHorizontal: 16, marginBottom: 18 },
+	gastroCategoryTile: { width: "48%", minHeight: 92, paddingHorizontal: 14, paddingVertical: 14, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.05)", marginBottom: 12, justifyContent: "center" },
+	gastroCategoryTileActive: { backgroundColor: "rgba(168,85,247,0.15)", borderColor: "rgba(168,85,247,0.45)" },
+	gastroCategoryTileTopRow: { flexDirection: "row", alignItems: "center" },
+	gastroCategoryTextBlock: { flex: 1, paddingLeft: 12 },
+	gastroCategoryTileTitle: { fontSize: 17, color: THEME.text, fontWeight: "700", fontFamily: FONTS.heading },
+	gastroCategoryTileTitleActive: { color: "#ffffff" },
+	gastroCategoryTileMeta: { fontSize: 12, color: THEME.textSubtle, marginTop: 4, fontFamily: FONTS.ui },
+	gastroCategoryTileMetaActive: { color: THEME.textMuted },
+	gastroList: { paddingBottom: 32 },
+	gastroCard: { backgroundColor: "rgba(255,255,255,0.045)", borderWidth: 1, borderColor: "rgba(255,255,255,0.09)", borderRadius: 24, marginHorizontal: 16, marginBottom: 18, overflow: "hidden" },
+	gastroCardAccent: { height: 4, width: "100%" },
+	gastroCardBody: { padding: 18 },
 	gastroCardHeader: { flexDirection: "row", alignItems: "flex-start", gap: 12, marginBottom: 8 },
-	gastroEmoji: { fontSize: 32, lineHeight: 38 },
+	gastroEmoji: { fontSize: 20, lineHeight: 24 },
 	gastroCardTitles: { flex: 1 },
-	gastroName: { fontSize: 17, fontWeight: "700", color: "#f0e8ff", marginBottom: 4 },
+	gastroName: { fontSize: 24, fontWeight: "700", color: THEME.text, marginBottom: 7, fontFamily: FONTS.heading },
 	gastroTagRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-	gastroCatBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 0.5 },
-	gastroCatText: { fontSize: 10, fontWeight: "600", letterSpacing: 0.5 },
-	gastroArtist: { fontSize: 11, color: "rgba(168,85,247,0.55)" },
-	gastroDescription: { fontSize: 13, color: "rgba(216,200,240,0.8)", lineHeight: 19, marginBottom: 12 },
+	gastroCatBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, backgroundColor: THEME.surface2, borderColor: THEME.border },
+	gastroCatText: { fontSize: 11, fontWeight: "900", letterSpacing: 0.5, fontFamily: FONTS.ui },
+	gastroArtist: { fontSize: 12, color: THEME.textSubtle, fontWeight: "700", fontFamily: FONTS.ui },
+	gastroDescription: { fontSize: 15, color: THEME.textMuted, lineHeight: 24, marginBottom: 16, fontWeight: "500", fontFamily: FONTS.body },
 	gastroOffers: { gap: 6 },
-	gastroOffersLabel: { fontSize: 9, letterSpacing: 2, color: "rgba(168,85,247,0.45)", marginBottom: 4 },
+	gastroOffersLabel: { fontSize: 11, letterSpacing: 1.8, color: THEME.accent, marginBottom: 8, fontWeight: "900", fontFamily: FONTS.ui },
 	gastroOfferRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
 	gastroOfferDot: { width: 6, height: 6, borderRadius: 3, marginTop: 5 },
-	gastroOfferText: { flex: 1, fontSize: 12, color: "rgba(216,200,240,0.7)", lineHeight: 18 },
+	gastroOfferText: { flex: 1, fontSize: 14, color: THEME.textMuted, lineHeight: 22, fontWeight: "500", fontFamily: FONTS.body },
+	backBtnHeader: { paddingHorizontal: 16, paddingTop: 6, paddingBottom: 2 },
+	backBtn: { flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "flex-start", paddingVertical: 8, paddingHorizontal: 10, borderRadius: 12, backgroundColor: THEME.surface, borderWidth: 1, borderColor: THEME.border },
+	backBtnText: { color: THEME.text, fontSize: 12, fontWeight: "800" },
+	gastroCategoryRow: {
+		paddingHorizontal: 16,
+		paddingTop: 12,
+		paddingBottom: 18,
+		gap: 14,
+		alignItems: "stretch",
+	},
+	gastroCategoryChip: {
+		width: 124,
+		minHeight: 108,
+		alignItems: "center",
+		justifyContent: "flex-start",
+		paddingHorizontal: 12,
+		paddingTop: 16,
+		paddingBottom: 14,
+		borderRadius: 24,
+		borderWidth: 1.2,
+		borderColor: THEME.borderStrong,
+		backgroundColor: "rgba(255,255,255,0.06)",
+		shadowColor: THEME.accent,
+		shadowOpacity: 0.10,
+		shadowRadius: 12,
+		elevation: 4,
+	},
+	gastroCategoryChipActive: {
+		backgroundColor: "rgba(168,85,247,0.22)",
+		borderColor: "rgba(216,180,254,0.45)",
+	},
+	gastroCategoryIconCircle: {
+		width: 50,
+		height: 50,
+		borderRadius: 14,
+		alignItems: "center",
+		justifyContent: "center",
+		backgroundColor: "rgba(168,85,247,0.08)",
+		borderWidth: 1,
+		borderColor: "rgba(168,85,247,0.22)",
+	},
+	gastroCategoryIconCircleActive: {
+		backgroundColor: "rgba(168,85,247,0.32)",
+		borderColor: "rgba(240,232,255,0.32)",
+	},
+	gastroCategoryChipText: {
+		fontSize: 16,
+		lineHeight: 20,
+		color: THEME.textMuted,
+		fontWeight: "900",
+		letterSpacing: 0.2,
+		textAlign: "center",
+		includeFontPadding: false,
+	},
+	gastroCategoryChipTextActive: { color: THEME.text },
+	gastroIconBox: { width: 52, height: 52, borderRadius: 16, alignItems: "center", justifyContent: "center", borderWidth: 1.2 },
 });

@@ -223,27 +223,27 @@
 		{
 			"id": "s1",
 			"name": "Nebula Energy",
-			"logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/FIAT_logo_%282006%29.svg/120px-FIAT_logo_%282006%29.svg.png"
+			"logoUrl": "https://placehold.co/240x120/png?text=Nebula%20Energy&font=roboto"
 		},
 		{
 			"id": "s2",
 			"name": "Wavora Water",
-			"logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/120px-Coca-Cola_logo.svg.png"
+			"logoUrl": "https://placehold.co/240x120/png?text=Wavora%20Water&font=roboto"
 		},
 		{
 			"id": "s3",
 			"name": "Lumen Lighting",
-			"logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/120px-Google_2015_logo.svg.png"
+			"logoUrl": "https://placehold.co/240x120/png?text=Lumen%20Lighting&font=roboto"
 		},
 		{
 			"id": "s4",
 			"name": "Pulse Sound",
-			"logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tesla_logo.png/120px-Tesla_logo.png"
+			"logoUrl": "https://placehold.co/240x120/png?text=Pulse%20Sound&font=roboto"
 		},
 		{
 			"id": "s5",
 			"name": "Vibes Tech",
-			"logoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/120px-Apple_logo_black.svg.png"
+			"logoUrl": "https://placehold.co/240x120/png?text=Vibes%20Tech&font=roboto"
 		}
 	]
 }
