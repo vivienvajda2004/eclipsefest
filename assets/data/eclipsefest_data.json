@@ -1,5 +1,195 @@
 {
 	"festivalName": "EclipseFest 2026",
+	"tickets": [
+		{
+			"id": "day-pass",
+			"name": "Napijegy",
+			"price": 18500,
+			"currency": "HUF",
+			"badge": "1 nap",
+			"description": "Egy nap teljes belépés mind a 4 színpadra.",
+			"features": ["Minden színpad", "18:00 – 02:00", "Mobil app hozzáférés"]
+		},
+		{
+			"id": "weekend-pass",
+			"name": "Bérlet",
+			"price": 42900,
+			"currency": "HUF",
+			"badge": "3 nap",
+			"description": "Teljes hétvége: július 18–20., minden színpad.",
+			"features": [
+				"3 nap belépés",
+				"Prioritásos bejárat",
+				"Exkluzív merch 10%"
+			],
+			"popular": true
+		},
+		{
+			"id": "vip-pass",
+			"name": "VIP Bérlet",
+			"price": 89900,
+			"currency": "HUF",
+			"badge": "VIP",
+			"description": "Prémium élmény a teljes fesztivál idejére.",
+			"features": ["VIP lounge", "Külön mosdó & bár", "Meet & greet lehetőség"]
+		},
+		{
+			"id": "camping-addon",
+			"name": "Kemping kiegészítő",
+			"price": 12000,
+			"currency": "HUF",
+			"badge": "Add-on",
+			"description": "Sátorhely a fesztivál területén, 3 éjszaka.",
+			"features": ["Zuhanyzó & WC", "24 órás biztonság", "Csak bérlettel"]
+		}
+	],
+	"map": {
+		"venueName": "Budapest Park · Fesztiválterület",
+		"center": {
+			"latitude": 47.4734,
+			"longitude": 19.0822,
+			"latitudeDelta": 0.005,
+			"longitudeDelta": 0.005
+		},
+		"points": [
+			{
+				"id": "main-stage",
+				"name": "Main Stage",
+				"category": "stage",
+				"latitude": 47.4745,
+				"longitude": 19.0826,
+				"description": "Főszínpad – headlinerek és nagy show-k."
+			},
+			{
+				"id": "electronic-stage",
+				"name": "Electronic Stage",
+				"category": "stage",
+				"latitude": 47.4736,
+				"longitude": 19.0804,
+				"description": "Elektronikus és house műfajok."
+			},
+			{
+				"id": "acoustic-stage",
+				"name": "Acoustic Stage",
+				"category": "stage",
+				"latitude": 47.4736,
+				"longitude": 19.0842,
+				"description": "Akusztikus és intim előadások."
+			},
+			{
+				"id": "sunrise-stage",
+				"name": "Sunrise Stage",
+				"category": "stage",
+				"latitude": 47.4721,
+				"longitude": 19.0824,
+				"description": "Hajnalig tartó afterparty szekció."
+			},
+			{
+				"id": "entrance",
+				"name": "Főbejárat",
+				"category": "entrance",
+				"latitude": 47.4713,
+				"longitude": 19.0821,
+				"description": "Belépés jeggyel és karszalaggal."
+			},
+			{
+				"id": "info-desk",
+				"name": "Infópont",
+				"category": "service",
+				"latitude": 47.4716,
+				"longitude": 19.0816,
+				"description": "Térkép, elveszett tárgyak, segítség."
+			},
+			{
+				"id": "food-court",
+				"name": "Food Court",
+				"category": "food",
+				"latitude": 47.4731,
+				"longitude": 19.082,
+				"description": "Étel- és italstandok a piactér közepén."
+			},
+			{
+				"id": "street-food",
+				"name": "Street Food sáv",
+				"category": "food",
+				"latitude": 47.4729,
+				"longitude": 19.0801,
+				"description": "Gyors ételek, burger, taco, desszert."
+			},
+			{
+				"id": "bar-center",
+				"name": "Bárközpont",
+				"category": "food",
+				"latitude": 47.4729,
+				"longitude": 19.084,
+				"description": "Koktélok, sör és üdítők."
+			},
+			{
+				"id": "merch-village",
+				"name": "Merch Village",
+				"category": "merch",
+				"latitude": 47.4739,
+				"longitude": 19.0834,
+				"description": "Hivatalos pólók, sapkák, emléktárgyak."
+			},
+			{
+				"id": "artist-merch",
+				"name": "Előadói stand",
+				"category": "merch",
+				"latitude": 47.4741,
+				"longitude": 19.0839,
+				"description": "Turné merch és limitált kiadások."
+			},
+			{
+				"id": "photo-booth",
+				"name": "Fotópont",
+				"category": "merch",
+				"latitude": 47.4748,
+				"longitude": 19.0848,
+				"description": "Fesztivál fotózás és azonnali nyomat."
+			},
+			{
+				"id": "vip-lounge",
+				"name": "VIP Lounge",
+				"category": "service",
+				"latitude": 47.475,
+				"longitude": 19.0831,
+				"description": "Exkluzív pihenőtér VIP jeggyel."
+			},
+			{
+				"id": "camping",
+				"name": "Kemping",
+				"category": "camping",
+				"latitude": 47.4754,
+				"longitude": 19.0796,
+				"description": "Sátorhelyek, zuhany és WC a zónában."
+			},
+			{
+				"id": "wc-north",
+				"name": "Mosdó (észak)",
+				"category": "service",
+				"latitude": 47.474,
+				"longitude": 19.0814,
+				"description": "Nyilvános mosdó és ivókút."
+			},
+			{
+				"id": "wc-south",
+				"name": "Mosdó (dél)",
+				"category": "service",
+				"latitude": 47.4723,
+				"longitude": 19.0831,
+				"description": "Nyilvános mosdó a piactér mellett."
+			},
+			{
+				"id": "first-aid",
+				"name": "Elsősegély",
+				"category": "service",
+				"latitude": 47.4719,
+				"longitude": 19.0823,
+				"description": "Orvosi ügyelet és pihenőágyak."
+			}
+		]
+	},
 	"performers": [
 		{
 			"id": "1",
