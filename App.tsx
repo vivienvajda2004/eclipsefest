@@ -881,6 +881,7 @@ const FESTIVAL_DAYS = [
   { key: 18, label: "Júl. 18" },
   { key: 19, label: "Júl. 19" },
   { key: 20, label: "Júl. 20" },
+  { key: 21, label: "Júl. 21" }, // <-- Ezt az egy sort kell betenni
 ];
 
 function formatPrice(
@@ -1490,7 +1491,7 @@ function TicketsScreen({
     useState<DiscountKey>("early");
   const [expandedPerformanceDays, setExpandedPerformanceDays] = useState<
     Record<number, boolean>
-  >({ 18: true, 19: false, 20: false });
+  >({ 18: true, 19: false, 20: false, 21: false }); // <-- 21: false hozzáadva
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 60000);
@@ -3116,7 +3117,7 @@ function ScheduleScreen({
   const [selectedPerformer, setSelectedPerformer] = useState<Performer | null>(
     null,
   );
-  const [dayFilter, setDayFilter] = useState<"all" | 18 | 19 | 20>("all");
+  const [dayFilter, setDayFilter] = useState<"all" | 18 | 19 | 20 | 21>("all"); // <-- Itt hozzáadtuk a 21-et
   const sorted = sortPerformersByTime(performers);
 
   const filteredPerformers =
@@ -3370,7 +3371,7 @@ function ScheduleScreen({
                 styles.dayFilterChip,
                 active && styles.dayFilterChipActive,
               ]}
-              onPress={() => setDayFilter(d.key as "all" | 18 | 19 | 20)}
+              onPress={() => setDayFilter(d.key as "all" | 18 | 19 | 20 | 21)}
             >
               <Text
                 style={[
