@@ -8,7 +8,7 @@
       "currency": "HUF",
       "badge": "1 nap",
       "description": "Egy nap teljes belépés mind a 4 színpadra.",
-      "features": ["Minden színpad", "18:00 – 02:00", "Mobil app hozzáférés"]
+      "features": ["Minden színpad", "13:00 – 02:00", "Mobil app hozzáférés"]
     },
     {
       "id": "weekend-pass",
@@ -493,7 +493,7 @@
     },
     {
       "id": "31",
-      "name": "Rise Against",
+      "name": "Rise Against (Acoustic)",
       "stage": "Acoustic Stage",
       "day": 19,
       "startTime": "17:00",
@@ -623,7 +623,7 @@
     },
     {
       "id": "44",
-      "name": "analog balaton",
+      "name": "Analog Balaton",
       "stage": "Sunrise Stage",
       "day": 19,
       "startTime": "13:00",
