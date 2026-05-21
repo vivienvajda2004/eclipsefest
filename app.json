@@ -26,14 +26,10 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "extra": {
-      "eas": {
-        "projectId": "e7eb0281-0da0-4e8d-aea8-89c01bcffee4"
-      }
-    },
-    "owner": "petya122s-organization",
+    "extra": {},
     "plugins": [
-      "expo-font"
+      "expo-font",
+      "expo-video"
     ]
   }
 }
