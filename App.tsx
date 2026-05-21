@@ -334,6 +334,13 @@ const translations = {
     sosHelpOnTheWay: "HELP IS ON THE WAY",
     sosHelpDetails: "Medical staff has received your location (Main Stage area). Stay where you are.",
     cancel: "Cancel",
+    infoTitle: "CONTACT",
+    infoSubtitle: "Support & crew details",
+    phoneLabel: "Phone Number",
+    headquartersLabel: "Headquarters",
+    tapToEmail: "Tap to write an email",
+    tapToCall: "Tap to call us",
+    tapToOpenMap: "Tap to view on Google Maps",
   },
   hu: {
     home: "Kezdőlap",
@@ -450,6 +457,13 @@ const translations = {
     sosHelpOnTheWay: "ÚTON VAN A SEGÍTSÉG",
     sosHelpDetails: "Az egészségügyi személyzet megkapta a pozíciódat (Nagyszínpad környéke). Maradj ott, ahol vagy.",
     cancel: "Mégse",
+    infoTitle: "KAPCSOLAT",
+    infoSubtitle: "Ügyfélszolgálat és stáb elérhetőségei",
+    phoneLabel: "Telefonszám",
+    headquartersLabel: "Székhely",
+    tapToEmail: "Koppints e-mail küldéséhez",
+    tapToCall: "Koppints a híváshoz",
+    tapToOpenMap: "Koppints a térkép megnyitásához",
   },
 };
 
@@ -796,7 +810,8 @@ type TabKey =
   | "Favorites"
   | "Gastro"
   | "Tickets"
-  | "Sponsors";
+  | "Sponsors"
+  | "Info";
 
 // ─── Adatmodell ───────────────────────────────────────────────────────────────
 interface Performer {
@@ -4202,7 +4217,11 @@ function GastroScreen({
             </View>
 
             <View style={styles.gastroHeroCard}>
-              <EventVisual accent={THEME.accent} />
+              <Image
+                source={require("./assets/gastrofelulet.png")}
+                style={styles.gastroHeroImage}
+                resizeMode="cover"
+              />
               <View style={styles.gastroHeroContent}>
                 <Text style={styles.gastroHeroEyebrow}>{t.curatedDining}</Text>
                 <Text style={styles.gastroHeroTitle}>{t.gastroDesc}</Text>
@@ -4456,10 +4475,107 @@ function SponsorLogo({
   );
 }
 
+function InfoScreen({
+  t,
+  lang,
+}: {
+  t: typeof translations.en;
+  lang: "en" | "hu";
+}) {
+  const handleOpenEmail = () => {
+    Linking.openURL("mailto:info@eclipsefest.hu").catch((err) =>
+      Alert.alert(lang === "en" ? "Error" : "Hiba", lang === "en" ? "Could not open mail client." : "Nem sikerült megnyitni a levelezőt.")
+    );
+  };
+
+  const handleOpenPhone = () => {
+    Linking.openURL("tel:+3612345678").catch((err) =>
+      Alert.alert(lang === "en" ? "Error" : "Hiba", lang === "en" ? "Could not start the call." : "Nem sikerült elindítani a hívást.")
+    );
+  };
+
+  const handleOpenMap = () => {
+    const address = "1095 Budapest, Soroksári út 60.";
+    const url = Platform.select({
+      ios: `maps:0,0?q=${address}`,
+      android: `geo:0,0?q=${address}`,
+      default: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        address
+      )}`,
+    });
+    Linking.openURL(url).catch((err) =>
+      Linking.openURL(
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          address
+        )}`
+      ).catch(() => Alert.alert(lang === "en" ? "Error" : "Hiba", lang === "en" ? "Could not open map client." : "Nem sikerült megnyitni a térképet."))
+    );
+  };
+
+  return (
+    <ScrollView style={styles.infoScreenContainer} contentContainerStyle={{ paddingBottom: 60 }}>
+      <View style={styles.scheduleHeader}>
+        <Text style={styles.scheduleHeading}>{t.infoTitle}</Text>
+        <Text style={styles.scheduleSubheading}>{t.infoSubtitle}</Text>
+      </View>
+
+      <View style={{ marginTop: 12 }}>
+        <TouchableOpacity
+          style={styles.contactCard}
+          onPress={handleOpenEmail}
+          activeOpacity={0.85}
+        >
+          <View style={styles.contactCardHeader}>
+            <View style={styles.contactIconWrap}>
+              <Ionicons name="mail" size={20} color={THEME.accent} />
+            </View>
+            <Text style={styles.contactCardTitle}>{t.emailAddress}</Text>
+          </View>
+          <Text style={styles.contactCardValue}>info@eclipsefest.hu</Text>
+          <Text style={styles.contactCardAction}>{t.tapToEmail}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.contactCard}
+          onPress={handleOpenPhone}
+          activeOpacity={0.85}
+        >
+          <View style={styles.contactCardHeader}>
+            <View style={styles.contactIconWrap}>
+              <Ionicons name="call" size={20} color={THEME.accent} />
+            </View>
+            <Text style={styles.contactCardTitle}>{t.phoneLabel}</Text>
+          </View>
+          <Text style={styles.contactCardValue}>+36 1 234 5678</Text>
+          <Text style={styles.contactCardAction}>{t.tapToCall}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.contactCard}
+          onPress={handleOpenMap}
+          activeOpacity={0.85}
+        >
+          <View style={styles.contactCardHeader}>
+            <View style={styles.contactIconWrap}>
+              <Ionicons name="location" size={20} color={THEME.accent} />
+            </View>
+            <Text style={styles.contactCardTitle}>{t.headquartersLabel}</Text>
+          </View>
+          <Text style={styles.contactCardValue}>
+            1095 Budapest, Soroksári út 60.
+          </Text>
+          <Text style={styles.contactCardAction}>{t.tapToOpenMap}</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+}
+
 function MoreScreen({
   onGoToFavorites,
   onGoToGastro,
   onGoToSponsors,
+  onGoToInfo,
   favoritesCount,
   lang,
   t,
@@ -4467,6 +4583,7 @@ function MoreScreen({
   onGoToFavorites: () => void;
   onGoToGastro: () => void;
   onGoToSponsors: () => void;
+  onGoToInfo: () => void;
   favoritesCount: number;
   lang: "en" | "hu";
   t: typeof translations.en;
@@ -4507,6 +4624,16 @@ function MoreScreen({
         lang === "en" ? "Our partners and logos" : "Partnereink és logók",
       icon: "star",
       onPress: onGoToSponsors,
+    },
+    {
+      key: "info",
+      title: lang === "en" ? "Contact Info" : "Kapcsolat",
+      subtitle:
+        lang === "en"
+          ? "Email, phone, and headquarters"
+          : "E-mail, telefon és székhely",
+      icon: "information-circle",
+      onPress: onGoToInfo,
     },
   ];
 
@@ -4770,16 +4897,25 @@ export default function App() {
             onGoToFavorites={() => navigateTo("Favorites")}
             onGoToGastro={() => navigateTo("Gastro")}
             onGoToSponsors={() => navigateTo("Sponsors")}
+            onGoToInfo={() => navigateTo("Info")}
             favoritesCount={favorites.length}
             lang={lang}
             t={t}
           />
         )}
+        {activeTab === "Info" && (
+          <InfoScreen t={t} lang={lang} />
+        )}
       </View>
 
       <View style={styles.navBar}>
         {navTabs.map((tab) => {
-          const active = activeTab === tab.key;
+          const active =
+            activeTab === tab.key ||
+            (tab.key === "More" &&
+              ["More", "Favorites", "Gastro", "Sponsors", "Info"].includes(
+                activeTab
+              ));
           const showBadge = tab.key === "Favorites" && favorites.length > 0;
           return (
             <TouchableOpacity
@@ -6986,13 +7122,53 @@ const styles = StyleSheet.create({
   // Info & Sponsors
   infoScreenContainer: { flex: 1, paddingTop: 16 },
   contactCard: {
-    backgroundColor: THEME.surface,
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
     borderWidth: 1,
-    borderColor: THEME.border,
-    borderRadius: 14,
+    borderColor: "rgba(216,180,254,0.16)",
+    borderRadius: 24,
     padding: 20,
     marginHorizontal: 24,
-    marginBottom: 10,
+    marginBottom: 16,
+    shadowColor: THEME.accent,
+    shadowOpacity: 0.1,
+    shadowRadius: 14,
+  },
+  contactCardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    gap: 12,
+  },
+  contactIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(192, 132, 252, 0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  contactCardTitle: {
+    color: THEME.textSubtle,
+    fontSize: 14,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    fontFamily: FONTS.ui,
+  },
+  contactCardValue: {
+    color: THEME.text,
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 8,
+    paddingLeft: 4,
+    fontFamily: FONTS.ui,
+  },
+  contactCardAction: {
+    color: THEME.accent,
+    fontSize: 12,
+    fontWeight: "600",
+    paddingLeft: 4,
+    fontFamily: FONTS.ui,
   },
   sectionTitle: {
     color: THEME.accent,
@@ -7183,6 +7359,11 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.22,
     shadowRadius: 22,
+  },
+  gastroHeroImage: {
+    width: "100%",
+    height: 210,
+    backgroundColor: "rgba(92,36,150,0.10)",
   },
   gastroHeroContent: { padding: 18 },
   gastroHeroEyebrow: {
