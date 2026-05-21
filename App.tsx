@@ -19,6 +19,7 @@ import {
 	TextInput,
 	TouchableOpacity,
 	View,
+	Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useVideoPlayer, VideoView } from "expo-video";
@@ -38,6 +39,7 @@ import Svg, {
 	Text as SvgText,
 } from "react-native-svg";
 import festivalData from "./assets/data/eclipsefest_data.json";
+import { performerImages } from "./assets/data/imageMap";
 
 const performerImages: Record<string, any> = {
 	"1": require("./assets/performers/performer_1.jpg"),
@@ -579,7 +581,14 @@ const GASTRO_STANDS_TRANSLATIONS: Record<string, Record<"en" | "hu", { descripti
 	}
 };
 
-type TabKey = "Home" | "Schedule" | "Map" | "Favorites" | "Gastro" | "Tickets" | "Sponsors";
+type TabKey =
+	| "Home"
+	| "Schedule"
+	| "Map"
+	| "Favorites"
+	| "Gastro"
+	| "Tickets"
+	| "Sponsors";
 
 // ─── Adatmodell ───────────────────────────────────────────────────────────────
 interface Performer {
@@ -591,6 +600,7 @@ interface Performer {
 	day: number; // 18, 19, vagy 20
 	description_en: string;
 	description_hu: string;
+	imageUrl: string;
 }
 
 interface Sponsor {
@@ -610,7 +620,13 @@ interface Ticket {
 	popular?: boolean;
 }
 
-type MapCategory = "stage" | "food" | "merch" | "service" | "entrance" | "camping";
+type MapCategory =
+	| "stage"
+	| "food"
+	| "merch"
+	| "service"
+	| "entrance"
+	| "camping";
 
 interface MapPoint {
 	id: string;
@@ -757,7 +773,10 @@ function hasTimeConflict(a: Performer, b: Performer): boolean {
 	return aStart < bEnd && bStart < aEnd;
 }
 
-function getConflictsForPerformer(performer: Performer, allFavorites: Performer[]): Performer[] {
+function getConflictsForPerformer(
+	performer: Performer,
+	allFavorites: Performer[],
+): Performer[] {
 	return allFavorites.filter(
 		(other) => other.id !== performer.id && hasTimeConflict(performer, other),
 	);
@@ -788,8 +807,13 @@ function getNextFavorite(favorites: Performer[]): Performer | null {
 	const nowMinutes = getNowMinutes();
 	const todayDay = getFestivalDay();
 	const upcoming = favorites
-		.filter((p) => p.day === todayDay && parseTimeToMinutes(p.startTime) > nowMinutes)
-		.sort((a, b) => parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime));
+		.filter(
+			(p) => p.day === todayDay && parseTimeToMinutes(p.startTime) > nowMinutes,
+		)
+		.sort(
+			(a, b) =>
+				parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime),
+		);
 	return upcoming[0] ?? null;
 }
 
@@ -844,8 +868,18 @@ function EclipseAnimation() {
 			Animated.loop(
 				Animated.sequence([
 					Animated.delay(delay),
-					Animated.timing(anim, { toValue: 1.08, duration: 2000 + delay * 0.1, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-					Animated.timing(anim, { toValue: 1, duration: 2000 + delay * 0.1, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+					Animated.timing(anim, {
+						toValue: 1.08,
+						duration: 2000 + delay * 0.1,
+						easing: Easing.inOut(Easing.sin),
+						useNativeDriver: true,
+					}),
+					Animated.timing(anim, {
+						toValue: 1,
+						duration: 2000 + delay * 0.1,
+						easing: Easing.inOut(Easing.sin),
+						useNativeDriver: true,
+					}),
 				]),
 			);
 
@@ -861,7 +895,10 @@ function EclipseAnimation() {
 		};
 	}, []);
 
-	const spin = rotation.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
+	const spin = rotation.interpolate({
+		inputRange: [0, 1],
+		outputRange: ["0deg", "360deg"],
+	});
 
 	const spikes = Array.from({ length: 24 }, (_, i) => ({
 		angle: i * 15,
@@ -872,39 +909,86 @@ function EclipseAnimation() {
 
 	return (
 		<View style={styles.eclipseContainer}>
-			<Animated.View style={[styles.haloRing, styles.haloOuter, { transform: [{ scale: pulse1 }] }]} />
-			<Animated.View style={[styles.haloRing, styles.haloMid, { transform: [{ scale: pulse2 }] }]} />
-			<Animated.View style={[styles.haloRing, styles.haloInner, { transform: [{ scale: pulse3 }] }]} />
-			<Animated.View style={[styles.coronaWrapper, { transform: [{ rotate: spin }] }]}>
+			<Animated.View
+				style={[
+					styles.haloRing,
+					styles.haloOuter,
+					{ transform: [{ scale: pulse1 }] },
+				]}
+			/>
+			<Animated.View
+				style={[
+					styles.haloRing,
+					styles.haloMid,
+					{ transform: [{ scale: pulse2 }] },
+				]}
+			/>
+			<Animated.View
+				style={[
+					styles.haloRing,
+					styles.haloInner,
+					{ transform: [{ scale: pulse3 }] },
+				]}
+			/>
+			<Animated.View
+				style={[styles.coronaWrapper, { transform: [{ rotate: spin }] }]}
+			>
 				{spikes.map((spike, i) => (
-					<View key={i} style={[styles.spikeContainer, { transform: [{ rotate: `${spike.angle}deg` }] }]}>
-						<View style={[styles.spike, { height: spike.length, width: spike.width, opacity: spike.opacity }]} />
+					<View
+						key={i}
+						style={[
+							styles.spikeContainer,
+							{ transform: [{ rotate: `${spike.angle}deg` }] },
+						]}
+					>
+						<View
+							style={[
+								styles.spike,
+								{
+									height: spike.length,
+									width: spike.width,
+									opacity: spike.opacity,
+								},
+							]}
+						/>
 					</View>
 				))}
 			</Animated.View>
 			<View style={styles.planetDisk}>
-				<Image source={require("./assets/EclipseFest_Logo.png")} style={styles.logoImage} resizeMode="cover" />
+				<Image
+					source={require("./assets/EclipseFest_Logo.png")}
+					style={styles.logoImage}
+					resizeMode="cover"
+				/>
 			</View>
 		</View>
 	);
 }
 
 // ─── Jegy kártya ──────────────────────────────────────────────────────────────
-function TicketCard({ ticket, selected, onSelect, lang }: { ticket: Ticket; selected: boolean; onSelect: () => void; lang: "en" | "hu" }) {
-	const localized = TICKET_TRANSLATIONS[ticket.id]?.[lang] ?? {
-		name: ticket.name,
-		badge: ticket.badge,
-		description: ticket.description,
-		features: ticket.features,
-	};
+function TicketCard({
+	ticket,
+	selected,
+	onSelect,
+}: {
+	ticket: Ticket;
+	selected: boolean;
+	onSelect: () => void;
+}) {
 	return (
-		<TouchableOpacity style={[styles.ticketCard, selected && styles.ticketCardSelected]} onPress={onSelect} activeOpacity={0.85}>
+		<TouchableOpacity
+			style={[styles.ticketCard, selected && styles.ticketCardSelected]}
+			onPress={onSelect}
+			activeOpacity={0.85}
+		>
 			{ticket.popular && (
 				<View style={styles.popularBadge}>
 					<Text style={styles.popularBadgeText}>{lang === "en" ? "POPULAR" : "NÉPSZERŰ"}</Text>
 				</View>
 			)}
-			<View style={[styles.cardAccent, selected && styles.ticketAccentSelected]} />
+			<View
+				style={[styles.cardAccent, selected && styles.ticketAccentSelected]}
+			/>
 			<View style={styles.ticketCardBody}>
 				<View style={styles.ticketCardHeader}>
 					<View style={styles.ticketTitleRow}>
@@ -913,7 +997,9 @@ function TicketCard({ ticket, selected, onSelect, lang }: { ticket: Ticket; sele
 							<Text style={styles.ticketBadgeText}>{localized.badge}</Text>
 						</View>
 					</View>
-					<Text style={styles.ticketPrice}>{formatPrice(ticket.price, ticket.currency, lang)}</Text>
+					<Text style={styles.ticketPrice}>
+						{formatPrice(ticket.price, ticket.currency)}
+					</Text>
 				</View>
 				<Text style={styles.ticketDescription}>{localized.description}</Text>
 				<View style={styles.ticketFeatures}>
@@ -926,146 +1012,28 @@ function TicketCard({ ticket, selected, onSelect, lang }: { ticket: Ticket; sele
 				</View>
 			</View>
 			<View style={styles.ticketSelectIndicator}>
-				<Ionicons name={selected ? "radio-button-on" : "radio-button-off"} size={22} color={selected ? "#a855f7" : "#555"} />
+				<Ionicons
+					name={selected ? "radio-button-on" : "radio-button-off"}
+					size={22}
+					color={selected ? "#a855f7" : "#555"}
+				/>
 			</View>
 		</TouchableOpacity>
 	);
 }
 
 // ─── Jegyvásárlás képernyő ────────────────────────────────────────────────────
-function getPerformanceConflictPairs(selectedPerformances: Performer[]) {
-	const pairs: { a: Performer; b: Performer }[] = [];
-	for (let i = 0; i < selectedPerformances.length; i += 1) {
-		for (let j = i + 1; j < selectedPerformances.length; j += 1) {
-			if (selectedPerformances[i].day === selectedPerformances[j].day && hasTimeConflict(selectedPerformances[i], selectedPerformances[j])) {
-				pairs.push({ a: selectedPerformances[i], b: selectedPerformances[j] });
-			}
-		}
-	}
-	return pairs;
-}
-
-function getEarliestUpcomingPerformance(selectedPerformances: Performer[], now: Date) {
-	return [...selectedPerformances]
-		.sort((a, b) => getPerformanceDate(a).getTime() - getPerformanceDate(b).getTime())
-		.find((p) => getPerformanceDate(p).getTime() >= now.getTime()) ?? selectedPerformances[0] ?? null;
-}
-
-function getEarliestRefundDeadline(selectedPerformances: Performer[]) {
-	if (selectedPerformances.length === 0) return null;
-	return selectedPerformances
-		.map(getRefundDeadline)
-		.sort((a, b) => a.getTime() - b.getTime())[0];
-}
-
-function formatRefundDeadlineDate(deadline: Date | null, lang: "en" | "hu" = "hu") {
-	if (!deadline) return "-";
-	const month = lang === "en" ? "Jul." : "Júl.";
-	const daySep = lang === "en" ? "" : ".";
-	const timeLocale = lang === "en" ? "en-US" : "hu-HU";
-	return `${month} ${deadline.getDate()}${daySep} ${deadline.toLocaleTimeString(timeLocale, { hour: "2-digit", minute: "2-digit", hour12: lang === "en" })}`;
-}
-
-type DiscountKey = "none" | "early" | "student" | "bundle";
-
-const SERVICE_FEE_RATE = 0.055;
-const HANDLING_FEE_PER_CART_ITEM = 590;
-
-const DISCOUNT_OPTIONS: { key: DiscountKey; title: string; description: string; percent: number; minPerformances?: number }[] = [
-	{ key: "none", title: "Nincs kedvezmény", description: "Normál online ár", percent: 0 },
-	{ key: "early", title: "Early Bird", description: "Időszakos promóció · -10%", percent: 10 },
-	{ key: "student", title: "Diák kedvezmény", description: "Belépéskor igazolással · -15%", percent: 15 },
-	{ key: "bundle", title: "Multi-show csomag", description: "3+ fellépés választásakor · -8%", percent: 8, minPerformances: 3 },
-];
-
-function getDiscountOption(key: DiscountKey) {
-	return DISCOUNT_OPTIONS.find((option) => option.key === key) ?? DISCOUNT_OPTIONS[0];
-}
-
-function getLocalizedDiscountOption(key: DiscountKey, lang: "en" | "hu") {
-	const option = getDiscountOption(key);
-	if (lang === "en") {
-		switch (key) {
-			case "none":
-				return { ...option, title: "No discount", description: "Normal online price" };
-			case "early":
-				return { ...option, title: "Early Bird", description: "Seasonal promo · -10%" };
-			case "student":
-				return { ...option, title: "Student discount", description: "With ID at entry · -15%" };
-			case "bundle":
-				return { ...option, title: "Multi-show bundle", description: "When choosing 3+ performances · -8%" };
-		}
-	}
-	return option;
-}
-
-function isDiscountAvailable(key: DiscountKey, selectedPerformanceCount: number) {
-	const option = getDiscountOption(key);
-	return !option.minPerformances || selectedPerformanceCount >= option.minPerformances;
-}
-
-function calculateDiscountAmount(key: DiscountKey, subtotal: number, selectedPerformanceCount: number) {
-	const option = getDiscountOption(key);
-	if (!isDiscountAvailable(key, selectedPerformanceCount)) return 0;
-	return Math.round(subtotal * (option.percent / 100));
-}
-
-function calculateServiceFee(amountAfterDiscount: number) {
-	return Math.round(amountAfterDiscount * SERVICE_FEE_RATE);
-}
-
-function calculateHandlingFee(cartItemCount: number) {
-	return cartItemCount > 0 ? cartItemCount * HANDLING_FEE_PER_CART_ITEM : 0;
-}
-
-function PerformanceTicketCard({ performer, selected, conflicted, onSelect, lang }: { performer: Performer; selected: boolean; conflicted?: boolean; onSelect: () => void; lang: "en" | "hu" }) {
-	return (
-		<TouchableOpacity
-			style={[
-				styles.performanceTicketCard,
-				selected && styles.performanceTicketCardSelected,
-				conflicted && styles.performanceTicketCardConflicted,
-			]}
-			onPress={onSelect}
-		>
-			<View style={styles.performanceTicketVisual}>
-				<Image source={getPerformerImage(performer.id)} style={styles.performanceTicketImage} resizeMode="cover" />
-			</View>
-			<View style={styles.performanceTicketInfo}>
-				<Text style={styles.performanceTicketName}>{performer.name}</Text>
-				<Text style={styles.performanceTicketMeta}>{performer.stage}</Text>
-				<View style={styles.performanceTicketTimeRow}>
-					<Ionicons name="calendar-outline" size={13} color={conflicted ? "#fb923c" : THEME.accent} />
-					<Text style={[styles.performanceTicketTime, conflicted && styles.performanceTicketTimeConflicted]}>{formatPerformanceDate(performer)}</Text>
-				</View>
-			</View>
-			<Ionicons
-				name={selected ? (conflicted ? "warning" : "checkmark-circle") : "ellipse-outline"}
-				size={22}
-				color={selected ? (conflicted ? "#fb923c" : THEME.accent) : "rgba(255,255,255,0.35)"}
-			/>
-		</TouchableOpacity>
-	);
-}
-
 function TicketsScreen({
 	tickets,
-	performers,
 	selectedId,
-	selectedPerformanceIds,
 	quantity,
 	email,
 	orderComplete,
-	refundRequested,
 	onSelect,
-	onTogglePerformance,
 	onChangeQuantity,
 	onEmailChange,
 	onPurchase,
 	onReset,
-	onRequestRefund,
-	lang,
-	t,
 }: {
 	tickets: Ticket[];
 	performers: Performer[];
@@ -1144,28 +1112,18 @@ function TicketsScreen({
 						<Ionicons name="mail" size={16} color="#22c55e" style={{ marginRight: 6 }} />
 						<Text style={styles.emailSentText}>{lang === "en" ? "Confirmation email sent successfully!" : "Visszaigazoló e-mail sikeresen elküldve!"}</Text>
 					</View>
-					<Text style={styles.orderSuccessSub}>{t.confirmationSentTo}</Text>
+					<Text style={styles.orderSuccessTitle}>Sikeres vásárlás!</Text>
+					<Text style={styles.orderSuccessSub}>
+						A visszaigazolást elküldjük erre a címre:
+					</Text>
 					<Text style={styles.orderSuccessEmail}>{email.trim()}</Text>
 
 					<View style={styles.orderSummaryCard}>
 						<Text style={styles.orderSummaryLabel}>{t.orderLabel}</Text>
 						<Text style={styles.orderSummaryName}>{selected.name}</Text>
-						<Text style={styles.orderSummaryDetail}>{quantity} {lang === "en" ? "pcs" : "db"} / {lang === "en" ? "performance" : "fellépés"} · {selectedPerformances.length} {lang === "en" ? "performances" : "fellépés"} · {lang === "en" ? "total" : "végösszeg"}: {formatPrice(total, selected.currency, lang)}</Text>
-						<View style={styles.orderDivider} />
-						{cartItems.map(({ performance, lineTotal }) => (
-							<View key={performance.id} style={styles.orderPerformanceRow}>
-								<Text style={styles.orderPerformerName}>{performance.name}</Text>
-								<Text style={styles.orderPerformerMeta}>{performance.stage} · {formatPerformanceDate(performance, lang)} · {formatPrice(lineTotal, selected.currency, lang)}</Text>
-							</View>
-						))}
-						<View style={styles.orderDivider} />
-						<View style={styles.cartTotalsCompact}>
-							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>{t.subtotal}</Text><Text style={styles.cartTotalValue}>{formatPrice(subtotal, selected.currency, lang)}</Text></View>
-							<View style={styles.cartTotalLine}><Text style={styles.cartDiscountLabel}>{t.discountLabel} · {getLocalizedDiscountOption(selectedDiscount, lang).title}</Text><Text style={styles.cartDiscountValue}>− {formatPrice(discountAmount, selected.currency, lang)}</Text></View>
-							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>{t.handlingFee}</Text><Text style={styles.cartTotalValue}>{formatPrice(handlingFee, selected.currency, lang)}</Text></View>
-							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>{t.serviceFee}</Text><Text style={styles.cartTotalValue}>{formatPrice(serviceFee, selected.currency, lang)}</Text></View>
-							<View style={styles.cartGrandTotalLine}><Text style={styles.cartGrandTotalLabel}>{t.payable}</Text><Text style={styles.cartGrandTotalValue}>{formatPrice(total, selected.currency, lang)}</Text></View>
-						</View>
+						<Text style={styles.orderSummaryDetail}>
+							{quantity} db · {formatPrice(total, selected.currency)}
+						</Text>
 					</View>
 
 					<View style={styles.countdownCard}>
@@ -1209,15 +1167,21 @@ function TicketsScreen({
 
 	return (
 		<View style={styles.ticketsScreen}>
-			<ScrollView contentContainerStyle={styles.ticketsScroll} showsVerticalScrollIndicator={false}>
-				<Text style={styles.ticketsHeading}>{t.buyTickets}</Text>
-				<Text style={styles.ticketsSubheading}>{t.ticketsDesc}</Text>
-				<View style={styles.ticketSectionHeader}>
-					<Text style={styles.ticketSectionTitle}>{t.ticketStep1}</Text>
-					<Text style={styles.ticketSectionHint}>{t.ticketCategoryDesc}</Text>
-				</View>
+			<ScrollView
+				contentContainerStyle={styles.ticketsScroll}
+				showsVerticalScrollIndicator={false}
+			>
+				<Text style={styles.ticketsHeading}>Jegyvásárlás</Text>
+				<Text style={styles.ticketsSubheading}>
+					Válaszd ki a jegytípust, add meg a mennyiséget és az e-mail címed.
+				</Text>
 				{tickets.map((ticket) => (
-					<TicketCard key={ticket.id} ticket={ticket} selected={selectedId === ticket.id} onSelect={() => onSelect(ticket.id)} lang={lang} />
+					<TicketCard
+						key={ticket.id}
+						ticket={ticket}
+						selected={selectedId === ticket.id}
+						onSelect={() => onSelect(ticket.id)}
+					/>
 				))}
 
 				<View style={styles.ticketSectionHeader}>
@@ -1375,11 +1339,21 @@ function TicketsScreen({
 						<View style={styles.quantityRow}>
 							<Text style={styles.quantityLabel}>{t.qtyPerPerformance}</Text>
 							<View style={styles.quantityControls}>
-								<TouchableOpacity style={[styles.quantityBtn, quantity <= 1 && styles.quantityBtnDisabled]} onPress={() => onChangeQuantity(-1)} disabled={quantity <= 1}>
+								<TouchableOpacity
+									style={[
+										styles.quantityBtn,
+										quantity <= 1 && styles.quantityBtnDisabled,
+									]}
+									onPress={() => onChangeQuantity(-1)}
+									disabled={quantity <= 1}
+								>
 									<Ionicons name="remove" size={18} color="#e8d8ff" />
 								</TouchableOpacity>
 								<Text style={styles.quantityValue}>{quantity}</Text>
-								<TouchableOpacity style={styles.quantityBtn} onPress={() => onChangeQuantity(1)}>
+								<TouchableOpacity
+									style={styles.quantityBtn}
+									onPress={() => onChangeQuantity(1)}
+								>
 									<Ionicons name="add" size={18} color="#e8d8ff" />
 								</TouchableOpacity>
 							</View>
@@ -1387,7 +1361,10 @@ function TicketsScreen({
 						<View style={styles.emailField}>
 							<Text style={styles.emailLabel}>{t.emailAddress}</Text>
 							<TextInput
-								style={[styles.emailInput, showEmailError && styles.emailInputError]}
+								style={[
+									styles.emailInput,
+									showEmailError && styles.emailInputError,
+								]}
 								value={email}
 								onChangeText={onEmailChange}
 								placeholder="pelda@email.com"
@@ -1397,27 +1374,32 @@ function TicketsScreen({
 								autoCorrect={false}
 								autoComplete="email"
 							/>
-							{showEmailError && <Text style={styles.emailErrorText}>{lang === "en" ? "Please enter a valid email address" : "Érvényes e-mail címet adj meg"}</Text>}
-						</View>
-						<View style={styles.checkoutCartMini}>
-							<View style={styles.totalRow}>
-								<Text style={styles.totalLabel}>
-									{selectedPerformances.length || 0} {lang === "en" ? `performance${selectedPerformances.length !== 1 ? "s" : ""}` : "fellépés"} · {lang === "en" ? "subtotal" : "részösszeg"}
+							{showEmailError && (
+								<Text style={styles.emailErrorText}>
+									Érvényes e-mail címet adj meg
 								</Text>
-								<Text style={styles.totalValueSmall}>{formatPrice(subtotal, selected.currency, lang)}</Text>
-							</View>
-							{discountAmount > 0 && <View style={styles.totalRow}><Text style={styles.totalLabel}>{t.discountLabel}</Text><Text style={styles.totalDiscountValue}>− {formatPrice(discountAmount, selected.currency, lang)}</Text></View>}
-							<View style={styles.totalRow}>
-								<Text style={styles.totalLabel}>{t.totalPayable}</Text>
-								<Text style={styles.totalValue}>{formatPrice(total, selected.currency, lang)}</Text>
-							</View>
+							)}
+						</View>
+						<View style={styles.totalRow}>
+							<Text style={styles.totalLabel}>Összesen</Text>
+							<Text style={styles.totalValue}>
+								{formatPrice(total, selected.currency)}
+							</Text>
 						</View>
 					</>
 				) : (
-					<Text style={styles.checkoutHint}>{t.checkoutDisabledReason}</Text>
+					<Text style={styles.checkoutHint}>
+						Válassz egy jegytípust a folytatáshoz
+					</Text>
 				)}
-				{hasConflicts && <Text style={styles.checkoutWarningText}>{t.resolveConflictFirst}</Text>}
-				<TouchableOpacity style={[styles.checkoutBtn, !canCheckout && styles.checkoutBtnDisabled]} onPress={onPurchase} disabled={!canCheckout}>
+				<TouchableOpacity
+					style={[
+						styles.checkoutBtn,
+						!canCheckout && styles.checkoutBtnDisabled,
+					]}
+					onPress={onPurchase}
+					disabled={!canCheckout}
+				>
 					<Ionicons name="card-outline" size={18} color="#f0e8ff" />
 					<Text style={styles.checkoutBtnText}>{t.checkout}</Text>
 				</TouchableOpacity>
@@ -1432,9 +1414,11 @@ function TicketsScreen({
 // GPS koordinátákat vászon pixelekre konvertál
 // ─── GPS → SVG koordináta konverter ──────────────────────────────────────────
 function gpsToXY(
-	lat: number, lng: number,
+	lat: number,
+	lng: number,
 	bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number },
-	W: number, H: number
+	W: number,
+	H: number,
 ): { x: number; y: number } {
 	const x = ((lng - bounds.minLng) / (bounds.maxLng - bounds.minLng)) * W;
 	const y = ((bounds.maxLat - lat) / (bounds.maxLat - bounds.minLat)) * H;
@@ -1450,378 +1434,1484 @@ const MAP_H = 520;
 
 // ─── Térkép konstansok ────────────────────────────────────────────────────────
 const COLORS = {
-  grass:       "#070212",       // Deep obsidian background
-  grassLight:  "#0b041a",       // Slightly lighter obsidian
-  grassDark:   "#040108",       // Darkest obsidian
-  path:        "rgba(168,85,247,0.12)",   // Glowing purple translucent path
-  pathDark:    "rgba(168,85,247,0.25)",
-  road:        "rgba(124,58,237,0.15)",
-  fence:       "rgba(168,85,247,0.35)",  // Neon purple fence outline
-  stageMain:   "#581c87",       // Glowing stage bases
-  stagePurple: "#7c3aed",
-  stageBlue:   "#1d4ed8",
-  stageGold:   "#b45309",
-  water:       "rgba(168,85,247,0.06)",   // Ethereal purple pond
-  waterLight:  "rgba(168,85,247,0.15)",
-  campTeal:    "rgba(13,148,136,0.25)",
-  campLight:   "#14b8a6",
-  food:        "#d97706",
-  foodLight:   "#fbbf24",
-  service:     "#0891b2",
-  merch:       "#be185d",
-  vip:         "#7c3aed",
-  entrance:    "#a855f7",
-  parking:     "rgba(71,85,105,0.2)",
-  tree:        "rgba(168,85,247,0.2)",   // Glowing abstract neon trees
-  treeLight:   "rgba(168,85,247,0.4)",
-  treeShadow:  "rgba(168,85,247,0.05)",
-  text:        "#f0e8ff",
-  textDark:    "#06020f",
-  white:       "#ffffff",
-  shadow:      "rgba(34,18,58,0.55)",
+	grass: "#2d5a1b",
+	grassLight: "#3a7023",
+	grassDark: "#1e4012",
+	path: "#c8b99a",
+	pathDark: "#a89070",
+	road: "#8b7355",
+	fence: "#6b4c2a",
+	stageMain: "#4a0080",
+	stagePurple: "#6b21a8",
+	stageBlue: "#1d4ed8",
+	stageGold: "#b45309",
+	water: "#1e40af",
+	waterLight: "#3b82f6",
+	campTeal: "#0d9488",
+	campLight: "#14b8a6",
+	food: "#d97706",
+	foodLight: "#fbbf24",
+	service: "#0891b2",
+	merch: "#be185d",
+	vip: "#7c3aed",
+	entrance: "#16a34a",
+	parking: "#475569",
+	tree: "#166534",
+	treeLight: "#15803d",
+	treeShadow: "#14532d",
+	text: "#f0e8ff",
+	textDark: "#1a0a30",
+	white: "#ffffff",
+	shadow: "rgba(0,0,0,0.3)",
 };
 
 // ─── Segéd komponensek ────────────────────────────────────────────────────────
 
 // Fa komponens
 function MapTree({ x, y, r = 14 }: { x: number; y: number; r?: number }) {
-  return (
-    <G>
-      {/* Outer ambient glow */}
-      <Circle cx={x} cy={y} r={r * 1.3} fill="rgba(168,85,247,0.04)" />
-      {/* Concentric rings */}
-      <Circle cx={x} cy={y} r={r} fill="none" stroke="rgba(168,85,247,0.2)" strokeWidth={1} />
-      <Circle cx={x} cy={y} r={r * 0.7} fill="none" stroke="rgba(168,85,247,0.4)" strokeWidth={1} />
-      <Circle cx={x} cy={y} r={r * 0.3} fill="#a855f7" opacity={0.6} />
-    </G>
-  );
+	return (
+		<G>
+			<Ellipse
+				cx={x + 2}
+				cy={y + r * 0.6}
+				rx={r * 0.55}
+				ry={r * 0.22}
+				fill={COLORS.treeShadow}
+				opacity={0.5}
+			/>
+			<Circle cx={x} cy={y} r={r} fill={COLORS.treeShadow} opacity={0.3} />
+			<Circle cx={x} cy={y} r={r * 0.85} fill={COLORS.tree} />
+			<Circle
+				cx={x - r * 0.2}
+				cy={y - r * 0.2}
+				r={r * 0.7}
+				fill={COLORS.treeLight}
+			/>
+			<Circle
+				cx={x + r * 0.1}
+				cy={y - r * 0.3}
+				r={r * 0.45}
+				fill="#22c55e"
+				opacity={0.6}
+			/>
+		</G>
+	);
 }
 
 // Bokor komponens
 function MapBush({ x, y }: { x: number; y: number }) {
-  return (
-    <G>
-      <Circle cx={x} cy={y} r={6} fill="none" stroke="rgba(192,132,252,0.35)" strokeWidth={0.8} />
-      <Circle cx={x} cy={y} r={2.5} fill="#c084fc" opacity={0.7} />
-    </G>
-  );
+	return (
+		<G>
+			<Ellipse
+				cx={x + 1}
+				cy={y + 5}
+				rx={9}
+				ry={4}
+				fill={COLORS.treeShadow}
+				opacity={0.3}
+			/>
+			<Circle cx={x - 4} cy={y + 1} r={6} fill={COLORS.tree} />
+			<Circle cx={x + 4} cy={y + 1} r={6} fill={COLORS.tree} />
+			<Circle cx={x} cy={y - 2} r={7} fill={COLORS.treeLight} />
+		</G>
+	);
 }
 
 // Színpad épület komponens
 function MapStage({
-  x, y, w, h, color, label, sublabel, icon,
-}: { x: number; y: number; w: number; h: number; color: string; label: string; sublabel?: string; icon: string }) {
-  return (
-    <G>
-      {/* Ambient Outer Glow */}
-      <Rect x={x-3} y={y-3} width={w+6} height={h+6} rx={12} fill="none" stroke={`${color}22`} strokeWidth={3} />
-      {/* Main Glassmorphic Panel */}
-      <Rect x={x} y={y} width={w} height={h} rx={10} fill="rgba(15,7,32,0.85)" stroke={color} strokeWidth={1.5} />
-      {/* Top Gloss Line */}
-      <Rect x={x+2} y={y+2} width={w-4} height={4} rx={2} fill="rgba(255,255,255,0.1)" />
-      {/* Icon */}
-      <SvgText x={x+w/2} y={y+h*0.42} fontSize={14} textAnchor="middle" fill={COLORS.white}>{icon}</SvgText>
-      {/* Text Labels */}
-      <SvgText x={x+w/2} y={y+h*0.68} fontSize={8.5} fontWeight="bold" textAnchor="middle" fill="#f0e8ff" letterSpacing={0.8}>{label}</SvgText>
-      {sublabel && <SvgText x={x+w/2} y={y+h*0.84} fontSize={7} textAnchor="middle" fill="rgba(216,180,254,0.65)">{sublabel}</SvgText>}
-    </G>
-  );
+	x,
+	y,
+	w,
+	h,
+	color,
+	label,
+	sublabel,
+	icon,
+}: {
+	x: number;
+	y: number;
+	w: number;
+	h: number;
+	color: string;
+	label: string;
+	sublabel?: string;
+	icon: string;
+}) {
+	const depth = 8;
+	const sideColor = color + "88";
+	return (
+		<G>
+			{/* Árnyék */}
+			<Rect
+				x={x + 4}
+				y={y + 4}
+				width={w}
+				height={h}
+				rx={4}
+				fill="rgba(0,0,0,0.4)"
+			/>
+			{/* Oldalsó 3D hatás */}
+			<Polygon
+				points={`${x + w},${y} ${x + w + depth},${y + depth} ${x + w + depth},${y + h + depth} ${x + w},${y + h}`}
+				fill={sideColor}
+			/>
+			<Polygon
+				points={`${x},${y + h} ${x + depth},${y + h + depth} ${x + w + depth},${y + h + depth} ${x + w},${y + h}`}
+				fill={sideColor}
+			/>
+			{/* Fő felület */}
+			<Rect x={x} y={y} width={w} height={h} rx={4} fill={color} />
+			{/* Tető sáv */}
+			<Rect
+				x={x}
+				y={y}
+				width={w}
+				height={h * 0.3}
+				rx={4}
+				fill="rgba(255,255,255,0.15)"
+			/>
+			{/* Ikon */}
+			<SvgText
+				x={x + w / 2}
+				y={y + h * 0.45}
+				fontSize={16}
+				textAnchor="middle"
+				fill={COLORS.white}
+			>
+				{icon}
+			</SvgText>
+			{/* Felirat */}
+			<SvgText
+				x={x + w / 2}
+				y={y + h * 0.68}
+				fontSize={8}
+				fontWeight="bold"
+				textAnchor="middle"
+				fill={COLORS.white}
+				letterSpacing={0.5}
+			>
+				{label}
+			</SvgText>
+			{sublabel && (
+				<SvgText
+					x={x + w / 2}
+					y={y + h * 0.82}
+					fontSize={6.5}
+					textAnchor="middle"
+					fill="rgba(255,255,255,0.8)"
+				>
+					{sublabel}
+				</SvgText>
+			)}
+		</G>
+	);
 }
 
 // POI jelölő
 function MapPin({
-  x, y, color, icon, label,
-}: { x: number; y: number; color: string; icon: string; label: string }) {
-  return (
-    <G>
-      <Ellipse cx={x+1} cy={y+18} rx={8} ry={3} fill="rgba(34,18,58,0.30)" />
-      <Path d={`M${x},${y} C${x-10},${y-8} ${x-10},${y-22} ${x},${y-26} C${x+10},${y-22} ${x+10},${y-8} ${x},${y}`} fill={color} />
-      <Circle cx={x} cy={y-18} r={9} fill="rgba(255,255,255,0.2)" />
-      <SvgText x={x} y={y-14} fontSize={10} textAnchor="middle" fill={COLORS.white}>{icon}</SvgText>
-      {/* Felirat buborék */}
-      <Rect x={x-20} y={y-42} width={40} height={14} rx={7} fill="rgba(42,22,70,0.86)" />
-      <SvgText x={x} y={y-32} fontSize={7} fontWeight="bold" textAnchor="middle" fill={COLORS.white}>{label}</SvgText>
-    </G>
-  );
+	x,
+	y,
+	color,
+	icon,
+	label,
+}: {
+	x: number;
+	y: number;
+	color: string;
+	icon: string;
+	label: string;
+}) {
+	return (
+		<G>
+			<Ellipse cx={x + 1} cy={y + 18} rx={8} ry={3} fill="rgba(0,0,0,0.3)" />
+			<Path
+				d={`M${x},${y} C${x - 10},${y - 8} ${x - 10},${y - 22} ${x},${y - 26} C${x + 10},${y - 22} ${x + 10},${y - 8} ${x},${y}`}
+				fill={color}
+			/>
+			<Circle cx={x} cy={y - 18} r={9} fill="rgba(255,255,255,0.2)" />
+			<SvgText
+				x={x}
+				y={y - 14}
+				fontSize={10}
+				textAnchor="middle"
+				fill={COLORS.white}
+			>
+				{icon}
+			</SvgText>
+			{/* Felirat buborék */}
+			<Rect
+				x={x - 20}
+				y={y - 42}
+				width={40}
+				height={14}
+				rx={7}
+				fill="rgba(0,0,0,0.75)"
+			/>
+			<SvgText
+				x={x}
+				y={y - 32}
+				fontSize={7}
+				fontWeight="bold"
+				textAnchor="middle"
+				fill={COLORS.white}
+			>
+				{label}
+			</SvgText>
+		</G>
+	);
 }
 
 // Kemping sátor
-function MapTent({ x, y, color = COLORS.campTeal }: { x: number; y: number; color?: string }) {
-  return (
-    <G>
-      {/* Outer subtle shape */}
-      <Polygon points={`${x},${y-10} ${x-8},${y+4} ${x+8},${y+4}`} fill="none" stroke={color} strokeWidth={1} />
-      {/* Inner cross vector line */}
-      <Line x1={x} y1={y-10} x2={x} y2={y+4} stroke={color} strokeWidth={0.5} />
-      <Polygon points={`${x},${y-4} ${x-4},${y+4} ${x+4},${y+4}`} fill={`${color}22`} />
-    </G>
-  );
+function MapTent({
+	x,
+	y,
+	color = COLORS.campTeal,
+}: {
+	x: number;
+	y: number;
+	color?: string;
+}) {
+	return (
+		<G>
+			<Polygon
+				points={`${x},${y - 12} ${x - 10},${y + 4} ${x + 10},${y + 4}`}
+				fill={color}
+			/>
+			<Polygon
+				points={`${x},${y - 12} ${x - 6},${y + 4} ${x + 6},${y + 4}`}
+				fill="rgba(255,255,255,0.2)"
+			/>
+			<Rect
+				x={x - 4}
+				y={y - 2}
+				width={8}
+				height={6}
+				rx={1}
+				fill={COLORS.textDark}
+				opacity={0.5}
+			/>
+		</G>
+	);
 }
 
 // ─── Fő MapScreen ─────────────────────────────────────────────────────────────
-function getMapCategoryLabel(cat: MapCategory, lang: "en" | "hu") {
-	switch (cat) {
-		case "stage": return lang === "en" ? "Stage" : "Színpad";
-		case "food": return lang === "en" ? "Food & Drink" : "Étel & ital";
-		case "merch": return lang === "en" ? "Stand" : "Stand";
-		case "service": return lang === "en" ? "Service" : "Szolgáltatás";
-		case "entrance": return lang === "en" ? "Entrance" : "Bejárat";
-		case "camping": return lang === "en" ? "Camping" : "Kemping";
-		default: return cat;
-	}
-}
+function MapScreen({ map }: { map: FestivalMap }) {
+	const [selectedId, setSelectedId] = useState<string | null>(null);
+	const [mapView, setMapView] = useState<"map" | "list">("map");
+	const [filter, setFilter] = useState<MapFilter>("all");
 
-function getMapFilterLabel(filterKey: MapFilter, lang: "en" | "hu") {
-	switch (filterKey) {
-		case "all": return lang === "en" ? "All" : "Mind";
-		case "stage": return lang === "en" ? "Stage" : "Színpad";
-		case "food": return lang === "en" ? "Food" : "Étel";
-		case "merch": return lang === "en" ? "Stand" : "Stand";
-		case "service": return lang === "en" ? "Serv." : "Szolg.";
-		case "entrance": return lang === "en" ? "Entrance" : "Bejárat";
-		case "camping": return lang === "en" ? "Camping" : "Kemping";
-		default: return filterKey;
-	}
-}
+	// ÚJ: Az SOS panel állapota
+	const [sosVisible, setSosVisible] = useState(false);
+	const [sosSent, setSosSent] = useState(false);
 
-// ─── Fő MapScreen ─────────────────────────────────────────────────────────────
-function MapScreen({ map, lang, t }: { map: FestivalMap; lang: "en" | "hu"; t: typeof translations.en }) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [mapView, setMapView] = useState<"map" | "list">("map");
-  const [filter, setFilter] = useState<MapFilter>("all");
+	// Pan & Zoom state
+	const scale = useRef(1);
+	const translateX = useRef(0);
+	const translateY = useRef(0);
+	const lastScale = useRef(1);
+	const lastTX = useRef(0);
+	const lastTY = useRef(0);
+	const [transform, setTransform] = useState({ scale: 1, tx: 0, ty: 0 });
 
-  // Pan & Zoom state
-  const scale = useRef(1);
-  const translateX = useRef(0);
-  const translateY = useRef(0);
-  const lastScale = useRef(1);
-  const lastTX = useRef(0);
-  const lastTY = useRef(0);
-  const [transform, setTransform] = useState({ scale: 1, tx: 0, ty: 0 });
+	const handleSendSOS = () => {
+		setSosSent(true);
+		// Itt a valóságban elküldenénk a GPS adatokat a szervernek
+		setTimeout(() => {
+			setSosVisible(false);
+			setSosSent(false);
+		}, 3000); // 3 másodperc után bezárjuk a siker-üzenetet
+	};
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: () => {
-        lastTX.current = translateX.current;
-        lastTY.current = translateY.current;
-        lastScale.current = scale.current;
-      },
-      onPanResponderMove: (_, gs) => {
-        if (gs.numberActiveTouches === 1) {
-          translateX.current = lastTX.current + gs.dx;
-          translateY.current = lastTY.current + gs.dy;
-          setTransform({ scale: scale.current, tx: translateX.current, ty: translateY.current });
-        }
-      },
-      onPanResponderRelease: () => {},
-    })
-  ).current;
+	const panResponder = useRef(
+		PanResponder.create({
+			onStartShouldSetPanResponder: () => true,
+			onMoveShouldSetPanResponder: () => true,
+			onPanResponderGrant: () => {
+				lastTX.current = translateX.current;
+				lastTY.current = translateY.current;
+				lastScale.current = scale.current;
+			},
+			onPanResponderMove: (_, gs) => {
+				if (gs.numberActiveTouches === 1) {
+					translateX.current = lastTX.current + gs.dx;
+					translateY.current = lastTY.current + gs.dy;
+					setTransform({
+						scale: scale.current,
+						tx: translateX.current,
+						ty: translateY.current,
+					});
+				}
+			},
+			onPanResponderRelease: () => {},
+		}),
+	).current;
 
-  const localizedPoints = map.points.map((p) => {
-    const trans = MAP_POINTS_TRANSLATIONS[p.id]?.[lang];
-    return {
-      ...p,
-      name: trans?.name ?? p.name,
-      description: trans?.description ?? p.description,
-    };
-  });
+	const selected = map.points.find((p) => p.id === selectedId) ?? null;
 
-  const selected = localizedPoints.find((p) => p.id === selectedId) ?? null;
-  const selectedMarker = selected ? MAP_IMAGE_MARKERS[selected.id] : null;
+	const renderDetailCard = (point: MapPoint) => (
+		<View style={styles.mapDetailCard}>
+			<View
+				style={[
+					styles.mapDetailAccent,
+					{ backgroundColor: MAP_CATEGORY_META[point.category].color },
+				]}
+			/>
+			<View style={styles.mapDetailBody}>
+				<View style={styles.mapDetailHeader}>
+					<Text style={styles.mapDetailName}>{point.name}</Text>
+					<View style={styles.mapDetailBadge}>
+						<Text style={styles.mapDetailBadgeText}>
+							{MAP_CATEGORY_META[point.category].label}
+						</Text>
+					</View>
+				</View>
+				<Text style={styles.mapDetailDescription}>{point.description}</Text>
+				{Platform.OS !== "web" && (
+					<TouchableOpacity
+						style={styles.mapOpenExternalBtn}
+						onPress={() => openInGoogleMaps(point)}
+					>
+						<Ionicons name="open-outline" size={14} color="#c084fc" />
+						<Text style={styles.mapOpenExternalText}>
+							Megnyitás Google Maps-ben
+						</Text>
+					</TouchableOpacity>
+				)}
+			</View>
+			<TouchableOpacity
+				style={styles.mapDetailClose}
+				onPress={() => setSelectedId(null)}
+			>
+				<Ionicons name="close" size={18} color="#888" />
+			</TouchableOpacity>
+		</View>
+	);
 
-  const handleSelectMapPoint = (id: string) => {
-    setSelectedId((current) => current === id ? null : id);
-    setMapView("map");
-  };
+	return (
+		<View style={styles.mapScreen}>
+			{/* Fejléc */}
+			<View style={styles.mapHeader}>
+				<Text style={styles.mapHeading}>Térkép</Text>
+				<Text style={styles.mapVenue}>{map.venueName}</Text>
+			</View>
 
-  const renderDetailCard = (point: MapPoint) => (
-    <View style={styles.mapDetailCard}>
-      <View style={[styles.mapDetailAccent, { backgroundColor: MAP_CATEGORY_META[point.category].color }]} />
-      <View style={styles.mapDetailBody}>
-        <View style={styles.mapDetailHeader}>
-          <Text style={styles.mapDetailName}>{point.name}</Text>
-          <View style={styles.mapDetailBadge}>
-            <Text style={styles.mapDetailBadgeText}>{getMapCategoryLabel(point.category, lang)}</Text>
-          </View>
-        </View>
-        <Text style={styles.mapDetailDescription}>{point.description}</Text>
-        {Platform.OS !== "web" && (
-          <TouchableOpacity style={styles.mapOpenExternalBtn} onPress={() => openInGoogleMaps(point)}>
-            <Ionicons name="open-outline" size={14} color="#c084fc" />
-            <Text style={styles.mapOpenExternalText}>{t.openInGoogleMaps}</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-      <TouchableOpacity style={styles.mapDetailClose} onPress={() => setSelectedId(null)}>
-        <Ionicons name="close" size={18} color="#888" />
-      </TouchableOpacity>
-    </View>
-  );
+			{/* Nézet váltó */}
+			<View style={styles.mapViewToggle}>
+				<TouchableOpacity
+					style={[
+						styles.mapViewToggleBtn,
+						mapView === "map" && styles.mapViewToggleBtnActive,
+					]}
+					onPress={() => setMapView("map")}
+				>
+					<Ionicons
+						name="map-outline"
+						size={14}
+						color={mapView === "map" ? "#a855f7" : "rgba(168,85,247,0.45)"}
+					/>
+					<Text
+						style={[
+							styles.mapViewToggleText,
+							mapView === "map" && styles.mapViewToggleTextActive,
+						]}
+					>
+						Térkép
+					</Text>
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={[
+						styles.mapViewToggleBtn,
+						mapView === "list" && styles.mapViewToggleBtnActive,
+					]}
+					onPress={() => setMapView("list")}
+				>
+					<Ionicons
+						name="list-outline"
+						size={14}
+						color={mapView === "list" ? "#a855f7" : "rgba(168,85,247,0.45)"}
+					/>
+					<Text
+						style={[
+							styles.mapViewToggleText,
+							mapView === "list" && styles.mapViewToggleTextActive,
+						]}
+					>
+						Lista
+					</Text>
+				</TouchableOpacity>
+			</View>
 
-  return (
-    <View style={styles.mapScreen}>
-      {/* Fejléc */}
-      <View style={styles.mapHeader}>
-        <Text style={styles.mapHeading}>{lang === "en" ? "Map" : "Térkép"}</Text>
-        <Text style={styles.mapVenue}>{map.venueName}</Text>
-      </View>
+			{/* SVG TÉRKÉP NÉZET */}
+			{mapView === "map" && (
+				<ScrollView
+					showsVerticalScrollIndicator={false}
+					contentContainerStyle={{ paddingBottom: 24 }}
+				>
+					{/* Térkép konténer */}
+					<View style={styles.svgMapContainer} {...panResponder.panHandlers}>
+						<Svg
+							width={SCREEN_W - 24}
+							height={(SCREEN_W - 24) * (MAP_H / MAP_W)}
+							viewBox={`0 0 ${MAP_W} ${MAP_H}`}
+							style={{ borderRadius: 16 }}
+						>
+							<Defs>
+								<LinearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
+									<Stop offset="0" stopColor={COLORS.grassLight} />
+									<Stop offset="1" stopColor={COLORS.grassDark} />
+								</LinearGradient>
+								<LinearGradient id="stageMainGrad" x1="0" y1="0" x2="0" y2="1">
+									<Stop offset="0" stopColor="#7c3aed" />
+									<Stop offset="1" stopColor="#4a0080" />
+								</LinearGradient>
+								<RadialGradient id="stageGlow" cx="50%" cy="50%" r="50%">
+									<Stop offset="0" stopColor="#a855f7" stopOpacity="0.4" />
+									<Stop offset="1" stopColor="#a855f7" stopOpacity="0" />
+								</RadialGradient>
+							</Defs>
 
-      {/* Nézet váltó */}
-      <View style={styles.mapViewToggle}>
-        <TouchableOpacity
-          style={[styles.mapViewToggleBtn, mapView === "map" && styles.mapViewToggleBtnActive]}
-          onPress={() => setMapView("map")}
-        >
-          <Ionicons name="map-outline" size={14} color={mapView === "map" ? "#a855f7" : "rgba(168,85,247,0.45)"} />
-          <Text style={[styles.mapViewToggleText, mapView === "map" && styles.mapViewToggleTextActive]}>{lang === "en" ? "Map" : "Térkép"}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.mapViewToggleBtn, mapView === "list" && styles.mapViewToggleBtnActive]}
-          onPress={() => setMapView("list")}
-        >
-          <Ionicons name="list-outline" size={14} color={mapView === "list" ? "#a855f7" : "rgba(168,85,247,0.45)"} />
-          <Text style={[styles.mapViewToggleText, mapView === "list" && styles.mapViewToggleTextActive]}>{t.list}</Text>
-        </TouchableOpacity>
-      </View>
+							{/* ═══ ALAP HÁTTÉR ═══ */}
+							<Rect
+								x={0}
+								y={0}
+								width={MAP_W}
+								height={MAP_H}
+								fill="url(#grassGrad)"
+							/>
 
-      {/* ILLUSZTRÁLT TÉRKÉP NÉZET */}
-      {mapView === "map" && (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
-          <View style={styles.festivalMapImageCard}>
-            <Image
-              source={require("./assets/enhanced_ready.png")}
-              style={styles.festivalMapImage}
-              resizeMode="contain"
-            />
-            {selected && selectedMarker && (
-              <View
-                pointerEvents="none"
-                style={[
-                  styles.mapImageMarker,
-                  {
-                    left: `${selectedMarker.x}%`,
-                    top: `${selectedMarker.y}%`,
-                    borderColor: MAP_CATEGORY_META[selected.category].color,
-                  },
-                ]}
-              >
-                <View style={[styles.mapImageMarkerPulse, { borderColor: MAP_CATEGORY_META[selected.category].color }]} />
-                <View style={[styles.mapImageMarkerPin, { backgroundColor: MAP_CATEGORY_META[selected.category].color }]}> 
-                  <Ionicons name={MAP_CATEGORY_META[selected.category].icon as keyof typeof Ionicons.glyphMap} size={14} color="#fff" />
-                </View>
-                <View style={styles.mapImageMarkerLabel}>
-                  <Text numberOfLines={1} style={styles.mapImageMarkerLabelText}>{selected.name}</Text>
-                </View>
-              </View>
-            )}
-          </View>
+							{/* Textura rács */}
+							{Array.from({ length: 20 }, (_, i) => (
+								<Line
+									key={`gh${i}`}
+									x1={0}
+									y1={i * 26}
+									x2={MAP_W}
+									y2={i * 26}
+									stroke="rgba(0,0,0,0.06)"
+									strokeWidth={0.5}
+								/>
+							))}
+							{Array.from({ length: 16 }, (_, i) => (
+								<Line
+									key={`gv${i}`}
+									x1={i * 26}
+									y1={0}
+									x2={i * 26}
+									y2={MAP_H}
+									stroke="rgba(0,0,0,0.06)"
+									strokeWidth={0.5}
+								/>
+							))}
 
-          {selected && (
-            <View style={styles.mapSelectedNotice}>
-              <Ionicons name="locate" size={15} color={MAP_CATEGORY_META[selected.category].color} />
-              <Text style={styles.mapSelectedNoticeText}>
-                {t.mapSelectedNotice}<Text style={styles.mapSelectedNoticeName}>{selected.name}</Text>
-              </Text>
-            </View>
-          )}
+							{/* ═══ HELYSZÍN KERÍTÉS ═══ */}
+							<Rect
+								x={8}
+								y={8}
+								width={MAP_W - 16}
+								height={MAP_H - 16}
+								rx={12}
+								fill="none"
+								stroke={COLORS.fence}
+								strokeWidth={3}
+								strokeDasharray="8,4"
+							/>
+							<Rect
+								x={12}
+								y={12}
+								width={MAP_W - 24}
+								height={MAP_H - 24}
+								rx={10}
+								fill="none"
+								stroke="rgba(107,76,42,0.4)"
+								strokeWidth={1}
+							/>
 
-          <Text style={styles.mapImageHint}>
-            {t.mapDesc}
-          </Text>
+							{/* ═══ TAVACSKA / VÍZ ═══ */}
+							<Ellipse
+								cx={340}
+								cy={80}
+								rx={55}
+								ry={35}
+								fill={COLORS.water}
+								opacity={0.85}
+							/>
+							<Ellipse
+								cx={338}
+								cy={77}
+								rx={50}
+								ry={29}
+								fill={COLORS.waterLight}
+								opacity={0.4}
+							/>
+							<SvgText
+								x={340}
+								y={82}
+								fontSize={8}
+								textAnchor="middle"
+								fill="rgba(255,255,255,0.7)"
+								fontStyle="italic"
+							>
+								tó
+							</SvgText>
 
-          {/* Jelmagyarázat */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mapLegend}>
-            {(Object.keys(MAP_CATEGORY_META) as MapCategory[]).map((cat) => (
-              <TouchableOpacity key={cat} style={styles.mapLegendItem}
-                onPress={() => setFilter(filter === cat ? "all" : cat)}>
-                <View style={[styles.mapLegendDot, { backgroundColor: MAP_CATEGORY_META[cat].color }]} />
-                <Text style={[styles.mapLegendText, filter === cat && { color: MAP_CATEGORY_META[cat].color }]}>
-                  {getMapCategoryLabel(cat, lang)}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+							{/* ═══ FŐ ÚTVONALAK ═══ */}
+							{/* Középső főút - vízszintes */}
+							<Rect
+								x={20}
+								y={268}
+								width={MAP_W - 40}
+								height={18}
+								rx={3}
+								fill={COLORS.path}
+							/>
+							<Rect
+								x={20}
+								y={272}
+								width={MAP_W - 40}
+								height={10}
+								rx={2}
+								fill={COLORS.pathDark}
+								opacity={0.3}
+							/>
+							{/* Középső főút - függőleges */}
+							<Rect
+								x={192}
+								y={20}
+								width={18}
+								height={MAP_H - 40}
+								rx={3}
+								fill={COLORS.path}
+							/>
+							<Rect
+								x={196}
+								y={20}
+								width={10}
+								height={MAP_H - 40}
+								rx={2}
+								fill={COLORS.pathDark}
+								opacity={0.3}
+							/>
+							{/* Átlós sétány bal */}
+							<Path
+								d="M 20,180 Q 100,220 192,268"
+								stroke={COLORS.path}
+								strokeWidth={12}
+								fill="none"
+								strokeLinecap="round"
+							/>
+							<Path
+								d="M 20,180 Q 100,220 192,268"
+								stroke={COLORS.pathDark}
+								strokeWidth={4}
+								fill="none"
+								strokeLinecap="round"
+								opacity={0.3}
+							/>
+							{/* Átlós sétány jobb */}
+							<Path
+								d="M 210,268 Q 310,230 400,180"
+								stroke={COLORS.path}
+								strokeWidth={12}
+								fill="none"
+								strokeLinecap="round"
+							/>
+							{/* Kemping sétány */}
+							<Path
+								d="M 20,120 L 100,120 L 100,268"
+								stroke={COLORS.path}
+								strokeWidth={10}
+								fill="none"
+								strokeLinecap="round"
+							/>
+							{/* Déli sétány */}
+							<Path
+								d="M 100,380 Q 200,350 300,380"
+								stroke={COLORS.path}
+								strokeWidth={10}
+								fill="none"
+								strokeLinecap="round"
+							/>
 
-          {/* Kompakt lista a térkép alatt */}
-          <View style={{ marginTop: 4 }}>
-            {localizedPoints
-              .filter(p => filter === "all" || p.category === filter)
-              .map((item) => (
-              <React.Fragment key={item.id}>
-                <TouchableOpacity
-                  style={[styles.mapPointItem, selectedId === item.id && styles.mapPointItemSelected]}
-                  onPress={() => handleSelectMapPoint(item.id)}
-                >
-                  <View style={[styles.mapPointIconWrap, { backgroundColor: `${MAP_CATEGORY_META[item.category].color}22` }]}>
-                    <Ionicons name={MAP_CATEGORY_META[item.category].icon as keyof typeof Ionicons.glyphMap}
-                      size={18} color={MAP_CATEGORY_META[item.category].color} />
-                  </View>
-                  <View style={styles.mapPointItemText}>
-                    <Text style={styles.mapPointItemName}>{item.name}</Text>
-                    <Text style={styles.mapPointItemCategory}>{getMapCategoryLabel(item.category, lang)}</Text>
-                  </View>
-                  <Ionicons name={selectedId === item.id ? "chevron-up" : "chevron-down"}
-                    size={16} color="rgba(168,85,247,0.4)" />
-                </TouchableOpacity>
-                {selectedId === item.id && renderDetailCard(item)}
-              </React.Fragment>
-            ))}
-          </View>
-        </ScrollView>
-      )}
+							{/* Útvonal jelölések (nyilak) */}
+							<SvgText
+								x={201}
+								y={440}
+								fontSize={7}
+								fill="rgba(255,255,255,0.4)"
+								textAnchor="middle"
+							>
+								↑↓
+							</SvgText>
+							<SvgText
+								x={300}
+								y={277}
+								fontSize={7}
+								fill="rgba(255,255,255,0.4)"
+								textAnchor="middle"
+							>
+								→
+							</SvgText>
 
-      {/* LISTA NÉZET */}
-      {mapView === "list" && (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
-          {/* Kategória szűrő */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mapFilters}>
-            {MAP_FILTERS.map((item) => {
-              const active = filter === item.key;
-              return (
-                <TouchableOpacity key={item.key}
-                  style={[styles.mapFilterChip, active && styles.mapFilterChipActive]}
-                  onPress={() => { setFilter(item.key); setSelectedId(null); }}>
-                  {item.key !== "all" && (
-                    <Ionicons name={MAP_CATEGORY_META[item.key as MapCategory]?.icon as keyof typeof Ionicons.glyphMap}
-                      size={11} color={active ? MAP_CATEGORY_META[item.key as MapCategory]?.color : "rgba(168,85,247,0.45)"} />
-                  )}
-                  <Text style={[styles.mapFilterChipText, active && styles.mapFilterChipTextActive]}>{getMapFilterLabel(item.key, lang)}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-          {localizedPoints
-            .filter(p => filter === "all" || p.category === filter)
-            .map((item) => (
-            <React.Fragment key={item.id}>
-              <TouchableOpacity
-                style={[styles.mapPointItem, selectedId === item.id && styles.mapPointItemSelected]}
-                onPress={() => handleSelectMapPoint(item.id)}>
-                <View style={[styles.mapPointIconWrap, { backgroundColor: `${MAP_CATEGORY_META[item.category].color}22` }]}>
-                  <Ionicons name={MAP_CATEGORY_META[item.category].icon as keyof typeof Ionicons.glyphMap}
-                    size={18} color={MAP_CATEGORY_META[item.category].color} />
-                </View>
-                <View style={styles.mapPointItemText}>
-                  <Text style={styles.mapPointItemName}>{item.name}</Text>
-                  <Text style={styles.mapPointItemCategory}>{getMapCategoryLabel(item.category, lang)}</Text>
-                </View>
-                <Ionicons name={selectedId === item.id ? "chevron-up" : "chevron-down"}
-                  size={16} color="rgba(168,85,247,0.4)" />
-              </TouchableOpacity>
-              {selectedId === item.id && renderDetailCard(item)}
-            </React.Fragment>
-          ))}
-        </ScrollView>
-      )}
+							{/* ═══ KEMPING ZÓNA ═══ */}
+							<Rect
+								x={20}
+								y={30}
+								width={120}
+								height={140}
+								rx={8}
+								fill={COLORS.campTeal}
+								opacity={0.12}
+								stroke={COLORS.campTeal}
+								strokeWidth={1.5}
+								strokeDasharray="6,3"
+							/>
+							<SvgText
+								x={80}
+								y={50}
+								fontSize={8}
+								fontWeight="bold"
+								textAnchor="middle"
+								fill={COLORS.campTeal}
+								letterSpacing={1.5}
+							>
+								KEMPING ZÓNA
+							</SvgText>
+							{/* Sátrak */}
+							<MapTent x={45} y={85} />
+							<MapTent x={75} y={85} />
+							<MapTent x={105} y={85} />
+							<MapTent x={60} y={115} />
+							<MapTent x={90} y={115} />
+							<MapTent x={45} y={148} color="#0e7490" />
+							<MapTent x={75} y={148} color="#0e7490" />
+							<MapTent x={105} y={148} color="#0e7490" />
 
-    </View>
-  );
+							{/* ═══ PARKOLÓ ═══ */}
+							<Rect
+								x={20}
+								y={380}
+								width={80}
+								height={110}
+								rx={6}
+								fill={COLORS.parking}
+								opacity={0.25}
+								stroke={COLORS.parking}
+								strokeWidth={1.5}
+							/>
+							<SvgText
+								x={60}
+								y={438}
+								fontSize={28}
+								fontWeight="900"
+								textAnchor="middle"
+								fill="rgba(148,163,184,0.8)"
+							>
+								P
+							</SvgText>
+							<SvgText
+								x={60}
+								y={455}
+								fontSize={7}
+								textAnchor="middle"
+								fill="rgba(148,163,184,0.6)"
+							>
+								PARKOLÓ
+							</SvgText>
+							{/* Parkoló sorok */}
+							{[0, 1, 2].map((i) => (
+								<Line
+									key={`ps${i}`}
+									x1={28 + i * 24}
+									y1={385}
+									x2={28 + i * 24}
+									y2={485}
+									stroke="rgba(148,163,184,0.3)"
+									strokeWidth={1}
+									strokeDasharray="4,4"
+								/>
+							))}
+
+							{/* ═══ MAIN STAGE – ÉSZAK-KÖZÉP ═══ */}
+							<Circle cx={201} cy={100} r={45} fill="url(#stageGlow)" />
+							<MapStage
+								x={160}
+								y={55}
+								w={82}
+								h={60}
+								color="#5b21b6"
+								label="MAIN STAGE"
+								sublabel="EclipseFest"
+								icon="🎤"
+							/>
+
+							{/* ═══ ELECTRONIC STAGE – NYUGAT ═══ */}
+							<Circle cx={100} cy={220} r={30} fill="#1d4ed8" opacity={0.1} />
+							<MapStage
+								x={50}
+								y={190}
+								w={72}
+								h={52}
+								color="#1d4ed8"
+								label="ELECTRONIC"
+								sublabel="STAGE"
+								icon="🎧"
+							/>
+
+							{/* ═══ ACOUSTIC STAGE – KELET ═══ */}
+							<Circle cx={320} cy={210} r={30} fill="#b45309" opacity={0.1} />
+							<MapStage
+								x={278}
+								y={178}
+								w={72}
+								h={52}
+								color="#b45309"
+								label="ACOUSTIC"
+								sublabel="STAGE"
+								icon="🎸"
+							/>
+
+							{/* ═══ SUNRISE STAGE – DÉL ═══ */}
+							<Circle cx={201} cy={390} r={28} fill="#7c3aed" opacity={0.12} />
+							<MapStage
+								x={160}
+								y={360}
+								w={82}
+								h={52}
+								color="#6d28d9"
+								label="SUNRISE"
+								sublabel="STAGE"
+								icon="🌅"
+							/>
+
+							{/* ═══ FOOD COURT – KÖZÉP-NYUGAT ═══ */}
+							<Rect
+								x={108}
+								y={290}
+								width={70}
+								height={52}
+								rx={8}
+								fill="#92400e"
+								opacity={0.3}
+								stroke="#d97706"
+								strokeWidth={1}
+							/>
+							<SvgText x={143} y={308} fontSize={16} textAnchor="middle">
+								🍔
+							</SvgText>
+							<SvgText
+								x={143}
+								y={323}
+								fontSize={7}
+								fontWeight="bold"
+								textAnchor="middle"
+								fill="#fbbf24"
+							>
+								FOOD COURT
+							</SvgText>
+							<SvgText
+								x={143}
+								y={334}
+								fontSize={6}
+								textAnchor="middle"
+								fill="rgba(251,191,36,0.7)"
+							>
+								étel & ital
+							</SvgText>
+
+							{/* ═══ STREET FOOD – NYUGAT ═══ */}
+							<Rect
+								x={22}
+								y={290}
+								width={60}
+								height={48}
+								rx={8}
+								fill="#92400e"
+								opacity={0.25}
+								stroke="#d97706"
+								strokeWidth={1}
+							/>
+							<SvgText x={52} y={308} fontSize={14} textAnchor="middle">
+								🌮
+							</SvgText>
+							<SvgText
+								x={52}
+								y={322}
+								fontSize={6.5}
+								fontWeight="bold"
+								textAnchor="middle"
+								fill="#fbbf24"
+							>
+								STREET FOOD
+							</SvgText>
+							<SvgText
+								x={52}
+								y={332}
+								fontSize={6}
+								textAnchor="middle"
+								fill="rgba(251,191,36,0.7)"
+							>
+								gyors falatkák
+							</SvgText>
+
+							{/* ═══ BÁRKÖZPONT – KELET ═══ */}
+							<Rect
+								x={248}
+								y={290}
+								width={62}
+								height={48}
+								rx={8}
+								fill="#92400e"
+								opacity={0.25}
+								stroke="#d97706"
+								strokeWidth={1}
+							/>
+							<SvgText x={279} y={308} fontSize={14} textAnchor="middle">
+								🍺
+							</SvgText>
+							<SvgText
+								x={279}
+								y={322}
+								fontSize={6.5}
+								fontWeight="bold"
+								textAnchor="middle"
+								fill="#fbbf24"
+							>
+								BÁRKÖZPONT
+							</SvgText>
+							<SvgText
+								x={279}
+								y={332}
+								fontSize={6}
+								textAnchor="middle"
+								fill="rgba(251,191,36,0.7)"
+							>
+								koktél & sör
+							</SvgText>
+
+							{/* ═══ MERCH VILLAGE ═══ */}
+							<Rect
+								x={228}
+								y={160}
+								width={44}
+								height={38}
+								rx={6}
+								fill="#831843"
+								opacity={0.35}
+								stroke="#ec4899"
+								strokeWidth={1}
+							/>
+							<SvgText x={250} y={178} fontSize={13} textAnchor="middle">
+								👕
+							</SvgText>
+							<SvgText
+								x={250}
+								y={192}
+								fontSize={6}
+								fontWeight="bold"
+								textAnchor="middle"
+								fill="#f9a8d4"
+							>
+								MERCH
+							</SvgText>
+
+							{/* ═══ VIP LOUNGE – ÉSZAK-KELET ═══ */}
+							<Rect
+								x={318}
+								y={130}
+								width={80}
+								height={40}
+								rx={8}
+								fill="#4c1d95"
+								opacity={0.4}
+								stroke="#7c3aed"
+								strokeWidth={1.5}
+							/>
+							<SvgText x={358} y={147} fontSize={12} textAnchor="middle">
+								⭐
+							</SvgText>
+							<SvgText
+								x={358}
+								y={161}
+								fontSize={7}
+								fontWeight="bold"
+								textAnchor="middle"
+								fill="#c4b5fd"
+							>
+								VIP LOUNGE
+							</SvgText>
+
+							{/* ═══ ARTIST MERCH ═══ */}
+							<Rect
+								x={318}
+								y={178}
+								width={80}
+								height={36}
+								rx={6}
+								fill="#831843"
+								opacity={0.3}
+								stroke="#ec4899"
+								strokeWidth={1}
+							/>
+							<SvgText x={358} y={193} fontSize={11} textAnchor="middle">
+								🏷️
+							</SvgText>
+							<SvgText
+								x={358}
+								y={207}
+								fontSize={6.5}
+								fontWeight="bold"
+								textAnchor="middle"
+								fill="#f9a8d4"
+							>
+								ELŐADÓI STAND
+							</SvgText>
+
+							{/* ═══ FOTÓPONT ═══ */}
+							<Rect
+								x={318}
+								y={222}
+								width={80}
+								height={36}
+								rx={6}
+								fill="#831843"
+								opacity={0.25}
+								stroke="#ec4899"
+								strokeWidth={1}
+							/>
+							<SvgText x={358} y={237} fontSize={11} textAnchor="middle">
+								📸
+							</SvgText>
+							<SvgText
+								x={358}
+								y={251}
+								fontSize={6.5}
+								fontWeight="bold"
+								textAnchor="middle"
+								fill="#f9a8d4"
+							>
+								FOTÓPONT
+							</SvgText>
+
+							{/* ═══ SZOLGÁLTATÁSOK – DÉLI SÁV ═══ */}
+							{/* Elsősegély */}
+							<Rect
+								x={148}
+								y={350}
+								width={36}
+								height={36}
+								rx={6}
+								fill="#7f1d1d"
+								opacity={0.4}
+								stroke="#ef4444"
+								strokeWidth={1.5}
+							/>
+							<SvgText x={166} y={368} fontSize={14} textAnchor="middle">
+								🏥
+							</SvgText>
+							<SvgText
+								x={166}
+								y={381}
+								fontSize={6}
+								textAnchor="middle"
+								fill="#fca5a5"
+							>
+								SEGÉLY
+							</SvgText>
+
+							{/* Mosdó 1 – észak */}
+							<Rect
+								x={150}
+								y={140}
+								width={32}
+								height={32}
+								rx={5}
+								fill="#164e63"
+								opacity={0.5}
+								stroke="#38bdf8"
+								strokeWidth={1}
+							/>
+							<SvgText x={166} y={156} fontSize={13} textAnchor="middle">
+								🚻
+							</SvgText>
+							<SvgText
+								x={166}
+								y={167}
+								fontSize={6}
+								textAnchor="middle"
+								fill="#7dd3fc"
+							>
+								WC
+							</SvgText>
+
+							{/* Mosdó 2 – dél */}
+							<Rect
+								x={150}
+								y={290}
+								width={32}
+								height={32}
+								rx={5}
+								fill="#164e63"
+								opacity={0.5}
+								stroke="#38bdf8"
+								strokeWidth={1}
+							/>
+							<SvgText x={166} y={306} fontSize={13} textAnchor="middle">
+								🚻
+							</SvgText>
+							<SvgText
+								x={166}
+								y={317}
+								fontSize={6}
+								textAnchor="middle"
+								fill="#7dd3fc"
+							>
+								WC
+							</SvgText>
+
+							{/* Infópont */}
+							<Rect
+								x={238}
+								y={350}
+								width={36}
+								height={36}
+								rx={6}
+								fill="#1e1b4b"
+								opacity={0.5}
+								stroke="#a855f7"
+								strokeWidth={1.5}
+							/>
+							<SvgText x={256} y={368} fontSize={14} textAnchor="middle">
+								ℹ️
+							</SvgText>
+							<SvgText
+								x={256}
+								y={381}
+								fontSize={6}
+								textAnchor="middle"
+								fill="#c4b5fd"
+							>
+								INFÓ
+							</SvgText>
+
+							{/* ═══ FŐBEJÁRAT – DÉL KÖZÉP ═══ */}
+							<Rect
+								x={148}
+								y={470}
+								width={106}
+								height={36}
+								rx={8}
+								fill={COLORS.entrance}
+								opacity={0.9}
+								stroke="#16a34a"
+								strokeWidth={2}
+							/>
+							<SvgText x={201} y={487} fontSize={11} textAnchor="middle">
+								🚪
+							</SvgText>
+							<SvgText
+								x={201}
+								y={500}
+								fontSize={8}
+								fontWeight="bold"
+								textAnchor="middle"
+								fill={COLORS.white}
+								letterSpacing={1}
+							>
+								FŐBEJÁRAT
+							</SvgText>
+
+							{/* Bejárat nyilak */}
+							<Line
+								x1={201}
+								y1={450}
+								x2={201}
+								y2={468}
+								stroke="#22c55e"
+								strokeWidth={2}
+							/>
+							<Polygon points="196,458 201,448 206,458" fill="#22c55e" />
+
+							{/* ═══ FÁK ═══ */}
+							{/* Északi fasor */}
+							<MapTree x={150} y={28} r={16} />
+							<MapTree x={220} y={22} r={14} />
+							<MapTree x={265} y={28} r={15} />
+							<MapTree x={308} y={25} r={13} />
+							{/* Keleti fasor */}
+							<MapTree x={395} y={120} r={14} />
+							<MapTree x={400} y={160} r={12} />
+							<MapTree x={398} y={200} r={15} />
+							<MapTree x={397} y={260} r={13} />
+							<MapTree x={395} y={320} r={12} />
+							{/* Déli fasor */}
+							<MapTree x={120} y={488} r={14} />
+							<MapTree x={280} y={492} r={13} />
+							<MapTree x={350} y={485} r={15} />
+							<MapTree x={390} y={480} r={12} />
+							{/* Nyugati fasor */}
+							<MapTree x={18} y={320} r={13} />
+							<MapTree x={20} y={360} r={14} />
+							<MapTree x={18} y={400} r={12} />
+							{/* Belsők */}
+							<MapTree x={130} y={360} r={11} />
+							<MapTree x={360} y={360} r={12} />
+							<MapTree x={148} y={430} r={10} />
+							<MapTree x={258} y={430} r={11} />
+
+							{/* ═══ BOKROK ═══ */}
+							<MapBush x={132} y={180} />
+							<MapBush x={145} y={210} />
+							<MapBush x={260} y={160} />
+							<MapBush x={272} y={140} />
+							<MapBush x={108} y={355} />
+							<MapBush x={308} y={355} />
+							<MapBush x={115} y={460} />
+							<MapBush x={290} y={460} />
+							<MapBush x={320} y={470} />
+							<MapBush x={335} y={455} />
+							<MapBush x={365} y={400} />
+							<MapBush x={380} y={420} />
+
+							{/* ═══ ÉSZAK IRÁNYTŰ ═══ */}
+							<Circle
+								cx={382}
+								cy={32}
+								r={16}
+								fill="rgba(0,0,0,0.55)"
+								stroke="rgba(168,85,247,0.6)"
+								strokeWidth={1}
+							/>
+							<Polygon points="382,18 378,34 382,31 386,34" fill="#a855f7" />
+							<Polygon
+								points="382,46 378,30 382,33 386,30"
+								fill="rgba(168,85,247,0.4)"
+							/>
+							<SvgText
+								x={382}
+								y={37}
+								fontSize={7}
+								fontWeight="bold"
+								textAnchor="middle"
+								fill="#f0e8ff"
+							>
+								N
+							</SvgText>
+
+							{/* ═══ SKÁLA ═══ */}
+							<Rect
+								x={20}
+								y={500}
+								width={60}
+								height={6}
+								rx={3}
+								fill="rgba(255,255,255,0.3)"
+							/>
+							<Rect
+								x={20}
+								y={500}
+								width={30}
+								height={6}
+								rx={3}
+								fill="rgba(255,255,255,0.6)"
+							/>
+							<SvgText x={20} y={496} fontSize={6} fill="rgba(255,255,255,0.5)">
+								0
+							</SvgText>
+							<SvgText x={75} y={496} fontSize={6} fill="rgba(255,255,255,0.5)">
+								200m
+							</SvgText>
+
+							{/* ═══ CÍM / BRAND ═══ */}
+							<Rect
+								x={MAP_W - 120}
+								y={MAP_H - 38}
+								width={112}
+								height={30}
+								rx={6}
+								fill="rgba(0,0,0,0.5)"
+							/>
+							<SvgText
+								x={MAP_W - 64}
+								y={MAP_H - 23}
+								fontSize={9}
+								fontWeight="bold"
+								textAnchor="middle"
+								fill="#a855f7"
+								letterSpacing={1}
+							>
+								ECLIPSEFEST
+							</SvgText>
+							<SvgText
+								x={MAP_W - 64}
+								y={MAP_H - 12}
+								fontSize={7}
+								textAnchor="middle"
+								fill="rgba(168,85,247,0.6)"
+							>
+								2026 · Budapest Park
+							</SvgText>
+						</Svg>
+					</View>
+
+					{/* Jelmagyarázat */}
+					<ScrollView
+						horizontal
+						showsHorizontalScrollIndicator={false}
+						contentContainerStyle={styles.mapLegend}
+					>
+						{(Object.keys(MAP_CATEGORY_META) as MapCategory[]).map((cat) => (
+							<TouchableOpacity
+								key={cat}
+								style={styles.mapLegendItem}
+								onPress={() => setFilter(filter === cat ? "all" : cat)}
+							>
+								<View
+									style={[
+										styles.mapLegendDot,
+										{ backgroundColor: MAP_CATEGORY_META[cat].color },
+									]}
+								/>
+								<Text
+									style={[
+										styles.mapLegendText,
+										filter === cat && { color: MAP_CATEGORY_META[cat].color },
+									]}
+								>
+									{MAP_CATEGORY_META[cat].label}
+								</Text>
+							</TouchableOpacity>
+						))}
+					</ScrollView>
+
+					{/* Kompakt lista a térkép alatt */}
+					<View style={{ marginTop: 4 }}>
+						{map.points
+							.filter((p) => filter === "all" || p.category === filter)
+							.map((item) => (
+								<TouchableOpacity
+									key={item.id}
+									style={[
+										styles.mapPointItem,
+										selectedId === item.id && styles.mapPointItemSelected,
+									]}
+									onPress={() =>
+										setSelectedId(selectedId === item.id ? null : item.id)
+									}
+								>
+									<View
+										style={[
+											styles.mapPointIconWrap,
+											{
+												backgroundColor: `${MAP_CATEGORY_META[item.category].color}22`,
+											},
+										]}
+									>
+										<Ionicons
+											name={
+												MAP_CATEGORY_META[item.category]
+													.icon as keyof typeof Ionicons.glyphMap
+											}
+											size={18}
+											color={MAP_CATEGORY_META[item.category].color}
+										/>
+									</View>
+									<View style={styles.mapPointItemText}>
+										<Text style={styles.mapPointItemName}>{item.name}</Text>
+										<Text style={styles.mapPointItemCategory}>
+											{MAP_CATEGORY_META[item.category].label}
+										</Text>
+									</View>
+									<Ionicons
+										name={
+											selectedId === item.id ? "chevron-up" : "chevron-down"
+										}
+										size={16}
+										color="rgba(168,85,247,0.4)"
+									/>
+								</TouchableOpacity>
+							))}
+						{selected && renderDetailCard(selected)}
+					</View>
+				</ScrollView>
+			)}
+
+			{/* LISTA NÉZET */}
+			{mapView === "list" && (
+				<ScrollView
+					showsVerticalScrollIndicator={false}
+					contentContainerStyle={{ paddingBottom: 32 }}
+				>
+					{/* Kategória szűrő */}
+					<ScrollView
+						horizontal
+						showsHorizontalScrollIndicator={false}
+						contentContainerStyle={styles.mapFilters}
+					>
+						{MAP_FILTERS.map((item) => {
+							const active = filter === item.key;
+							return (
+								<TouchableOpacity
+									key={item.key}
+									style={[
+										styles.mapFilterChip,
+										active && styles.mapFilterChipActive,
+									]}
+									onPress={() => {
+										setFilter(item.key);
+										setSelectedId(null);
+									}}
+								>
+									{item.key !== "all" && (
+										<Ionicons
+											name={
+												MAP_CATEGORY_META[item.key as MapCategory]
+													?.icon as keyof typeof Ionicons.glyphMap
+											}
+											size={11}
+											color={
+												active
+													? MAP_CATEGORY_META[item.key as MapCategory]?.color
+													: "rgba(168,85,247,0.45)"
+											}
+										/>
+									)}
+									<Text
+										style={[
+											styles.mapFilterChipText,
+											active && styles.mapFilterChipTextActive,
+										]}
+									>
+										{item.label}
+									</Text>
+								</TouchableOpacity>
+							);
+						})}
+					</ScrollView>
+					{map.points
+						.filter((p) => filter === "all" || p.category === filter)
+						.map((item) => (
+							<TouchableOpacity
+								key={item.id}
+								style={[
+									styles.mapPointItem,
+									selectedId === item.id && styles.mapPointItemSelected,
+								]}
+								onPress={() =>
+									setSelectedId(selectedId === item.id ? null : item.id)
+								}
+							>
+								<View
+									style={[
+										styles.mapPointIconWrap,
+										{
+											backgroundColor: `${MAP_CATEGORY_META[item.category].color}22`,
+										},
+									]}
+								>
+									<Ionicons
+										name={
+											MAP_CATEGORY_META[item.category]
+												.icon as keyof typeof Ionicons.glyphMap
+										}
+										size={18}
+										color={MAP_CATEGORY_META[item.category].color}
+									/>
+								</View>
+								<View style={styles.mapPointItemText}>
+									<Text style={styles.mapPointItemName}>{item.name}</Text>
+									<Text style={styles.mapPointItemCategory}>
+										{MAP_CATEGORY_META[item.category].label}
+									</Text>
+								</View>
+								<Ionicons
+									name={selectedId === item.id ? "chevron-up" : "chevron-down"}
+									size={16}
+									color="rgba(168,85,247,0.4)"
+								/>
+							</TouchableOpacity>
+						))}
+					{selected && renderDetailCard(selected)}
+				</ScrollView>
+			)}
+
+			{/* ─── SOS LEBEGŐ GOMB ─── */}
+			<TouchableOpacity
+				style={styles.sosFloatingBtn}
+				onPress={() => setSosVisible(true)}
+				activeOpacity={0.8}
+			>
+				<Ionicons name="medkit" size={28} color="#ffffff" />
+			</TouchableOpacity>
+
+			{/* ─── SOS FELUGRÓ ABLAK (MODAL) ─── */}
+			<Modal
+				visible={sosVisible}
+				transparent={true}
+				animationType="slide"
+				onRequestClose={() => setSosVisible(false)}
+			>
+				<View style={styles.sosModalOverlay}>
+					<View style={styles.sosModalContent}>
+						{sosSent ? (
+							<View style={styles.sosSuccessContainer}>
+								<Ionicons name="checkmark-circle" size={64} color="#22c55e" />
+								<Text style={styles.sosSuccessTitle}>HELP IS ON THE WAY</Text>
+								<Text style={styles.sosSuccessText}>
+									Medical staff has received your location (Main Stage area).
+									Stay where you are.
+								</Text>
+							</View>
+						) : (
+							<>
+								<View style={styles.sosHeader}>
+									<Ionicons name="warning" size={32} color="#ef4444" />
+									<Text style={styles.sosTitle}>EMERGENCY ASSISTANCE</Text>
+								</View>
+
+								<Text style={styles.sosSubtitle}>
+									What kind of help do you need?
+								</Text>
+
+								{/* Hatalmas érintési felületek */}
+								<TouchableOpacity
+									style={styles.sosActionBtn}
+									onPress={handleSendSOS}
+								>
+									<Ionicons name="person-outline" size={24} color="#ffffff" />
+									<Text style={styles.sosActionText}>I NEED HELP</Text>
+								</TouchableOpacity>
+
+								<TouchableOpacity
+									style={styles.sosActionBtn}
+									onPress={handleSendSOS}
+								>
+									<Ionicons name="people-outline" size={24} color="#ffffff" />
+									<Text style={styles.sosActionText}>
+										SOMEONE ELSE NEEDS HELP
+									</Text>
+								</TouchableOpacity>
+
+								<TouchableOpacity
+									style={styles.sosCancelBtn}
+									onPress={() => setSosVisible(false)}
+								>
+									<Text style={styles.sosCancelText}>Cancel</Text>
+								</TouchableOpacity>
+							</>
+						)}
+					</View>
+				</View>
+			</Modal>
+		</View>
+	);
 }
 
 // ─── Home képernyő ────────────────────────────────────────────────────────────
-function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, t }: {
+function HomeScreen({
+	onGoToTickets,
+	onGoToFavorites,
+	favoritePerformers,
+}: {
 	onGoToTickets: () => void;
 	onGoToFavorites: () => void;
 	favoritePerformers: Performer[];
@@ -1858,7 +2948,10 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, 
 			/>
 			<View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(10, 4, 16, 0.72)" }]} />
 			{stars.map((s) => (
-				<Star key={s.id} style={{ top: s.top, left: s.left, width: s.size, height: s.size }} />
+				<Star
+					key={s.id}
+					style={{ top: s.top, left: s.left, width: s.size, height: s.size }}
+				/>
 			))}
 			<ScrollView
 				contentContainerStyle={styles.homeScroll}
@@ -1880,13 +2973,19 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, 
 
 				{/* Következő kedvenc chip */}
 				{nextFav && minsUntil !== null && (
-					<TouchableOpacity style={styles.nextFavChip} onPress={onGoToFavorites}>
+					<TouchableOpacity
+						style={styles.nextFavChip}
+						onPress={onGoToFavorites}
+					>
 						<Ionicons name="heart" size={14} color="#a855f7" />
 						<Text style={styles.nextFavText}>
-							{lang === "en" ? "Next favorite: " : "Következő kedvenced: "}<Text style={styles.nextFavName}>{nextFav.name}</Text>
+							Következő kedvenced:{" "}
+							<Text style={styles.nextFavName}>{nextFav.name}</Text>
 						</Text>
 						<Text style={styles.nextFavTime}>
-							{minsUntil < 60 ? (lang === "en" ? `in ${minsUntil} minutes` : `${minsUntil} perc múlva`) : `${nextFav.startTime}`}
+							{minsUntil < 60
+								? `${minsUntil} perc múlva`
+								: `${nextFav.startTime}`}
 						</Text>
 					</TouchableOpacity>
 				)}
@@ -1915,8 +3014,12 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, 
 
 				<TouchableOpacity style={styles.ticketCta} onPress={onGoToTickets}>
 					<Ionicons name="ticket" size={18} color="#f0e8ff" />
-					<Text style={styles.ticketCtaText}>{t.buyTickets}</Text>
-					<Ionicons name="chevron-forward" size={16} color="rgba(168,85,247,0.6)" />
+					<Text style={styles.ticketCtaText}>Jegyvásárlás</Text>
+					<Ionicons
+						name="chevron-forward"
+						size={16}
+						color="rgba(168,85,247,0.6)"
+					/>
 				</TouchableOpacity>
 
 				<View style={styles.infoRow}>
@@ -1961,7 +3064,11 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, 
 
 type ScheduleViewMode = "list" | "timeline" | "stage" | "grid";
 
-const SCHEDULE_VIEWS: { key: ScheduleViewMode; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+const SCHEDULE_VIEWS: {
+	key: ScheduleViewMode;
+	label: string;
+	icon: keyof typeof Ionicons.glyphMap;
+}[] = [
 	{ key: "list", label: "Lista", icon: "list" },
 	{ key: "timeline", label: "Idővonal", icon: "time-outline" },
 	{ key: "stage", label: "Színpad", icon: "layers-outline" },
@@ -1969,7 +3076,12 @@ const SCHEDULE_VIEWS: { key: ScheduleViewMode; label: string; icon: keyof typeof
 ];
 
 // ─── Schedule képernyő ────────────────────────────────────────────────────────
-function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
+function ScheduleScreen({
+	performers,
+	favorites,
+	onToggleFavorite,
+	lang,
+}: {
 	performers: Performer[];
 	favorites: string[];
 	onToggleFavorite: (id: string) => void;
@@ -1979,10 +3091,12 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 	const [selectedPerformer, setSelectedPerformer] = useState<Performer | null>(null);
 	const sorted = sortPerformersByTime(performers);
 
-	const stageSections = [...new Set(sorted.map((p) => p.stage))].sort().map((stage) => ({
-		title: stage,
-		data: sorted.filter((p) => p.stage === stage),
-	}));
+	const stageSections = [...new Set(sorted.map((p) => p.stage))]
+		.sort()
+		.map((stage) => ({
+			title: stage,
+			data: sorted.filter((p) => p.stage === stage),
+		}));
 
 	const getScheduleViewLabel = (key: ScheduleViewMode) => {
 		if (lang === "en") {
@@ -2004,8 +3118,15 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 	const renderFavoriteBtn = (id: string, compact = false) => {
 		const isFavorite = favorites.includes(id);
 		return (
-			<TouchableOpacity onPress={() => onToggleFavorite(id)} style={compact ? styles.gridFavoriteBtn : styles.favoriteBtn}>
-				<Ionicons name={isFavorite ? "heart" : "heart-outline"} size={compact ? 18 : 22} color={isFavorite ? "#a855f7" : "#555"} />
+			<TouchableOpacity
+				onPress={() => onToggleFavorite(id)}
+				style={compact ? styles.gridFavoriteBtn : styles.favoriteBtn}
+			>
+				<Ionicons
+					name={isFavorite ? "heart" : "heart-outline"}
+					size={compact ? 18 : 22}
+					color={isFavorite ? "#a855f7" : "#555"}
+				/>
 			</TouchableOpacity>
 		);
 	};
@@ -2014,15 +3135,32 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 		<ScrollView
 			horizontal
 			showsHorizontalScrollIndicator={false}
-			style={{ maxHeight: 58 }}
 			contentContainerStyle={styles.scheduleViewSwitcher}
 		>
 			{SCHEDULE_VIEWS.map((view) => {
 				const active = viewMode === view.key;
 				return (
-					<TouchableOpacity key={view.key} style={[styles.scheduleViewChip, active && styles.scheduleViewChipActive]} onPress={() => setViewMode(view.key)}>
-						<Ionicons name={view.icon} size={13} color={active ? THEME.accent : "rgba(168,85,247,0.45)"} />
-						<Text style={[styles.scheduleViewChipText, active && styles.scheduleViewChipTextActive]}>{getScheduleViewLabel(view.key)}</Text>
+					<TouchableOpacity
+						key={view.key}
+						style={[
+							styles.scheduleViewChip,
+							active && styles.scheduleViewChipActive,
+						]}
+						onPress={() => setViewMode(view.key)}
+					>
+						<Ionicons
+							name={view.icon}
+							size={14}
+							color={active ? "#a855f7" : "rgba(168,85,247,0.45)"}
+						/>
+						<Text
+							style={[
+								styles.scheduleViewChipText,
+								active && styles.scheduleViewChipTextActive,
+							]}
+						>
+							{view.label}
+						</Text>
 					</TouchableOpacity>
 				);
 			})}
@@ -2036,13 +3174,20 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 			contentContainerStyle={styles.scheduleListContent}
 			showsVerticalScrollIndicator={false}
 			renderItem={({ item }) => (
-				<PerformerCard item={item} isFavorite={favorites.includes(item.id)} onToggle={() => onToggleFavorite(item.id)} onPress={() => setSelectedPerformer(item)} lang={lang} />
+				<PerformerCard
+					item={item}
+					isFavorite={favorites.includes(item.id)}
+					onToggle={() => onToggleFavorite(item.id)}
+				/>
 			)}
 		/>
 	);
 
 	const renderTimelineView = () => (
-		<ScrollView contentContainerStyle={styles.scheduleListContent} showsVerticalScrollIndicator={false}>
+		<ScrollView
+			contentContainerStyle={styles.scheduleListContent}
+			showsVerticalScrollIndicator={false}
+		>
 			{sorted.map((item, index) => (
 				<View key={item.id} style={styles.timelineRow}>
 					<View style={styles.timelineTimeCol}>
@@ -2055,7 +3200,14 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 					</View>
 					<TouchableOpacity style={styles.timelineCard} activeOpacity={0.86} onPress={() => setSelectedPerformer(item)}>
 						<View style={styles.timelineCardHeader}>
-							<Image source={getPerformerImage(item.id)} style={styles.timelineImage} resizeMode="cover" />
+							{/* --- ÚJ KÉP A TIMELINE-BAN --- */}
+							<Image
+								source={performerImages[item.id]}
+								style={styles.timelineImage}
+								resizeMode="cover"
+							/>
+							{/* ----------------------------- */}
+
 							<View style={styles.timelineCardInfo}>
 								<Text style={styles.performerName}>{item.name}</Text>
 								<Text style={styles.performerDetails}>{item.stage}</Text>
@@ -2085,23 +3237,36 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 				</View>
 			)}
 			renderItem={({ item }) => (
-				<PerformerCard item={item} isFavorite={favorites.includes(item.id)} onToggle={() => onToggleFavorite(item.id)} onPress={() => setSelectedPerformer(item)} lang={lang} />
+				<PerformerCard
+					item={item}
+					isFavorite={favorites.includes(item.id)}
+					onToggle={() => onToggleFavorite(item.id)}
+				/>
 			)}
 		/>
 	);
 
 	const renderGridView = () => (
-		<ScrollView contentContainerStyle={styles.scheduleGridContent} showsVerticalScrollIndicator={false}>
+		<ScrollView
+			contentContainerStyle={styles.scheduleGridContent}
+			showsVerticalScrollIndicator={false}
+		>
 			<View style={styles.scheduleGrid}>
 				{sorted.map((item) => (
 					<TouchableOpacity key={item.id} style={styles.gridCard} activeOpacity={0.86} onPress={() => setSelectedPerformer(item)}>
 						<View style={styles.gridCardTop}>
-							<Text style={styles.gridTime}>{item.startTime} – {item.endTime}</Text>
+							<Text style={styles.gridTime}>
+								{item.startTime} – {item.endTime}
+							</Text>
 							{renderFavoriteBtn(item.id, true)}
 						</View>
-						<Text style={styles.gridName} numberOfLines={2}>{item.name}</Text>
-						<Text style={styles.gridStage} numberOfLines={1}>{item.stage}</Text>
-					</TouchableOpacity>
+						<Text style={styles.gridName} numberOfLines={2}>
+							{item.name}
+						</Text>
+						<Text style={styles.gridStage} numberOfLines={1}>
+							{item.stage}
+						</Text>
+					</View>
 				))}
 			</View>
 		</ScrollView>
@@ -2110,11 +3275,9 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 	return (
 		<View style={styles.scheduleScreen}>
 			<View style={styles.scheduleHeader}>
-				<Text style={styles.scheduleHeading}>{lang === "en" ? "Schedule" : "Műsor"}</Text>
+				<Text style={styles.scheduleHeading}>Műsor</Text>
 				<Text style={styles.scheduleSubheading}>
-					{lang === "en" 
-						? `${sorted.length} performances · select view` 
-						: `${sorted.length} előadás · válassz nézetet`}
+					{sorted.length} előadás · válassz nézetet
 				</Text>
 			</View>
 			{renderViewSwitcher()}
@@ -2139,78 +3302,12 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 }
 
 // ─── Performer kártya ─────────────────────────────────────────────────────────
-function PerformerDetailModal({ performer, lang, isFavorite, onClose, onToggleFavorite }: {
-	performer: Performer | null;
-	lang: "en" | "hu";
-	isFavorite: boolean;
-	onClose: () => void;
-	onToggleFavorite: () => void;
-}) {
-	if (!performer) return null;
-	const t = translations[lang];
-	const description = (lang === "en" ? performer.description_en : performer.description_hu) || performer.description_hu || performer.description_en || (lang === "en" ? "Description not available for this artist." : "Leírás nem érhető el ehhez az előadóhoz.");
-	return (
-		<Modal visible={!!performer} transparent animationType="fade" onRequestClose={onClose}>
-			<View style={styles.performerModalBackdrop}>
-				<TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={onClose} />
-				<View style={styles.performerModalCard}>
-					<Image source={getPerformerImage(performer.id)} style={styles.performerModalBackgroundImage} resizeMode="cover" />
-					<View style={styles.performerModalBackgroundScrim} />
-					<View style={styles.performerModalHero}>
-						<Image source={getPerformerImage(performer.id)} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
-						<Svg width="100%" height="100%" style={StyleSheet.absoluteFillObject}>
-							<Defs>
-								<LinearGradient id="artistImageFade" x1="0" y1="0" x2="0" y2="1">
-									<Stop offset="0" stopColor="#10091c" stopOpacity="0.08" />
-									<Stop offset="0.55" stopColor="#10091c" stopOpacity="0.08" />
-									<Stop offset="1" stopColor="#10091c" stopOpacity="0.72" />
-								</LinearGradient>
-							</Defs>
-							<Rect width="100%" height="100%" fill="url(#artistImageFade)" />
-						</Svg>
-					</View>
-					<View style={styles.performerModalContent}>
-						<View style={styles.performerModalTopRow}>
-							<View style={{ flex: 1 }}>
-								<Text style={styles.performerModalEyebrow}>{t.artistDetail}</Text>
-								<Text style={styles.performerModalName}>{performer.name}</Text>
-							</View>
-							<TouchableOpacity style={styles.performerModalCloseBtn} onPress={onClose}>
-								<Ionicons name="close" size={20} color={THEME.text} />
-							</TouchableOpacity>
-						</View>
-
-						<View style={styles.performerModalMetaRow}>
-							<View style={styles.performerModalMetaChip}>
-								<Ionicons name="location-outline" size={14} color={THEME.accent} />
-								<Text style={styles.performerModalMetaText}>{performer.stage}</Text>
-							</View>
-							<View style={styles.performerModalMetaChip}>
-								<Ionicons name="time-outline" size={14} color={THEME.accent} />
-								<Text style={styles.performerModalMetaText}>{performer.startTime} – {performer.endTime}</Text>
-							</View>
-						</View>
-
-						<Text style={styles.performerModalSectionTitle}>{lang === "en" ? "About the artist" : "Az előadóról"}</Text>
-						<Text style={styles.performerModalDescription}>{description}</Text>
-
-						<TouchableOpacity style={styles.performerModalFavBtn} onPress={onToggleFavorite}>
-							<Ionicons name={isFavorite ? "heart" : "heart-outline"} size={18} color="#fff" />
-							<Text style={styles.performerModalFavText}>
-								{isFavorite 
-									? (lang === "en" ? "Remove from favorites" : "Kedvencekből törlés") 
-									: (lang === "en" ? "Add to favorites" : "Hozzáadás a kedvencekhez")}
-							</Text>
-						</TouchableOpacity>
-					</View>
-				</View>
-			</View>
-		</Modal>
-	);
-}
-
-// ─── Performer kártya ─────────────────────────────────────────────────────────
-function PerformerCard({ item, isFavorite, onToggle, conflictNames, onPress, lang = "hu" }: {
+function PerformerCard({
+	item,
+	isFavorite,
+	onToggle,
+	conflictNames,
+}: {
 	item: Performer;
 	isFavorite: boolean;
 	onToggle: () => void;
@@ -2219,33 +3316,64 @@ function PerformerCard({ item, isFavorite, onToggle, conflictNames, onPress, lan
 	lang?: "en" | "hu";
 }) {
 	return (
-		<TouchableOpacity activeOpacity={0.86} onPress={onPress} style={[styles.card, conflictNames && conflictNames.length > 0 && styles.cardConflict]}>
-			<View style={[styles.cardAccent, conflictNames && conflictNames.length > 0 && styles.cardAccentConflict]} />
-			<Image source={getPerformerImage(item.id)} style={styles.performerImage} resizeMode="cover" />
+		<View
+			style={[
+				styles.card,
+				conflictNames && conflictNames.length > 0 && styles.cardConflict,
+			]}
+		>
+			<View
+				style={[
+					styles.cardAccent,
+					conflictNames &&
+						conflictNames.length > 0 &&
+						styles.cardAccentConflict,
+				]}
+			/>
+
+			{/* --- ÚJ KÉP KONTÉNER --- */}
+			<Image
+				source={performerImages[item.id]}
+				style={styles.performerImage}
+				resizeMode="cover"
+			/>
+			{/* ----------------------- */}
+
 			<View style={styles.cardInfo}>
 				<Text style={styles.performerName}>{item.name}</Text>
 				<Text style={styles.performerDetails}>
-					{item.stage}{"  ·  "}{item.startTime} – {item.endTime}
+					{item.stage}
+					{"  ·  "}
+					{item.startTime} – {item.endTime}
 				</Text>
 				<Text style={styles.performerCardHint}>{lang === "en" ? "Open details" : "Részletek megnyitása"}</Text>
 				{conflictNames && conflictNames.length > 0 && (
 					<View style={styles.conflictRow}>
 						<Ionicons name="warning-outline" size={12} color="#f59e0b" />
 						<Text style={styles.conflictText}>
-							{lang === "en" ? "Conflict: " : "Ütközés: "}{conflictNames.join(", ")}
+							Conflict: {conflictNames.join(", ")}
 						</Text>
 					</View>
 				)}
 			</View>
 			<TouchableOpacity onPress={onToggle} style={styles.favoriteBtn}>
-				<Ionicons name={isFavorite ? "heart" : "heart-outline"} size={22} color={isFavorite ? "#a855f7" : "#555"} />
+				<Ionicons
+					name={isFavorite ? "heart" : "heart-outline"}
+					size={22}
+					color={isFavorite ? "#a855f7" : "#555"}
+				/>
 			</TouchableOpacity>
 		</TouchableOpacity>
 	);
 }
 
 // ─── Favorites képernyő ───────────────────────────────────────────────────────
-function FavoritesScreen({ performers, favorites, onToggleFavorite, onGoToSchedule, onBack, lang, t }: {
+function FavoritesScreen({
+	performers,
+	favorites,
+	onToggleFavorite,
+	onGoToSchedule,
+}: {
 	performers: Performer[];
 	favorites: string[];
 	onToggleFavorite: (id: string) => void;
@@ -2257,44 +3385,101 @@ function FavoritesScreen({ performers, favorites, onToggleFavorite, onGoToSchedu
 	const [dayFilter, setDayFilter] = useState<"all" | 18 | 19 | 20>("all");
 
 	const favoritePerformers = sortPerformersByTime(
-		performers.filter((p) => favorites.includes(p.id))
+		performers.filter((p) => favorites.includes(p.id)),
 	);
 
-	const filtered = dayFilter === "all"
-		? favoritePerformers
-		: favoritePerformers.filter((p) => p.day === dayFilter);
+	const filtered =
+		dayFilter === "all"
+			? favoritePerformers
+			: favoritePerformers.filter((p) => p.day === dayFilter);
 
 	// Ütközések kiszámítása
 	const getConflicts = (performer: Performer) =>
 		getConflictsForPerformer(performer, favoritePerformers).map((c) => c.name);
 
 	const conflictCount = favoritePerformers.filter(
-		(p) => getConflictsForPerformer(p, favoritePerformers).length > 0
+		(p) => getConflictsForPerformer(p, favoritePerformers).length > 0,
 	).length;
 
-	const getDayLabel = (key: string | number) => {
-		if (lang === "en") {
-			if (key === "all") return "All";
-			return `July ${key}`;
-		}
-		if (key === "all") return "Mind";
-		return `Júl. ${key}`;
-	};
+	if (favoritePerformers.length === 0) {
+		return (
+			<View style={styles.favEmptyContainer}>
+				<View style={styles.favEmptyIconWrap}>
+					<Ionicons
+						name="heart-outline"
+						size={36}
+						color="rgba(168,85,247,0.35)"
+					/>
+				</View>
+				<Text style={styles.favEmptyTitle}>Még nincsenek kedvenceid</Text>
+				<Text style={styles.favEmptySubtitle}>
+					A műsor nézetben szívecskével jelölheted az előadókat, akiket nem
+					akarsz kihagyni.
+				</Text>
+				<TouchableOpacity style={styles.favEmptyBtn} onPress={onGoToSchedule}>
+					<Ionicons name="calendar-outline" size={16} color="#f0e8ff" />
+					<Text style={styles.favEmptyBtnText}>Műsor megtekintése</Text>
+				</TouchableOpacity>
+			</View>
+		);
+	}
 
 	return (
 		<View style={styles.favScreen}>
+			<View style={styles.scheduleHeader}>
+				<Text style={styles.scheduleHeading}>Saját menetrend</Text>
+				<Text style={styles.scheduleSubheading}>
+					{favoritePerformers.length} kedvenc előadó
+					{conflictCount > 0 && (
+						<Text style={styles.conflictBadgeText}>
+							{" "}
+							⚠ {conflictCount} ütközés
+						</Text>
+					)}
+				</Text>
+			</View>
 
-			{favoritePerformers.length === 0 ? (
+			{/* Nap szerinti szűrő */}
+			<ScrollView
+				horizontal
+				showsHorizontalScrollIndicator={false}
+				contentContainerStyle={styles.dayFilterRow}
+			>
+				{FESTIVAL_DAYS.map((d) => {
+					const active = dayFilter === d.key;
+					return (
+						<TouchableOpacity
+							key={String(d.key)}
+							style={[
+								styles.dayFilterChip,
+								active && styles.dayFilterChipActive,
+							]}
+							onPress={() => setDayFilter(d.key as "all" | 18 | 19 | 20)}
+						>
+							<Text
+								style={[
+									styles.dayFilterChipText,
+									active && styles.dayFilterChipTextActive,
+								]}
+							>
+								{d.label}
+							</Text>
+						</TouchableOpacity>
+					);
+				})}
+			</ScrollView>
+
+			{filtered.length === 0 ? (
 				<View style={styles.favEmptyContainer}>
-					<View style={styles.favEmptyIconWrap}>
-						<Ionicons name="heart-outline" size={36} color="rgba(168,85,247,0.35)" />
-					</View>
-					<Text style={styles.favEmptyTitle}>{t.noFavoritesYet}</Text>
-					<Text style={styles.favEmptySubtitle}>{t.favDesc}</Text>
-					<TouchableOpacity style={styles.favEmptyBtn} onPress={onGoToSchedule}>
-						<Ionicons name="calendar-outline" size={16} color="#f0e8ff" />
-						<Text style={styles.favEmptyBtnText}>{t.viewSchedule}</Text>
-					</TouchableOpacity>
+					<Ionicons
+						name="calendar-outline"
+						size={36}
+						color="rgba(168,85,247,0.3)"
+					/>
+					<Text style={styles.favEmptyTitle}>Ezen a napon nincs kedvenced</Text>
+					<Text style={styles.favEmptySubtitle}>
+						Válassz másik napot vagy jelölj be új előadókat.
+					</Text>
 				</View>
 			) : (
 				<>
@@ -2406,7 +3591,7 @@ function EventVisual({ accent = THEME.accent, compact = false }: { accent?: stri
 
 // ─── Gasztró adatok ───────────────────────────────────────────────────────────
 const GASTRO_CATEGORIES = ["Mind", "Étel", "Ital", "Desszert"] as const;
-type GastroCategory = typeof GASTRO_CATEGORIES[number];
+type GastroCategory = (typeof GASTRO_CATEGORIES)[number];
 
 interface GastroStand {
 	id: string;
@@ -2426,8 +3611,12 @@ const GASTRO_STANDS: GastroStand[] = [
 		emoji: "🦇",
 		category: "Ital",
 		artist: "Lady Gaga",
-		description: "A Haus of Gaga hivatalos koktélbárja. Merész ízek bátor lelkeknek.",
-		offers: ["Poker Face Paloma – grapefruit-tequila koktél sós peremmel", "Bad Romance Rosé – málnás pezsgőkoktél ördögszarv dísszel"],
+		description:
+			"A Haus of Gaga hivatalos koktélbárja. Merész ízek bátor lelkeknek.",
+		offers: [
+			"Poker Face Paloma – grapefruit-tequila koktél sós peremmel",
+			"Bad Romance Rosé – málnás pezsgőkoktél ördögszarv dísszel",
+		],
 		color: "#ec4899",
 	},
 	{
@@ -2436,8 +3625,12 @@ const GASTRO_STANDS: GastroStand[] = [
 		emoji: "🧣",
 		category: "Ital",
 		artist: "Taylor Swift",
-		description: "13 féle ital, minden eráról egy. Friendship bracelets every sip.",
-		offers: ["Red Lemonade – epres limonádé arany csillámpárával", "Midnights Mojito – kék pillangóvirágos mintás mojito"],
+		description:
+			"13 féle ital, minden eráról egy. Friendship bracelets every sip.",
+		offers: [
+			"Red Lemonade – epres limonádé arany csillámpárával",
+			"Midnights Mojito – kék pillangóvirágos mintás mojito",
+		],
 		color: "#60a5fa",
 	},
 	{
@@ -2446,8 +3639,12 @@ const GASTRO_STANDS: GastroStand[] = [
 		emoji: "🐉",
 		category: "Étel",
 		artist: "Imagine Dragons",
-		description: "Tűzön sült, erős fűszerezésű fogások. Believer vagy? Akkor bírd el!",
-		offers: ["Thunder Burger – dupla marhahús smoky BBQ szósszal", "Demons Wings – pokoli csípős csirkeszárny 3 erősségben"],
+		description:
+			"Tűzön sült, erős fűszerezésű fogások. Believer vagy? Akkor bírd el!",
+		offers: [
+			"Thunder Burger – dupla marhahús smoky BBQ szósszal",
+			"Demons Wings – pokoli csípős csirkeszárny 3 erősségben",
+		],
 		color: "#f97316",
 	},
 	{
@@ -2456,8 +3653,12 @@ const GASTRO_STANDS: GastroStand[] = [
 		emoji: "⚡",
 		category: "Étel",
 		artist: "Depeche Mode",
-		description: "Sötét, elegáns, kompromisszummentes. Personal Jesus szintű minőség.",
-		offers: ["Policy of Truth Wrap – füstölt csirke tahinis wrap fekete tortillában", "Master & Servant Platter – vegán szendvicsválogatás"],
+		description:
+			"Sötét, elegáns, kompromisszummentes. Personal Jesus szintű minőség.",
+		offers: [
+			"Policy of Truth Wrap – füstölt csirke tahinis wrap fekete tortillában",
+			"Master & Servant Platter – vegán szendvicsválogatás",
+		],
 		color: "#a855f7",
 	},
 	{
@@ -2466,8 +3667,12 @@ const GASTRO_STANDS: GastroStand[] = [
 		emoji: "🇭🇺",
 		category: "Étel",
 		artist: "Gyuris Bence",
-		description: "Hazai ízek fesztiválos hangulatban. Olyan mint anyukád főztje, csak hangosabb.",
-		offers: ["Eclipse Lángos – tejfölös-sajtos, fesztiválméretű", "Benci's Kürtőskalács – fahéjas, frissen sütve"],
+		description:
+			"Hazai ízek fesztiválos hangulatban. Olyan mint anyukád főztje, csak hangosabb.",
+		offers: [
+			"Eclipse Lángos – tejfölös-sajtos, fesztiválméretű",
+			"Benci's Kürtőskalács – fahéjas, frissen sütve",
+		],
 		color: "#22c55e",
 	},
 	{
@@ -2476,8 +3681,12 @@ const GASTRO_STANDS: GastroStand[] = [
 		emoji: "🌌",
 		category: "Desszert",
 		artist: "EclipseFest",
-		description: "Galaktikus fagylaltok és hideg desszertek. A napfogyatkozás édes oldala.",
-		offers: ["Eclipse Sundae – fekete kókuszfagyi arany csillámpárával", "Meteor Waffle – friss gofri áfonyás öntettel"],
+		description:
+			"Galaktikus fagylaltok és hideg desszertek. A napfogyatkozás édes oldala.",
+		offers: [
+			"Eclipse Sundae – fekete kókuszfagyi arany csillámpárával",
+			"Meteor Waffle – friss gofri áfonyás öntettel",
+		],
 		color: "#38bdf8",
 	},
 	{
@@ -2486,8 +3695,12 @@ const GASTRO_STANDS: GastroStand[] = [
 		emoji: "⚡",
 		category: "Ital",
 		artist: "EclipseFest",
-		description: "Hivatalos energiaital partner. Töltsd fel magad a következő fellépőre!",
-		offers: ["Monster Ultra – cukormentes változatok 6 ízben", "Eclipse Mix – Monster + gyümölcslé kombók"],
+		description:
+			"Hivatalos energiaital partner. Töltsd fel magad a következő fellépőre!",
+		offers: [
+			"Monster Ultra – cukormentes változatok 6 ízben",
+			"Eclipse Mix – Monster + gyümölcslé kombók",
+		],
 		color: "#84cc16",
 	},
 	{
@@ -2497,7 +3710,10 @@ const GASTRO_STANDS: GastroStand[] = [
 		category: "Étel",
 		artist: "EclipseFest",
 		description: "Éjszakai falatkák azoknak akik nem akarnak kihagyni semmit.",
-		offers: ["Midnight Ramen – miso alaplé pirított fokhagymával", "Eclipse Pad Thai – mogyorós-chilis, vegán opció is"],
+		offers: [
+			"Midnight Ramen – miso alaplé pirított fokhagymával",
+			"Eclipse Pad Thai – mogyorós-chilis, vegán opció is",
+		],
 		color: "#f59e0b",
 	},
 ];
@@ -2525,28 +3741,15 @@ const GASTRO_CATEGORY_META: Record<
 };
 
 // ─── Gasztró képernyő ─────────────────────────────────────────────────────────
-function GastroScreen({ onBack, lang, t }: { onBack: () => void; lang: "en" | "hu"; t: typeof translations.en }) {
-	const [activeCategory, setActiveCategory] = useState<GastroCategory | "Mind">("Mind");
+function GastroScreen() {
+	const [activeCategory, setActiveCategory] = useState<GastroCategory | "Mind">(
+		"Mind",
+	);
 
-	const localizedStands = GASTRO_STANDS.map((s) => {
-		const trans = GASTRO_STANDS_TRANSLATIONS[s.id]?.[lang];
-		return {
-			...s,
-			description: trans?.description ?? s.description,
-			offers: trans?.offers ?? s.offers,
-		};
-	});
-
-	const filtered = activeCategory === "Mind"
-		? localizedStands
-		: localizedStands.filter((s) => s.category === activeCategory);
-
-	const counts: Record<GastroCategory, number> = {
-		Mind: localizedStands.length,
-		Étel: localizedStands.filter((s) => s.category === "Étel").length,
-		Ital: localizedStands.filter((s) => s.category === "Ital").length,
-		Desszert: localizedStands.filter((s) => s.category === "Desszert").length,
-	};
+	const filtered =
+		activeCategory === "Mind"
+			? GASTRO_STANDS
+			: GASTRO_STANDS.filter((s) => s.category === activeCategory);
 
 	const getGastroCategoryLabel = (cat: GastroCategory, currentLang: "en" | "hu") => {
 		if (currentLang === "en") {
@@ -2560,12 +3763,35 @@ function GastroScreen({ onBack, lang, t }: { onBack: () => void; lang: "en" | "h
 		return cat;
 	};
 
-	const getStandCountLabel = (count: number, currentLang: "en" | "hu") => {
-		if (currentLang === "en") {
-			return `${count} ${count === 1 ? "stand" : "stands"}`;
-		}
-		return `${count} stand`;
-	};
+			{/* Kategória szűrő */}
+			<ScrollView
+				horizontal
+				showsHorizontalScrollIndicator={false}
+				contentContainerStyle={styles.dayFilterRow}
+			>
+				{GASTRO_CATEGORIES.map((cat) => {
+					const active = activeCategory === cat;
+					return (
+						<TouchableOpacity
+							key={cat}
+							style={[
+								styles.dayFilterChip,
+								active && styles.dayFilterChipActive,
+							]}
+							onPress={() => setActiveCategory(cat)}
+						>
+							<Text
+								style={[
+									styles.dayFilterChipText,
+									active && styles.dayFilterChipTextActive,
+								]}
+							>
+								{cat}
+							</Text>
+						</TouchableOpacity>
+					);
+				})}
+			</ScrollView>
 
 	return (
 		<View style={styles.gastroScreen}>
@@ -2629,15 +3855,9 @@ function GastroScreen({ onBack, lang, t }: { onBack: () => void; lang: "en" | "h
 				)}
 				renderItem={({ item }) => (
 					<View style={styles.gastroCard}>
-						{GASTRO_IMAGE_ASSETS[item.id] ? (
-							<View style={styles.gastroImageWrap}>
-								<Image source={GASTRO_IMAGE_ASSETS[item.id]} style={styles.gastroCardImage} resizeMode="cover" />
-								<View style={[styles.gastroImageTint, { backgroundColor: `${item.color}10` }]} />
-							</View>
-						) : (
-							<EventVisual accent={item.color} compact />
-						)}
-						<View style={[styles.gastroCardAccent, { backgroundColor: item.color }]} />
+						<View
+							style={[styles.gastroCardAccent, { backgroundColor: item.color }]}
+						/>
 						<View style={styles.gastroCardBody}>
 							<View style={styles.gastroCardHeader}>
 								<View style={[styles.gastroIconBox, { borderColor: `${item.color}55`, backgroundColor: `${item.color}14` }]}> 
@@ -2646,9 +3866,19 @@ function GastroScreen({ onBack, lang, t }: { onBack: () => void; lang: "en" | "h
 								<View style={styles.gastroCardTitles}>
 									<Text style={styles.gastroName}>{item.name}</Text>
 									<View style={styles.gastroTagRow}>
-										<View style={[styles.gastroCatBadge, { backgroundColor: `${item.color}18`, borderColor: `${item.color}40` }]}> 
-											<Text style={[styles.gastroCatText, { color: item.color }]}>
-												{getGastroCategoryLabel(item.category, lang)}
+										<View
+											style={[
+												styles.gastroCatBadge,
+												{
+													backgroundColor: `${item.color}22`,
+													borderColor: `${item.color}55`,
+												},
+											]}
+										>
+											<Text
+												style={[styles.gastroCatText, { color: item.color }]}
+											>
+												{item.category}
 											</Text>
 										</View>
 										<Text style={styles.gastroArtist}>{item.artist}</Text>
@@ -2662,7 +3892,12 @@ function GastroScreen({ onBack, lang, t }: { onBack: () => void; lang: "en" | "h
 								<Text style={styles.gastroOffersLabel}>{t.recommendedItems}</Text>
 								{item.offers.map((offer, i) => (
 									<View key={i} style={styles.gastroOfferRow}>
-										<View style={[styles.gastroOfferDot, { backgroundColor: item.color }]} />
+										<View
+											style={[
+												styles.gastroOfferDot,
+												{ backgroundColor: item.color },
+											]}
+										/>
 										<Text style={styles.gastroOfferText}>{offer}</Text>
 									</View>
 								))}
@@ -2681,7 +3916,9 @@ function SponsorsScreen({ t, onBack }: { t: typeof translations.en; onBack: () =
 	const sponsorColumns = SCREEN_W < 430 ? 1 : 2;
 	return (
 		<View style={styles.infoScreenContainer}>
-			<Text style={[styles.sectionTitle, { textAlign: "center", marginTop: 8 }]}>{t.sponsorsTitle}</Text>
+			<Text style={[styles.sectionTitle, { textAlign: "center" }]}>
+				{t.sponsorsTitle}
+			</Text>
 			<FlatList
 				key={sponsorColumns}
 				data={sponsors}
@@ -2690,8 +3927,12 @@ function SponsorsScreen({ t, onBack }: { t: typeof translations.en; onBack: () =
 				contentContainerStyle={styles.sponsorListContent}
 				columnWrapperStyle={sponsorColumns > 1 ? styles.sponsorColumnWrapper : undefined}
 				renderItem={({ item }) => (
-					<View style={[styles.sponsorCard, sponsorColumns === 1 && styles.sponsorCardSingle]}>
-						<SponsorLogo sponsorId={item.id} name={item.name} logoUrl={item.logoUrl} />
+					<View style={styles.sponsorCard}>
+						<Image
+							source={{ uri: item.logoUrl }}
+							style={styles.sponsorLogo}
+							resizeMode="contain"
+						/>
 						<Text style={styles.sponsorName}>{item.name}</Text>
 					</View>
 				)}
@@ -2857,63 +4098,68 @@ export default function App() {
 	const tickets = festivalData.tickets as Ticket[];
 	const festivalMap = festivalData.map as FestivalMap;
 
-	const performers: Performer[] = (festivalData.performers as any[]).map((p, i) => ({
-		...p,
-		day: p.day ?? [18, 19, 20][i % 3],
-	}));
+	// A JSON-ban lévő előadókhoz hozzárendeljük a napot (demo: round-robin 18/19/20)
+	const performers: Performer[] = (festivalData.performers as any[]).map(
+		(p, i) => ({
+			...p,
+			day: [18, 19, 20][i % 3],
+		}),
+	);
 
 	const favoritePerformers = performers.filter((p) => favorites.includes(p.id));
 
 	const toggleFavorite = (id: string) => {
-		setFavorites((prev) => prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]);
+		setFavorites((prev) =>
+			prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id],
+		);
 	};
 
-	const handleSelectTicket = (id: string) => { setSelectedTicketId(id); setTicketQuantity(1); setOrderComplete(false); setRefundRequested(false); };
-	const handleTogglePerformance = (id: string) => {
-		setSelectedPerformanceIds((prev) => prev.includes(id) ? prev.filter((performanceId) => performanceId !== id) : [...prev, id]);
+	const handleSelectTicket = (id: string) => {
+		setSelectedTicketId(id);
+		setTicketQuantity(1);
 		setOrderComplete(false);
-		setRefundRequested(false);
 	};
-	const handleChangeQuantity = (delta: number) => { setTicketQuantity((prev) => Math.max(1, Math.min(10, prev + delta))); };
+	const handleChangeQuantity = (delta: number) => {
+		setTicketQuantity((prev) => Math.max(1, Math.min(10, prev + delta)));
+	};
 	const handlePurchase = () => {
-		const selectedPerformancesForCheckout = performers.filter((p) => selectedPerformanceIds.includes(p.id));
-		const noTimeConflicts = getPerformanceConflictPairs(selectedPerformancesForCheckout).length === 0;
-		if (selectedTicketId && selectedPerformanceIds.length > 0 && noTimeConflicts && isValidEmail(buyerEmail)) {
-			setOrderComplete(true);
-			const title = lang === "en" ? "Successful Purchase!" : "Sikeres vásárlás!";
-			const message = lang === "en"
-				? `The confirmation email has been sent to ${buyerEmail.trim()}!`
-				: `A visszaigazoló e-mailt elküldtük a(z) ${buyerEmail.trim()} e-mail címre!`;
-			Alert.alert(title, message);
-		}
+		if (selectedTicketId && isValidEmail(buyerEmail)) setOrderComplete(true);
 	};
-	const handleResetOrder = () => { setOrderComplete(false); setRefundRequested(false); setSelectedTicketId(null); setSelectedPerformanceIds([]); setTicketQuantity(1); setBuyerEmail(""); };
-	const handleRequestRefund = () => { setRefundRequested(true); };
+	const handleResetOrder = () => {
+		setOrderComplete(false);
+		setSelectedTicketId(null);
+		setTicketQuantity(1);
+		setBuyerEmail("");
+	};
 
-	const navTabs: { key: TabKey | "More"; icon: string; label: string }[] = [
-		{ key: "Home", icon: "home", label: "Kezdőlap" },
-		{ key: "Schedule", icon: "calendar", label: "Program" },
-		{ key: "Map", icon: "map", label: "Térkép" },
-		{ key: "Tickets", icon: "ticket", label: "Jegyek" },
-		{ key: "More", icon: "grid", label: "Több" },
+	const navTabs: { key: TabKey; icon: string; label: string }[] = [
+		{ key: "Home", icon: "home", label: t.home },
+		{ key: "Schedule", icon: "calendar", label: t.schedule },
+		{ key: "Map", icon: "map", label: t.map },
+		{ key: "Favorites", icon: "heart", label: "Kedvencek" },
+		{ key: "Gastro", icon: "restaurant", label: "Gasztró" },
+		{ key: "Tickets", icon: "ticket", label: t.tickets },
+		{ key: "Sponsors", icon: "star", label: t.sponsors },
 	];
 
 	return (
-		<SafeAreaView
-			style={[
-				styles.container,
-				{ paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight ?? 0) : 0 },
-			]}
-		>
-			<StatusBar barStyle="light-content" backgroundColor={THEME.bg} />
-			<CosmicBackdrop />
+		<SafeAreaView style={styles.container}>
+			<StatusBar barStyle="light-content" backgroundColor="#06020f" />
 
-			<View style={styles.header}>
+			<View
+				style={[
+					styles.header,
+					{ flexDirection: "row", justifyContent: "space-between" },
+				]}
+			>
+				<Text style={styles.headerBadge}>ECLIPSEFEST · 2026</Text>
 				<TouchableOpacity
-					style={[styles.headerBackBtn, activeTab === "Home" && styles.headerBackBtnHidden]}
-					onPress={goBack}
-					disabled={activeTab === "Home"}
-					accessibilityLabel="Vissza az előző oldalra"
+					style={{
+						padding: 5,
+						backgroundColor: "rgba(124,58,237,0.2)",
+						borderRadius: 8,
+					}}
+					onPress={() => setLang(lang === "en" ? "hu" : "en")}
 				>
 					<Ionicons name="chevron-back" size={22} color={THEME.text} />
 				</TouchableOpacity>
@@ -2939,16 +4185,24 @@ export default function App() {
 					/>
 				)}
 				{activeTab === "Schedule" && (
-					<ScheduleScreen performers={performers} favorites={favorites} onToggleFavorite={toggleFavorite} lang={lang} />
+					<ScheduleScreen
+						performers={performers}
+						favorites={favorites}
+						onToggleFavorite={toggleFavorite}
+						lang={lang}
+					/>
 				)}
-				{activeTab === "Map" && (
-					festivalMap ? <MapScreen map={festivalMap} lang={lang} t={t} /> : (
+				{activeTab === "Map" &&
+					(festivalMap ? (
+						<MapScreen map={festivalMap} />
+					) : (
 						<View style={styles.mapScreen}>
-							<Text style={styles.mapHeading}>{t.map}</Text>
-							<Text style={styles.mapVenue}>{t.mapDataNotAvailable}</Text>
+							<Text style={styles.mapHeading}>Térkép</Text>
+							<Text style={styles.mapVenue}>
+								A térkép adatai nem érhetők el.
+							</Text>
 						</View>
-					)
-				)}
+					))}
 				{activeTab === "Favorites" && (
 					<FavoritesScreen
 						performers={performers}
@@ -3000,16 +4254,32 @@ export default function App() {
 					const active = activeTab === tab.key;
 					const showBadge = tab.key === "Favorites" && favorites.length > 0;
 					return (
-						<TouchableOpacity key={tab.key} style={styles.navItem} onPress={() => navigateTo(tab.key)}>
-							<View style={[styles.navIconWrap, active && styles.navIconActive]}>
+						<TouchableOpacity
+							key={tab.key}
+							style={styles.navItem}
+							onPress={() => setActiveTab(tab.key)}
+						>
+							<View
+								style={[styles.navIconWrap, active && styles.navIconActive]}
+							>
 								<Ionicons
-									name={active ? (tab.icon as keyof typeof Ionicons.glyphMap) : (`${tab.icon}-outline` as keyof typeof Ionicons.glyphMap)}
+									name={
+										active
+											? (tab.icon as keyof typeof Ionicons.glyphMap)
+											: (`${tab.icon}-outline` as keyof typeof Ionicons.glyphMap)
+									}
 									size={20}
 									color={active ? THEME.accent : "rgba(255,255,255,0.36)"}
 								/>
-								{showBadge && <View style={styles.navBadge}><Text style={styles.navBadgeText}>{favorites.length}</Text></View>}
+								{showBadge && (
+									<View style={styles.navBadge}>
+										<Text style={styles.navBadgeText}>{favorites.length}</Text>
+									</View>
+								)}
 							</View>
-							<Text style={[styles.navText, active && styles.navTextActive]}>{tab.label}</Text>
+							<Text style={[styles.navText, active && styles.navTextActive]}>
+								{tab.label}
+							</Text>
 						</TouchableOpacity>
 					);
 				})}
@@ -3020,31 +4290,35 @@ export default function App() {
 
 // ─── Stílusok ─────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-	container: { flex: 1, backgroundColor: THEME.bg },
-	cosmicBackdrop: { ...StyleSheet.absoluteFillObject },
-	header: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 12, paddingHorizontal: 14, backgroundColor: "rgba(10,3,26,0.84)", alignItems: "center", borderBottomWidth: 1, borderBottomColor: "rgba(216,180,254,0.18)", shadowColor: THEME.accent, shadowOpacity: 0.30, shadowRadius: 24, elevation: 14 },
-	headerBackBtn: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.075)", borderWidth: 1, borderColor: "rgba(216,180,254,0.30)", shadowColor: THEME.accent, shadowOpacity: 0.25, shadowRadius: 14, elevation: 6 },
-	headerBackBtnHidden: { opacity: 0 },
-	headerBrandWrap: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
-	headerMoonDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: THEME.accent, shadowColor: THEME.accent, shadowOpacity: 0.85, shadowRadius: 12, elevation: 8 },
-	headerBadge: { textAlign: "center", fontSize: 12, letterSpacing: 1.0, color: THEME.text, fontWeight: "900", fontFamily: FONTS.ui, backgroundColor: "transparent", includeFontPadding: false },
-	langSwitch: { minWidth: 44, height: 44, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.075)", borderRadius: 22, borderWidth: 1, borderColor: "rgba(216,180,254,0.30)", shadowColor: THEME.accent, shadowOpacity: 0.25, shadowRadius: 14, elevation: 6 },
-	langSwitchText: { color: THEME.accent, fontWeight: "900", letterSpacing: 0.9, fontSize: 13 },
+	container: { flex: 1, backgroundColor: "#06020f" },
+	header: {
+		paddingVertical: 12,
+		paddingHorizontal: 24,
+		backgroundColor: "transparent",
+		alignItems: "center",
+		borderBottomWidth: 0.5,
+		borderBottomColor: "rgba(120,60,200,0.2)",
+	},
+	headerBadge: {
+		fontSize: 10,
+		letterSpacing: 3,
+		color: "rgba(168,85,247,0.55)",
+		fontWeight: "400",
+	},
 	mainArea: { flex: 1 },
 	screenGlow: { position: "absolute", borderRadius: 999, opacity: 0.22 },
 	screenGlowTop: { width: 220, height: 220, top: -70, right: -50, backgroundColor: "rgba(124,58,237,0.22)" },
 	screenGlowBottom: { width: 260, height: 260, bottom: 70, left: -90, backgroundColor: "rgba(236,72,153,0.10)" },
 
 	// Home
-	homeScreen: { flex: 1, backgroundColor: "transparent", position: "relative", overflow: "hidden" },
-	homeScroll: { alignItems: "center", paddingBottom: 32, paddingTop: 8 },
-	homeHeroCard: { width: "100%", maxWidth: 430, marginHorizontal: 20, marginTop: 18, borderRadius: 34, overflow: "hidden", borderWidth: 1, borderColor: "rgba(216,180,254,0.26)", backgroundColor: "rgba(255,255,255,0.07)", shadowColor: THEME.accent, shadowOpacity: 0.38, shadowRadius: 28, elevation: 12 },
-	homeHeroOverlay: { position: "absolute", left: 16, right: 16, bottom: 16, padding: 14, borderRadius: 22, backgroundColor: "rgba(5,2,14,0.46)", borderWidth: 1, borderColor: "rgba(255,255,255,0.08)" },
-	homeHeroEyebrow: { color: "rgba(245,208,254,0.92)", fontSize: 11, letterSpacing: 2.4, fontWeight: "900", fontFamily: FONTS.ui, marginBottom: 8 },
-	homeHeroTitle: { color: "#fff", fontSize: 26, lineHeight: 31, fontWeight: "700", fontFamily: FONTS.heading },
-	eventVisualFrame: { width: "100%", height: 210, overflow: "hidden", backgroundColor: "#111827" },
-	eventVisualFrameCompact: { height: 138, borderTopLeftRadius: 22, borderTopRightRadius: 22 },
-	star: { position: "absolute", backgroundColor: "rgba(255,255,255,0.55)", borderRadius: 99 },
+	homeScreen: {
+		flex: 1,
+		backgroundColor: "#06020f",
+		position: "relative",
+		overflow: "hidden",
+	},
+	homeScroll: { alignItems: "center", paddingBottom: 32 },
+	star: { position: "absolute", backgroundColor: "#ffffff", borderRadius: 99 },
 
 	// Következő kedvenc chip
 	nextFavChip: {
@@ -3065,213 +4339,376 @@ const styles = StyleSheet.create({
 	nextFavTime: { fontSize: 11, color: THEME.accent, fontWeight: "600" },
 
 	// Eclipse
-	eclipseContainer: { width: 240, height: 240, alignItems: "center", justifyContent: "center", marginTop: 8, position: "relative" },
+	eclipseContainer: {
+		width: 260,
+		height: 260,
+		alignItems: "center",
+		justifyContent: "center",
+		marginTop: 12,
+		position: "relative",
+	},
 	haloRing: { position: "absolute", borderRadius: 999 },
-	haloOuter: { width: 176, height: 176, shadowColor: THEME.accent2, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.18, shadowRadius: 18, elevation: 0, borderWidth: 0, backgroundColor: "transparent" },
-	haloMid: { width: 138, height: 138, shadowColor: THEME.accent, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.14, shadowRadius: 14, elevation: 0, backgroundColor: "transparent" },
-	haloInner: { width: 104, height: 104, shadowColor: "#fff", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 0, backgroundColor: "transparent" },
-	coronaWrapper: { position: "absolute", width: 196, height: 196, alignItems: "center", justifyContent: "center" },
-	spikeContainer: { position: "absolute", alignItems: "center", justifyContent: "flex-start", width: 196, height: 196, top: 0, left: 0 },
-	spike: { backgroundColor: "rgba(167,139,250,0.42)", borderRadius: 1, position: "absolute", top: 0 },
-	planetDisk: { width: 92, height: 92, borderRadius: 46, overflow: "hidden", borderWidth: 1, borderColor: THEME.border },
+	haloOuter: {
+		width: 200,
+		height: 200,
+		shadowColor: "#9333ea",
+		shadowOffset: { width: 0, height: 0 },
+		shadowOpacity: 0.45,
+		shadowRadius: 35,
+		elevation: 0,
+		borderWidth: 0,
+		backgroundColor: "transparent",
+	},
+	haloMid: {
+		width: 155,
+		height: 155,
+		shadowColor: "#c084fc",
+		shadowOffset: { width: 0, height: 0 },
+		shadowOpacity: 0.35,
+		shadowRadius: 25,
+		elevation: 0,
+		backgroundColor: "transparent",
+	},
+	haloInner: {
+		width: 115,
+		height: 115,
+		shadowColor: "#e9d5ff",
+		shadowOffset: { width: 0, height: 0 },
+		shadowOpacity: 0.25,
+		shadowRadius: 18,
+		elevation: 0,
+		backgroundColor: "transparent",
+	},
+	coronaWrapper: {
+		position: "absolute",
+		width: 220,
+		height: 220,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	spikeContainer: {
+		position: "absolute",
+		alignItems: "center",
+		justifyContent: "flex-start",
+		width: 220,
+		height: 220,
+		top: 0,
+		left: 0,
+	},
+	spike: {
+		backgroundColor: "rgba(192,132,252,0.65)",
+		borderRadius: 1,
+		position: "absolute",
+		top: 0,
+	},
+	planetDisk: {
+		width: 100,
+		height: 100,
+		borderRadius: 50,
+		overflow: "hidden",
+		borderWidth: 1,
+		borderColor: "rgba(168,85,247,0.3)",
+	},
 	logoImage: { width: "100%", height: "100%" },
 
 	titleZone: { alignItems: "center", marginTop: -4, paddingHorizontal: 24 },
-	festName: { fontSize: 46, fontWeight: "700", color: THEME.text, fontFamily: FONTS.heading, letterSpacing: -0.5 },
-	tagline: { fontSize: 11, letterSpacing: 0.0, color: "rgba(216,180,254,0.78)", marginTop: 6, textAlign: "center", fontFamily: FONTS.ui, fontWeight: "900" },
+	festName: {
+		fontSize: 42,
+		fontWeight: "700",
+		color: "#f0e8ff",
+		letterSpacing: 1,
+	},
+	tagline: {
+		fontSize: 9,
+		letterSpacing: 3,
+		color: "rgba(168,85,247,0.5)",
+		marginTop: 6,
+		textAlign: "center",
+	},
 
-	dateStrip: { flexDirection: "row", alignItems: "center", marginHorizontal: 24, marginTop: 16, paddingVertical: 16, paddingHorizontal: 18, borderWidth: 1, borderColor: "rgba(216,180,254,0.24)", borderRadius: 28, backgroundColor: "rgba(255,255,255,0.08)", shadowColor: THEME.accent, shadowOpacity: 0.18, shadowRadius: 18, elevation: 6 },
+	dateStrip: {
+		flexDirection: "row",
+		alignItems: "center",
+		marginHorizontal: 24,
+		marginTop: 12,
+		paddingVertical: 14,
+		paddingHorizontal: 20,
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.25)",
+		borderRadius: 18,
+		backgroundColor: "rgba(120,60,200,0.05)",
+	},
 	dateItem: { alignItems: "center", paddingHorizontal: 12 },
-	dateNum: { fontSize: 30, fontWeight: "700", color: THEME.text, lineHeight: 32, fontFamily: FONTS.heading, letterSpacing: -0.5 },
-	dateSub: { fontSize: 9, letterSpacing: 1.2, color: THEME.textSubtle, marginTop: 3 },
-	dateSep: { width: 1, height: 36, backgroundColor: THEME.border },
+	dateNum: {
+		fontSize: 26,
+		fontWeight: "600",
+		color: "#e8d8ff",
+		lineHeight: 28,
+	},
+	dateSub: {
+		fontSize: 9,
+		letterSpacing: 2,
+		color: "rgba(168,85,247,0.45)",
+		marginTop: 3,
+	},
+	dateSep: { width: 0.5, height: 36, backgroundColor: "rgba(120,60,200,0.25)" },
 	dateRight: { alignItems: "flex-end", paddingLeft: 12 },
 	dateYear: { fontSize: 14, fontWeight: "600", color: THEME.textMuted },
 
-	infoRow: { flexDirection: "row", gap: 8, marginHorizontal: 24, marginTop: 12 },
-	infoChip: { flex: 1, padding: 14, borderWidth: 1, borderColor: "rgba(216,180,254,0.22)", borderRadius: 22, backgroundColor: "rgba(255,255,255,0.06)", alignItems: "center", shadowColor: THEME.accent, shadowOpacity: 0.10, shadowRadius: 10, elevation: 3 },
-	chipLabel: { fontSize: 9, letterSpacing: 0.8, color: THEME.textSubtle, marginBottom: 5, fontWeight: "600" },
-	chipValue: { fontSize: 13, fontWeight: "600", color: THEME.textMuted },
-	homeSectionHeader: { width: "100%", maxWidth: 430, marginTop: 24, marginBottom: 12, paddingHorizontal: 24, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-	homeSectionTitle: { color: THEME.text, fontSize: 24, fontFamily: FONTS.heading, fontWeight: "700" },
-	homeSectionLink: { color: THEME.textSubtle, fontSize: 12, letterSpacing: 1.2, fontFamily: FONTS.ui },
-	featuredScroll: { paddingLeft: 24, paddingRight: 12, paddingBottom: 6, gap: 14 },
-	featuredCard: { width: 220, borderRadius: 28, overflow: "hidden", borderWidth: 1, borderColor: "rgba(216,180,254,0.22)", backgroundColor: "rgba(255,255,255,0.06)", shadowColor: THEME.accent, shadowOpacity: 0.18, shadowRadius: 18, elevation: 6 },
-	featuredCardOverlay: { position: "absolute", left: 12, right: 12, bottom: 12, padding: 12, borderRadius: 18, backgroundColor: "rgba(5,2,14,0.52)", borderWidth: 1, borderColor: "rgba(255,255,255,0.08)" },
-	featuredStagePill: { alignSelf: "flex-start", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, borderWidth: 1, marginBottom: 8 },
-	featuredStagePillText: { fontSize: 10.5, fontFamily: FONTS.ui, fontWeight: "900", letterSpacing: 0.6 },
-	featuredCardName: { color: THEME.text, fontSize: 20, lineHeight: 22, fontFamily: FONTS.heading, fontWeight: "700" },
-	featuredCardMeta: { color: THEME.textMuted, fontSize: 12, marginTop: 6, fontFamily: FONTS.body },
+	infoRow: {
+		flexDirection: "row",
+		gap: 8,
+		marginHorizontal: 24,
+		marginTop: 12,
+	},
+	infoChip: {
+		flex: 1,
+		padding: 12,
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.2)",
+		borderRadius: 14,
+		backgroundColor: "rgba(120,60,200,0.04)",
+		alignItems: "center",
+	},
+	chipLabel: {
+		fontSize: 8,
+		letterSpacing: 1.5,
+		color: "rgba(168,85,247,0.45)",
+		marginBottom: 5,
+	},
+	chipValue: { fontSize: 13, fontWeight: "500", color: "#d8c8f0" },
 
-	ticketCta: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginHorizontal: 32, marginTop: 16, paddingVertical: 17, borderRadius: 999, backgroundColor: "rgba(168,85,247,0.30)", borderWidth: 1, borderColor: "rgba(245,208,254,0.52)", alignSelf: "center", width: "100%", maxWidth: 420, shadowColor: THEME.accent, shadowOpacity: 0.42, shadowRadius: 20, elevation: 10 },
-	ticketCtaText: { fontSize: 15, fontWeight: "900", color: THEME.text, letterSpacing: 0.7, fontFamily: FONTS.ui },
+	ticketCta: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 8,
+		marginHorizontal: 24,
+		marginTop: 12,
+		paddingVertical: 14,
+		borderRadius: 16,
+		backgroundColor: "rgba(124,58,237,0.25)",
+		borderWidth: 0.5,
+		borderColor: "rgba(168,85,247,0.45)",
+	},
+	ticketCtaText: {
+		fontSize: 14,
+		fontWeight: "600",
+		color: "#f0e8ff",
+		letterSpacing: 0.5,
+	},
 
 	// Jegyvásárlás
 	ticketsScreen: { flex: 1 },
-	ticketsScroll: { padding: 16, paddingBottom: 120 },
-	ticketsHeading: { fontSize: 36, fontWeight: "700", color: THEME.text, marginBottom: 8, fontFamily: FONTS.heading, letterSpacing: -0.5 },
-	ticketsSubheading: { fontSize: 14, color: THEME.textMuted, marginBottom: 18, lineHeight: 22, fontFamily: FONTS.body },
-	ticketCard: { flexDirection: "row", backgroundColor: "rgba(72,34,112,0.58)", borderWidth: 1, borderColor: "rgba(216,180,254,0.20)", borderRadius: 30, marginBottom: 16, overflow: "hidden", position: "relative", shadowColor: THEME.accent, shadowOpacity: 0.16, shadowRadius: 18, elevation: 6 },
-	ticketCardSelected: { borderColor: "rgba(245,208,254,0.58)", backgroundColor: "rgba(168,85,247,0.18)", shadowOpacity: 0.26 },
-	ticketAccentSelected: { backgroundColor: THEME.accent, opacity: 1 },
-	popularBadge: { position: "absolute", top: 10, right: 44, zIndex: 1, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: THEME.surface2, borderWidth: 1, borderColor: THEME.borderStrong },
-	popularBadgeText: { fontSize: 10.5, letterSpacing: 1.2, color: THEME.accent, fontWeight: "800", fontFamily: FONTS.ui },
-	ticketCardBody: { flex: 1, paddingVertical: 14, paddingHorizontal: 14, backgroundColor: "transparent" },
+	ticketsScroll: { padding: 16, paddingBottom: 24 },
+	ticketsHeading: {
+		fontSize: 24,
+		fontWeight: "700",
+		color: "#f0e8ff",
+		marginBottom: 6,
+	},
+	ticketsSubheading: {
+		fontSize: 13,
+		color: "rgba(168,85,247,0.55)",
+		marginBottom: 16,
+		lineHeight: 18,
+	},
+	ticketCard: {
+		flexDirection: "row",
+		backgroundColor: "rgba(120,60,200,0.07)",
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.2)",
+		borderRadius: 14,
+		marginBottom: 12,
+		overflow: "hidden",
+		position: "relative",
+	},
+	ticketCardSelected: {
+		borderColor: "rgba(168,85,247,0.55)",
+		backgroundColor: "rgba(124,58,237,0.12)",
+	},
+	ticketAccentSelected: { backgroundColor: "#a855f7", opacity: 1 },
+	popularBadge: {
+		position: "absolute",
+		top: 10,
+		right: 44,
+		zIndex: 1,
+		paddingHorizontal: 8,
+		paddingVertical: 3,
+		borderRadius: 6,
+		backgroundColor: "rgba(168,85,247,0.25)",
+		borderWidth: 0.5,
+		borderColor: "rgba(168,85,247,0.4)",
+	},
+	popularBadgeText: {
+		fontSize: 8,
+		letterSpacing: 1.5,
+		color: "#c084fc",
+		fontWeight: "600",
+	},
+	ticketCardBody: { flex: 1, paddingVertical: 14, paddingHorizontal: 14 },
 	ticketCardHeader: { marginBottom: 6 },
-	ticketTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
-	ticketName: { color: THEME.text, fontSize: 22, fontWeight: "700", fontFamily: FONTS.heading, letterSpacing: -0.5 },
-	ticketBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 999, backgroundColor: THEME.surface2, borderWidth: 1, borderColor: THEME.border },
-	ticketBadgeText: { fontSize: 11, letterSpacing: 0.6, color: THEME.textSubtle, fontWeight: "700", fontFamily: FONTS.ui },
-	ticketPrice: { fontSize: 22, fontWeight: "900", color: THEME.accent, fontFamily: FONTS.ui },
-	ticketDescription: { fontSize: 13, color: THEME.textMuted, lineHeight: 19, marginBottom: 10, fontFamily: FONTS.body },
+	ticketTitleRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
+		marginBottom: 4,
+	},
+	ticketName: { color: "#e8d8ff", fontSize: 17, fontWeight: "600" },
+	ticketBadge: {
+		paddingHorizontal: 7,
+		paddingVertical: 2,
+		borderRadius: 6,
+		backgroundColor: "rgba(120,60,200,0.15)",
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.3)",
+	},
+	ticketBadgeText: {
+		fontSize: 9,
+		letterSpacing: 1,
+		color: "rgba(168,85,247,0.7)",
+		fontWeight: "500",
+	},
+	ticketPrice: { fontSize: 18, fontWeight: "700", color: "#c084fc" },
+	ticketDescription: {
+		fontSize: 12,
+		color: "rgba(216,200,240,0.75)",
+		lineHeight: 17,
+		marginBottom: 10,
+	},
 	ticketFeatures: { gap: 5 },
 	ticketFeatureRow: { flexDirection: "row", alignItems: "center", gap: 6 },
 	ticketFeatureText: { fontSize: 12, color: THEME.textSubtle, fontWeight: "600", fontFamily: FONTS.ui },
 	ticketSelectIndicator: { justifyContent: "center", paddingRight: 14 },
-	checkoutBar: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 10, borderTopWidth: 1, borderTopColor: "rgba(216,180,254,0.18)", backgroundColor: "rgba(17,6,30,0.96)", shadowColor: THEME.accent, shadowOpacity: 0.18, shadowRadius: 18, elevation: 10 },
-	quantityRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 },
-	quantityLabel: { fontSize: 13, color: THEME.textMuted, fontWeight: "700" },
-	quantityControls: { flexDirection: "row", alignItems: "center", gap: 12 },
-	quantityBtn: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: THEME.surface, borderWidth: 1, borderColor: THEME.border },
-	quantityBtnDisabled: { opacity: 0.35 },
-	quantityValue: { fontSize: 16, fontWeight: "900", color: THEME.text, minWidth: 24, textAlign: "center" },
-	emailField: { marginBottom: 12 },
-	emailLabel: { fontSize: 13, color: THEME.textMuted, marginBottom: 8, fontWeight: "700" },
-	emailInput: { paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface, color: THEME.text, fontSize: 15 },
-	emailInputError: { borderColor: "rgba(239,68,68,0.7)" },
-	emailErrorText: { fontSize: 11, color: "#f87171", marginTop: 6 },
-	totalRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
-	totalLabel: { fontSize: 12, letterSpacing: 0.9, color: THEME.textSubtle, fontWeight: "800" },
-	totalValue: { fontSize: 20, fontWeight: "900", color: THEME.text },
-	checkoutHint: { fontSize: 12, color: THEME.textSubtle, textAlign: "center", marginBottom: 12 },
-	checkoutBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, paddingVertical: 16, borderRadius: 999, backgroundColor: "rgba(168,85,247,0.32)", borderWidth: 1, borderColor: "rgba(245,208,254,0.52)", shadowColor: THEME.accent, shadowOpacity: 0.35, shadowRadius: 18, elevation: 8 },
-	checkoutBtnDisabled: { opacity: 0.4 },
-	checkoutBtnText: { fontSize: 18, fontWeight: "900", color: THEME.text, letterSpacing: 0.6, fontFamily: FONTS.ui },
-	orderSuccess: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 },
-	orderSuccessIcon: { marginBottom: 16 },
-	orderSuccessTitle: { fontSize: 22, fontWeight: "900", color: THEME.text, marginBottom: 8 },
-	orderSuccessSub: { fontSize: 13, color: THEME.textSubtle, textAlign: "center", lineHeight: 20, marginBottom: 8 },
-	orderSuccessEmail: { fontSize: 15, fontWeight: "900", color: THEME.text, textAlign: "center", marginBottom: 24 },
-	emailSentBadge: {
+	checkoutBar: {
+		paddingHorizontal: 16,
+		paddingTop: 12,
+		paddingBottom: 8,
+		borderTopWidth: 0.5,
+		borderTopColor: "rgba(120,60,200,0.25)",
+		backgroundColor: "#0a0415",
+	},
+	quantityRow: {
 		flexDirection: "row",
 		alignItems: "center",
-		backgroundColor: "rgba(34,197,94,0.12)",
-		borderWidth: 1,
-		borderColor: "rgba(34,197,94,0.35)",
+		justifyContent: "space-between",
+		marginBottom: 10,
+	},
+	quantityLabel: { fontSize: 13, color: "#d8c8f0" },
+	quantityControls: { flexDirection: "row", alignItems: "center", gap: 12 },
+	quantityBtn: {
+		width: 36,
+		height: 36,
+		borderRadius: 10,
+		alignItems: "center",
+		justifyContent: "center",
+		backgroundColor: "rgba(124,58,237,0.2)",
+		borderWidth: 0.5,
+		borderColor: "rgba(124,58,237,0.35)",
+	},
+	quantityBtnDisabled: { opacity: 0.35 },
+	quantityValue: {
+		fontSize: 16,
+		fontWeight: "600",
+		color: "#f0e8ff",
+		minWidth: 24,
+		textAlign: "center",
+	},
+	emailField: { marginBottom: 12 },
+	emailLabel: { fontSize: 13, color: "#d8c8f0", marginBottom: 8 },
+	emailInput: {
+		paddingVertical: 12,
+		paddingHorizontal: 14,
 		borderRadius: 12,
-		paddingVertical: 8,
-		paddingHorizontal: 16,
-		marginBottom: 16,
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.3)",
+		backgroundColor: "rgba(120,60,200,0.08)",
+		color: "#f0e8ff",
+		fontSize: 15,
 	},
-	emailSentText: {
-		color: "#22c55e",
+	emailInputError: { borderColor: "rgba(239,68,68,0.6)" },
+	emailErrorText: { fontSize: 11, color: "#f87171", marginTop: 6 },
+	totalRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		marginBottom: 12,
+	},
+	totalLabel: {
+		fontSize: 12,
+		letterSpacing: 1.5,
+		color: "rgba(168,85,247,0.5)",
+	},
+	totalValue: { fontSize: 20, fontWeight: "700", color: "#e8d8ff" },
+	checkoutHint: {
+		fontSize: 12,
+		color: "rgba(168,85,247,0.45)",
+		textAlign: "center",
+		marginBottom: 12,
+	},
+	checkoutBtn: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 8,
+		paddingVertical: 14,
+		borderRadius: 14,
+		backgroundColor: "#7c3aed",
+		borderWidth: 0.5,
+		borderColor: "rgba(168,85,247,0.5)",
+	},
+	checkoutBtnDisabled: { opacity: 0.4 },
+	checkoutBtnText: { fontSize: 15, fontWeight: "600", color: "#f0e8ff" },
+	orderSuccess: {
+		flex: 1,
+		alignItems: "center",
+		justifyContent: "center",
+		paddingHorizontal: 32,
+	},
+	orderSuccessIcon: { marginBottom: 16 },
+	orderSuccessTitle: {
+		fontSize: 22,
+		fontWeight: "700",
+		color: "#f0e8ff",
+		marginBottom: 8,
+	},
+	orderSuccessSub: {
 		fontSize: 13,
-		fontWeight: "800",
-		fontFamily: FONTS.ui,
+		color: "rgba(168,85,247,0.55)",
+		textAlign: "center",
+		lineHeight: 20,
+		marginBottom: 8,
 	},
-	orderSummaryCard: { width: "100%", padding: 20, borderRadius: 24, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface, marginBottom: 24, alignItems: "center" },
-	orderSummaryLabel: { fontSize: 9, letterSpacing: 1.2, color: THEME.textSubtle, marginBottom: 8, fontWeight: "800" },
-	orderSummaryName: { fontSize: 18, fontWeight: "900", color: THEME.text, marginBottom: 4 },
-	orderSummaryDetail: { fontSize: 14, color: THEME.accent, fontWeight: "800" },
-	orderSuccessScroll: { padding: 20, paddingBottom: 120, alignItems: "center" },
-	orderDivider: { width: "100%", height: 1, backgroundColor: THEME.border, marginVertical: 14 },
-	orderPerformerName: { fontSize: 18, fontWeight: "900", color: THEME.text, textAlign: "center", marginBottom: 5 },
-	orderPerformanceRow: { width: "100%", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.07)", alignItems: "center" },
-	orderPerformerMeta: { fontSize: 12, color: THEME.textSubtle, textAlign: "center", fontWeight: "700" },
-	ticketSectionHeader: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", marginTop: 4, marginBottom: 10 },
-	ticketSectionTitle: { fontSize: 18, color: THEME.text, fontWeight: "700", fontFamily: FONTS.heading, letterSpacing: -0.5 },
-	ticketSectionHint: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700" },
-	performanceList: { gap: 10, marginBottom: 18 },
-	performanceAccordionList: { gap: 10, marginBottom: 18 },
-	performanceDayGroup: { borderRadius: 24, borderWidth: 1, borderColor: "rgba(216,180,254,0.16)", backgroundColor: "rgba(255,255,255,0.055)", overflow: "hidden", shadowColor: THEME.accent, shadowOpacity: 0.10, shadowRadius: 14, elevation: 4 },
-	performanceDayGroupWarning: { borderColor: "rgba(251,146,60,0.48)", backgroundColor: "rgba(249,115,22,0.07)" },
-	performanceDayHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 14, paddingHorizontal: 14, borderRadius: 24, borderWidth: 1, borderColor: "rgba(216,180,254,0.16)", backgroundColor: "rgba(255,255,255,0.08)" },
-	performanceDayHeaderLeft: { flexDirection: "row", alignItems: "center", flex: 1, gap: 10 },
-	performanceDayHeaderRight: { flexDirection: "row", alignItems: "center", gap: 8 },
-	performanceDayIcon: { width: 44, height: 44, borderRadius: 24, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(216,180,254,0.22)", backgroundColor: "rgba(168,85,247,0.10)" },
-	performanceDayIconActive: { borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.22)" },
-	performanceDayTitle: { fontSize: 19, color: THEME.text, fontWeight: "700", fontFamily: FONTS.heading, letterSpacing: -0.5 },
-	performanceDaySubtitle: { fontSize: 12, color: THEME.textSubtle, fontWeight: "700", marginTop: 3 },
-	performanceDayWarningBadge: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 7, paddingVertical: 4, borderRadius: 999, backgroundColor: "rgba(249,115,22,0.18)", borderWidth: 1, borderColor: "rgba(251,146,60,0.35)" },
-	performanceDayWarningText: { fontSize: 10, color: "#fed7aa", fontWeight: "900" },
-	performanceDayBody: { paddingHorizontal: 10, paddingBottom: 10, gap: 10 },
-	performanceTicketCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 12, borderRadius: 22, borderWidth: 1, borderColor: "rgba(216,180,254,0.14)", backgroundColor: "rgba(72,34,112,0.50)" },
-	performanceTicketCardSelected: { borderColor: "rgba(245,208,254,0.52)", backgroundColor: "rgba(148,92,234,0.24)" },
-	performanceTicketCardConflicted: { borderColor: "rgba(251,146,60,0.7)", backgroundColor: "rgba(249,115,22,0.10)" },
-	performanceTicketVisual: { width: 78, height: 64, borderRadius: 24, overflow: "hidden", backgroundColor: "rgba(168,85,247,0.18)", borderWidth: 1, borderColor: "rgba(255,255,255,0.10)" },
-	performanceTicketImage: { width: "100%", height: "100%", borderRadius: 24 },
-	performanceTicketInfo: { flex: 1 },
-	performanceTicketName: { fontSize: 17, color: THEME.text, fontWeight: "700", marginBottom: 4, fontFamily: FONTS.heading, letterSpacing: -0.5 },
-	performanceTicketMeta: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700", marginBottom: 6 },
-	performanceTicketTimeRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-	performanceTicketTime: { fontSize: 11, color: THEME.textMuted, fontWeight: "700" },
-	performanceTicketTimeConflicted: { color: "#fed7aa" },
-	selectedPerformancePanel: { padding: 16, borderRadius: 24, borderWidth: 1, borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.10)", marginBottom: 110 },
-	selectedPerformanceLabel: { fontSize: 10, color: THEME.accent, fontWeight: "900", letterSpacing: 1.3, marginBottom: 8 },
-	selectedPerformanceName: { fontSize: 20, color: THEME.text, fontWeight: "900", marginBottom: 5 },
-	selectedPerformanceMeta: { fontSize: 12, color: THEME.textMuted, fontWeight: "700", marginBottom: 12 },
-	selectedPerformanceLine: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.07)" },
-	performanceConflictPanel: { padding: 14, borderRadius: 24, borderWidth: 1, borderColor: "rgba(251,146,60,0.45)", backgroundColor: "rgba(249,115,22,0.10)", marginBottom: 14 },
-	performanceConflictHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 },
-	performanceConflictTitle: { fontSize: 14, color: "#fed7aa", fontWeight: "900" },
-	performanceConflictText: { fontSize: 12, color: "rgba(255,237,213,0.88)", lineHeight: 18, marginBottom: 8 },
-	performanceConflictItem: { fontSize: 12, color: "#fed7aa", lineHeight: 18, fontWeight: "700" },
-	checkoutWarningText: { color: "#fed7aa", fontSize: 12, fontWeight: "800", textAlign: "center", marginBottom: 8 },
-	miniCountdownRow: { paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, backgroundColor: "rgba(168,85,247,0.08)", borderWidth: 1, borderColor: THEME.border, marginBottom: 10 },
-	miniCountdownText: { fontSize: 13, color: THEME.text, fontWeight: "900", textAlign: "center" },
-	selectedRefundInfo: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700", textAlign: "center" },
-	countdownCard: { width: "100%", padding: 18, borderRadius: 24, borderWidth: 1, borderColor: THEME.borderStrong, backgroundColor: "rgba(168,85,247,0.12)", marginBottom: 14 },
-	countdownLabel: { fontSize: 10, color: THEME.accent, fontWeight: "900", letterSpacing: 1.4, textAlign: "center", marginBottom: 8 },
-	countdownTargetName: { fontSize: 16, color: THEME.text, fontWeight: "900", textAlign: "center", marginBottom: 12 },
-	countdownGrid: { flexDirection: "row", gap: 10 },
-	countdownBox: { flex: 1, paddingVertical: 12, borderRadius: 14, backgroundColor: "rgba(168,85,247,0.10)", alignItems: "center", borderWidth: 1, borderColor: THEME.border },
-	countdownNumber: { fontSize: 24, color: THEME.text, fontWeight: "900" },
-	countdownUnit: { fontSize: 10, color: THEME.textSubtle, fontWeight: "800", marginTop: 3 },
-	refundPolicyCard: { width: "100%", padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)", backgroundColor: "rgba(255,255,255,0.045)", marginBottom: 16 },
-	refundPolicyHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
-	refundPolicyTitle: { fontSize: 15, color: THEME.text, fontWeight: "900" },
-	refundPolicyText: { fontSize: 12, color: THEME.textMuted, lineHeight: 18, marginBottom: 10 },
-	refundDeadlineText: { fontSize: 12, color: THEME.accent, fontWeight: "900", marginBottom: 12 },
-	refundBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 12, borderRadius: 14, backgroundColor: "rgba(168,85,247,0.16)", borderWidth: 1, borderColor: THEME.borderStrong },
-	refundBtnDisabled: { opacity: 0.45 },
-	refundBtnText: { color: THEME.text, fontSize: 13, fontWeight: "900" },
-	refundRequestedBadge: { paddingVertical: 12, borderRadius: 14, backgroundColor: "rgba(34,197,94,0.12)", borderWidth: 1, borderColor: "rgba(34,197,94,0.35)", alignItems: "center" },
-	refundRequestedText: { color: "#86efac", fontSize: 13, fontWeight: "900" },
-	discountSection: { marginBottom: 18 },
-	discountGrid: { gap: 10, marginBottom: 4 },
-	discountChip: { padding: 16, borderRadius: 22, borderWidth: 1, borderColor: "rgba(216,180,254,0.14)", backgroundColor: "rgba(255,255,255,0.055)" },
-	discountChipActive: { borderColor: "rgba(134,239,172,0.48)", backgroundColor: "rgba(22,163,74,0.10)" },
-	discountChipDisabled: { opacity: 0.45 },
-	discountChipHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 5 },
-	discountChipTitle: { fontSize: 14, color: THEME.text, fontWeight: "900" },
-	discountChipTitleActive: { color: "#ffffff" },
-	discountChipPercent: { fontSize: 12, color: "#86efac", fontWeight: "900" },
-	discountChipDescription: { fontSize: 12, color: THEME.textSubtle, lineHeight: 17, fontWeight: "700" },
-	cartCard: { padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(216,180,254,0.30)", backgroundColor: "rgba(168,85,247,0.12)", marginBottom: 18, shadowColor: THEME.accent, shadowOpacity: 0.18, shadowRadius: 18, elevation: 8 },
-	cartHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
-	cartEyebrow: { fontSize: 10, letterSpacing: 1.3, color: THEME.accent, fontWeight: "900", marginBottom: 3 },
-	cartTitle: { fontSize: 22, color: THEME.text, fontWeight: "700", fontFamily: FONTS.heading, letterSpacing: -0.5 },
-	cartCountBadge: { minWidth: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(168,85,247,0.20)", borderWidth: 1, borderColor: THEME.borderStrong },
-	cartCountText: { color: THEME.text, fontSize: 13, fontWeight: "900" },
-	cartItemRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.08)" },
-	cartItemInfo: { flex: 1 },
-	cartItemName: { fontSize: 14, color: THEME.text, fontWeight: "900", marginBottom: 4 },
-	cartItemMeta: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700", lineHeight: 16 },
-	cartItemPrice: { fontSize: 13, color: THEME.text, fontWeight: "900" },
-	cartTotals: { paddingTop: 12, gap: 8 },
-	cartTotalsCompact: { width: "100%", gap: 8 },
-	cartTotalLine: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
-	cartTotalLabel: { flex: 1, fontSize: 12, color: THEME.textSubtle, fontWeight: "700" },
-	cartTotalValue: { fontSize: 12, color: THEME.textMuted, fontWeight: "800" },
-	cartDiscountLabel: { flex: 1, fontSize: 12, color: "#86efac", fontWeight: "800" },
-	cartDiscountValue: { fontSize: 12, color: "#86efac", fontWeight: "900" },
-	cartGrandTotalLine: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 10, marginTop: 4, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.10)" },
-	cartGrandTotalLabel: { fontSize: 14, color: THEME.text, fontWeight: "900" },
-	cartGrandTotalValue: { fontSize: 24, color: THEME.text, fontWeight: "900", fontFamily: FONTS.ui },
-	cartLegalNote: { fontSize: 10, color: THEME.textSubtle, lineHeight: 15, marginTop: 12, fontWeight: "600" },
-	checkoutCartMini: { marginBottom: 10, paddingTop: 2 },
-	totalValueSmall: { fontSize: 13, fontWeight: "800", color: THEME.textMuted },
-	totalDiscountValue: { fontSize: 13, fontWeight: "900", color: "#86efac" },
+	orderSuccessEmail: {
+		fontSize: 15,
+		fontWeight: "600",
+		color: "#e8d8ff",
+		textAlign: "center",
+		marginBottom: 24,
+	},
+	orderSummaryCard: {
+		width: "100%",
+		padding: 20,
+		borderRadius: 16,
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.25)",
+		backgroundColor: "rgba(120,60,200,0.07)",
+		marginBottom: 24,
+		alignItems: "center",
+	},
+	orderSummaryLabel: {
+		fontSize: 9,
+		letterSpacing: 2,
+		color: "rgba(168,85,247,0.45)",
+		marginBottom: 8,
+	},
+	orderSummaryName: {
+		fontSize: 18,
+		fontWeight: "600",
+		color: "#e8d8ff",
+		marginBottom: 4,
+	},
+	orderSummaryDetail: { fontSize: 14, color: "#c084fc" },
 
 	// Térkép
 	mapScreen: { flex: 1, paddingTop: 8 },
@@ -3279,29 +4716,107 @@ const styles = StyleSheet.create({
 	mapHeading: { fontSize: 24, fontWeight: "900", color: THEME.text, letterSpacing: 0.2 },
 	mapVenue: { fontSize: 12, color: THEME.textSubtle, marginTop: 4 },
 	mapFilters: { paddingHorizontal: 16, gap: 8, paddingBottom: 12 },
-	mapFilterChip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface },
-	mapFilterChipActive: { backgroundColor: THEME.surface2, borderColor: THEME.borderStrong },
-	mapFilterChipText: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700" },
+	mapFilterChip: {
+		paddingHorizontal: 12,
+		paddingVertical: 7,
+		borderRadius: 20,
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.25)",
+		backgroundColor: "rgba(120,60,200,0.06)",
+	},
+	mapFilterChipActive: {
+		backgroundColor: "rgba(124,58,237,0.22)",
+		borderColor: "rgba(168,85,247,0.45)",
+	},
+	mapFilterChipText: {
+		fontSize: 11,
+		color: "rgba(168,85,247,0.5)",
+		fontWeight: "500",
+	},
 	mapFilterChipTextActive: { color: "#e8d8ff" },
-	mapViewWrap: { flex: 1, marginHorizontal: 16, marginBottom: 8, borderRadius: 24, overflow: "hidden", borderWidth: 1, borderColor: THEME.border, position: "relative" },
-	mapOpenExternalBtn: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 10 },
-	mapOpenExternalText: { fontSize: 12, color: THEME.accent, fontWeight: "800" },
-	mapDetailCard: { flexDirection: "row", marginHorizontal: 16, marginTop: -4, marginBottom: 12, borderRadius: 14, borderWidth: 1, borderColor: THEME.borderStrong, backgroundColor: "rgba(15,7,32,0.96)", overflow: "hidden" },
+	mapViewWrap: {
+		flex: 1,
+		marginHorizontal: 16,
+		marginBottom: 8,
+		borderRadius: 18,
+		overflow: "hidden",
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.3)",
+		position: "relative",
+	},
+	mapOpenExternalBtn: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 6,
+		marginTop: 10,
+	},
+	mapOpenExternalText: { fontSize: 12, color: "#c084fc", fontWeight: "500" },
+	mapDetailCard: {
+		flexDirection: "row",
+		marginHorizontal: 16,
+		marginBottom: 4,
+		borderRadius: 14,
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.25)",
+		backgroundColor: "rgba(120,60,200,0.08)",
+		overflow: "hidden",
+	},
 	mapDetailAccent: { width: 3 },
 	mapDetailBody: { flex: 1, paddingVertical: 12, paddingHorizontal: 12 },
-	mapDetailHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
-	mapDetailName: { fontSize: 15, fontWeight: "900", color: THEME.text, flex: 1 },
-	mapDetailBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, backgroundColor: THEME.surface2, borderWidth: 1, borderColor: THEME.border },
-	mapDetailBadgeText: { fontSize: 9, color: THEME.textSubtle, fontWeight: "800" },
-	mapDetailDescription: { fontSize: 12, color: THEME.textMuted, lineHeight: 17 },
+	mapDetailHeader: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
+		marginBottom: 4,
+	},
+	mapDetailName: { fontSize: 15, fontWeight: "600", color: "#e8d8ff", flex: 1 },
+	mapDetailBadge: {
+		paddingHorizontal: 7,
+		paddingVertical: 2,
+		borderRadius: 6,
+		backgroundColor: "rgba(120,60,200,0.15)",
+	},
+	mapDetailBadgeText: { fontSize: 9, color: "rgba(168,85,247,0.7)" },
+	mapDetailDescription: {
+		fontSize: 12,
+		color: "rgba(216,200,240,0.75)",
+		lineHeight: 17,
+	},
 	mapDetailClose: { padding: 12, justifyContent: "center" },
-	mapPointsList: { flex: 1, backgroundColor: "transparent", borderTopWidth: 1, borderTopColor: THEME.border },
-	mapPointItem: { flexDirection: "row", alignItems: "center", paddingVertical: 14, paddingHorizontal: 16, marginHorizontal: 16, marginBottom: 10, borderRadius: 22, borderWidth: 1, borderColor: "rgba(216,180,254,0.15)", backgroundColor: "rgba(255,255,255,0.05)", gap: 12, shadowColor: THEME.accent, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
-	mapPointItemSelected: { backgroundColor: "rgba(168,85,247,0.12)", borderColor: THEME.borderStrong },
-	mapPointIconWrap: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
+	mapPointsList: {
+		flex: 1,
+		backgroundColor: "rgba(120,60,200,0.03)",
+		borderTopWidth: 0.5,
+		borderTopColor: "rgba(120,60,200,0.2)",
+	},
+	mapPointItem: {
+		flexDirection: "row",
+		alignItems: "center",
+		padding: 16,
+		borderBottomWidth: 0.5,
+		borderBottomColor: "rgba(120,60,200,0.1)",
+		gap: 12,
+	},
+	mapPointItemSelected: { backgroundColor: "rgba(168,85,247,0.1)" },
+	mapPointIconWrap: {
+		width: 36,
+		height: 36,
+		borderRadius: 10,
+		alignItems: "center",
+		justifyContent: "center",
+	},
 	mapPointItemText: { flex: 1 },
-	mapPointItemName: { color: THEME.text, fontSize: 14, fontWeight: "900", marginBottom: 2 },
-	mapPointItemCategory: { color: THEME.textSubtle, fontSize: 11, letterSpacing: 0.2, fontWeight: "700" },
+	mapPointItemName: {
+		color: "#e8d8ff",
+		fontSize: 14,
+		fontWeight: "600",
+		marginBottom: 2,
+	},
+	mapPointItemCategory: {
+		color: "rgba(168,85,247,0.55)",
+		fontSize: 11,
+		letterSpacing: 0.3,
+	},
 
 	// Illusztrált térkép stílusok
 	mapCanvasWrap: { flex: 1 },
@@ -3421,319 +4936,775 @@ const styles = StyleSheet.create({
 		overflow: "hidden",
 		position: "relative",
 	},
-	mapBgGrass: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#1e3d1e" },
-	mapFence: { position: "absolute", top: 6, left: 6, right: 6, bottom: 6, borderRadius: 12, borderWidth: 1.5, borderColor: "rgba(168,85,247,0.5)" },
+	mapBgGrass: {
+		position: "absolute",
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+		backgroundColor: "#1e3d1e",
+	},
+	mapFence: {
+		position: "absolute",
+		top: 6,
+		left: 6,
+		right: 6,
+		bottom: 6,
+		borderRadius: 12,
+		borderWidth: 1.5,
+		borderColor: "rgba(168,85,247,0.5)",
+	},
 	mapRoad: { position: "absolute", backgroundColor: "#3d3060" },
-	mapRoadDiag: { position: "absolute", height: 10, backgroundColor: "#3d3060", transformOrigin: "left center" },
+	mapRoadDiag: {
+		position: "absolute",
+		height: 10,
+		backgroundColor: "#3d3060",
+		transformOrigin: "left center",
+	},
 	mapTree: { position: "absolute", alignItems: "center" },
-	mapTreeTop: { width: 14, height: 14, borderRadius: 7, backgroundColor: "#2d6a2d", borderWidth: 1, borderColor: "#3d8a3d" },
-	mapTreeTrunk: { width: 3, height: 5, backgroundColor: "#5c3d1e", marginTop: -1 },
-	mapBush: { position: "absolute", width: 10, height: 10, borderRadius: 5, backgroundColor: "#2a5a2a", borderWidth: 0.5, borderColor: "#3a7a3a" },
-	mapCampZone: { position: "absolute", top: 60, left: 8, width: 90, height: 60, backgroundColor: "rgba(45,212,191,0.15)", borderWidth: 1, borderColor: "#2dd4bf", borderRadius: 8, alignItems: "center", justifyContent: "flex-end", paddingBottom: 4 },
-	mapZoneLabel: { fontSize: 7, color: "#2dd4bf", letterSpacing: 1, fontWeight: "600" },
-	mapTent: { position: "absolute", width: 16, height: 14, backgroundColor: "#2dd4bf", borderRadius: 2, borderTopLeftRadius: 8, borderTopRightRadius: 8, opacity: 0.8 },
-	mapParkingZone: { position: "absolute", top: 268, left: 8, width: 36, height: 36, backgroundColor: "rgba(56,189,248,0.2)", borderWidth: 1, borderColor: "#38bdf8", borderRadius: 6, alignItems: "center", justifyContent: "center" },
+	mapTreeTop: {
+		width: 14,
+		height: 14,
+		borderRadius: 7,
+		backgroundColor: "#2d6a2d",
+		borderWidth: 1,
+		borderColor: "#3d8a3d",
+	},
+	mapTreeTrunk: {
+		width: 3,
+		height: 5,
+		backgroundColor: "#5c3d1e",
+		marginTop: -1,
+	},
+	mapBush: {
+		position: "absolute",
+		width: 10,
+		height: 10,
+		borderRadius: 5,
+		backgroundColor: "#2a5a2a",
+		borderWidth: 0.5,
+		borderColor: "#3a7a3a",
+	},
+	mapCampZone: {
+		position: "absolute",
+		top: 60,
+		left: 8,
+		width: 90,
+		height: 60,
+		backgroundColor: "rgba(45,212,191,0.15)",
+		borderWidth: 1,
+		borderColor: "#2dd4bf",
+		borderRadius: 8,
+		alignItems: "center",
+		justifyContent: "flex-end",
+		paddingBottom: 4,
+	},
+	mapZoneLabel: {
+		fontSize: 7,
+		color: "#2dd4bf",
+		letterSpacing: 1,
+		fontWeight: "600",
+	},
+	mapTent: {
+		position: "absolute",
+		width: 16,
+		height: 14,
+		backgroundColor: "#2dd4bf",
+		borderRadius: 2,
+		borderTopLeftRadius: 8,
+		borderTopRightRadius: 8,
+		opacity: 0.8,
+	},
+	mapParkingZone: {
+		position: "absolute",
+		top: 268,
+		left: 8,
+		width: 36,
+		height: 36,
+		backgroundColor: "rgba(56,189,248,0.2)",
+		borderWidth: 1,
+		borderColor: "#38bdf8",
+		borderRadius: 6,
+		alignItems: "center",
+		justifyContent: "center",
+	},
 	mapParkingLabel: { fontSize: 16, fontWeight: "900", color: "#38bdf8" },
-	mapStage: { position: "absolute", borderRadius: 8, alignItems: "center", justifyContent: "center", borderWidth: 1.5, borderColor: "rgba(168,85,247,0.8)", padding: 2 },
+	mapStage: {
+		position: "absolute",
+		borderRadius: 8,
+		alignItems: "center",
+		justifyContent: "center",
+		borderWidth: 1.5,
+		borderColor: "rgba(168,85,247,0.8)",
+		padding: 2,
+	},
 	mapStageIcon: { fontSize: 12, lineHeight: 14 },
-	mapStageLabel: { fontSize: 7, color: "#f0e8ff", fontWeight: "700", textAlign: "center", letterSpacing: 0.3 },
-	mapPoi: { position: "absolute", paddingHorizontal: 5, paddingVertical: 3, borderRadius: 8, borderWidth: 1, alignItems: "center", minWidth: 44 },
+	mapStageLabel: {
+		fontSize: 7,
+		color: "#f0e8ff",
+		fontWeight: "700",
+		textAlign: "center",
+		letterSpacing: 0.3,
+	},
+	mapPoi: {
+		position: "absolute",
+		paddingHorizontal: 5,
+		paddingVertical: 3,
+		borderRadius: 8,
+		borderWidth: 1,
+		alignItems: "center",
+		minWidth: 44,
+	},
 	mapPoiIcon: { fontSize: 12, lineHeight: 14 },
-	mapPoiLabel: { fontSize: 6.5, fontWeight: "600", textAlign: "center", letterSpacing: 0.3 },
-	mapEntrance: { position: "absolute", bottom: 10, left: "36%", width: 72, paddingVertical: 4, backgroundColor: "#22c55e", borderRadius: 8, borderWidth: 1.5, borderColor: "#16a34a", alignItems: "center" },
+	mapPoiLabel: {
+		fontSize: 6.5,
+		fontWeight: "600",
+		textAlign: "center",
+		letterSpacing: 0.3,
+	},
+	mapEntrance: {
+		position: "absolute",
+		bottom: 10,
+		left: "36%",
+		width: 72,
+		paddingVertical: 4,
+		backgroundColor: "#22c55e",
+		borderRadius: 8,
+		borderWidth: 1.5,
+		borderColor: "#16a34a",
+		alignItems: "center",
+	},
 	mapEntranceIcon: { fontSize: 12, lineHeight: 14 },
-	mapEntranceLabel: { fontSize: 7, color: "#fff", fontWeight: "800", letterSpacing: 1 },
-	mapWc: { position: "absolute", width: 22, height: 22, backgroundColor: "rgba(56,189,248,0.25)", borderRadius: 4, borderWidth: 1, borderColor: "#38bdf8", alignItems: "center", justifyContent: "center" },
+	mapEntranceLabel: {
+		fontSize: 7,
+		color: "#fff",
+		fontWeight: "800",
+		letterSpacing: 1,
+	},
+	mapWc: {
+		position: "absolute",
+		width: 22,
+		height: 22,
+		backgroundColor: "rgba(56,189,248,0.25)",
+		borderRadius: 4,
+		borderWidth: 1,
+		borderColor: "#38bdf8",
+		alignItems: "center",
+		justifyContent: "center",
+	},
 	mapWcIcon: { fontSize: 11 },
-	mapFirstAid: { position: "absolute", width: 22, height: 22, backgroundColor: "rgba(239,68,68,0.25)", borderRadius: 4, borderWidth: 1, borderColor: "#ef4444", alignItems: "center", justifyContent: "center" },
+	mapFirstAid: {
+		position: "absolute",
+		width: 22,
+		height: 22,
+		backgroundColor: "rgba(239,68,68,0.25)",
+		borderRadius: 4,
+		borderWidth: 1,
+		borderColor: "#ef4444",
+		alignItems: "center",
+		justifyContent: "center",
+	},
 	mapFirstAidIcon: { fontSize: 11 },
-	mapInfo: { position: "absolute", width: 22, height: 22, backgroundColor: "rgba(168,85,247,0.25)", borderRadius: 4, borderWidth: 1, borderColor: "#a855f7", alignItems: "center", justifyContent: "center" },
+	mapInfo: {
+		position: "absolute",
+		width: 22,
+		height: 22,
+		backgroundColor: "rgba(168,85,247,0.25)",
+		borderRadius: 4,
+		borderWidth: 1,
+		borderColor: "#a855f7",
+		alignItems: "center",
+		justifyContent: "center",
+	},
 	mapInfoIcon: { fontSize: 11 },
-	mapNorth: { position: "absolute", top: 10, right: 10, width: 26, height: 26, backgroundColor: "rgba(34,18,58,0.55)", borderRadius: 13, borderWidth: 0.5, borderColor: "rgba(168,85,247,0.4)", alignItems: "center", justifyContent: "center" },
-	mapNorthText: { fontSize: 7, color: "#a855f7", fontWeight: "800", lineHeight: 8 },
+	mapNorth: {
+		position: "absolute",
+		top: 10,
+		right: 10,
+		width: 26,
+		height: 26,
+		backgroundColor: "rgba(0,0,0,0.5)",
+		borderRadius: 13,
+		borderWidth: 0.5,
+		borderColor: "rgba(168,85,247,0.4)",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	mapNorthText: {
+		fontSize: 7,
+		color: "#a855f7",
+		fontWeight: "800",
+		lineHeight: 8,
+	},
 	mapNorthArrow: { fontSize: 7, color: "#a855f7", lineHeight: 8 },
-	svgGridLine: { position: "absolute", height: 0.5, backgroundColor: "rgba(120,60,200,0.1)" },
-	svgGridLineV: { position: "absolute", width: 0.5, backgroundColor: "rgba(120,60,200,0.1)" },
-	svgVenueBorder: { position: "absolute", top: 12, left: 12, right: 12, bottom: 12, borderRadius: 12, borderWidth: 1, borderColor: "rgba(120,60,200,0.25)" },
-	svgZoneLabel: { position: "absolute", fontSize: 8, letterSpacing: 0, color: "rgba(120,60,200,0.3)" },
-	svgRouteLine: { position: "absolute", height: 1, backgroundColor: "rgba(168,85,247,0.15)", transformOrigin: "left center" },
-	svgPoint: { position: "absolute", alignItems: "center", justifyContent: "center" },
-	svgPointGlow: { position: "absolute", width: "200%", height: "200%", borderRadius: 999, borderWidth: 1.5, opacity: 0.3 },
-	svgLabel: { position: "absolute", fontSize: 9, width: 72, textAlign: "center" },
+	svgGridLine: {
+		position: "absolute",
+		height: 0.5,
+		backgroundColor: "rgba(120,60,200,0.1)",
+	},
+	svgGridLineV: {
+		position: "absolute",
+		width: 0.5,
+		backgroundColor: "rgba(120,60,200,0.1)",
+	},
+	svgVenueBorder: {
+		position: "absolute",
+		top: 12,
+		left: 12,
+		right: 12,
+		bottom: 12,
+		borderRadius: 12,
+		borderWidth: 1,
+		borderColor: "rgba(120,60,200,0.25)",
+	},
+	svgZoneLabel: {
+		position: "absolute",
+		fontSize: 8,
+		letterSpacing: 2,
+		color: "rgba(120,60,200,0.3)",
+	},
+	svgRouteLine: {
+		position: "absolute",
+		height: 1,
+		backgroundColor: "rgba(168,85,247,0.15)",
+		transformOrigin: "left center",
+	},
+	svgPoint: {
+		position: "absolute",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	svgPointGlow: {
+		position: "absolute",
+		width: "200%",
+		height: "200%",
+		borderRadius: 999,
+		borderWidth: 1.5,
+		opacity: 0.3,
+	},
+	svgLabel: {
+		position: "absolute",
+		fontSize: 9,
+		width: 72,
+		textAlign: "center",
+	},
 	mapLegend: { paddingHorizontal: 12, paddingVertical: 8, gap: 12 },
 	mapLegendItem: { flexDirection: "row", alignItems: "center", gap: 5 },
 	mapLegendDot: { width: 8, height: 8, borderRadius: 4 },
 	mapLegendText: { fontSize: 10, color: "rgba(216,200,240,0.6)" },
-	mapCanvasHint: { fontSize: 10, color: THEME.textSubtle, textAlign: "center", paddingVertical: 4 },
-	mapViewToggle: { flexDirection: "row", marginHorizontal: 16, marginBottom: 8, borderRadius: 12, borderWidth: 1, borderColor: THEME.border, overflow: "hidden", backgroundColor: THEME.surface },
-	mapViewToggleBtn: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 9 },
-	mapViewToggleBtnActive: { backgroundColor: THEME.surface2 },
-	mapViewToggleText: { fontSize: 12, color: THEME.textSubtle, fontWeight: "800" },
-	mapViewToggleTextActive: { color: THEME.text },
-
+	mapCanvasHint: {
+		fontSize: 10,
+		color: "rgba(168,85,247,0.35)",
+		textAlign: "center",
+		paddingVertical: 4,
+	},
+	mapViewToggle: {
+		flexDirection: "row",
+		marginHorizontal: 16,
+		marginBottom: 8,
+		borderRadius: 12,
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.25)",
+		overflow: "hidden",
+		backgroundColor: "rgba(120,60,200,0.05)",
+	},
+	mapViewToggleBtn: {
+		flex: 1,
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 6,
+		paddingVertical: 9,
+	},
+	mapViewToggleBtnActive: { backgroundColor: "rgba(124,58,237,0.2)" },
+	mapViewToggleText: {
+		fontSize: 12,
+		color: "rgba(168,85,247,0.45)",
+		fontWeight: "500",
+	},
+	mapViewToggleTextActive: { color: "#e8d8ff" },
 
 	// Schedule
 	scheduleScreen: { flex: 1 },
-	scheduleHeader: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 6 },
-	scheduleHeading: { fontSize: 38, fontWeight: "700", color: THEME.text, fontFamily: FONTS.heading, letterSpacing: -0.5, backgroundColor: "transparent", includeFontPadding: false },
-	scheduleSubheading: { fontSize: 13, color: THEME.textSubtle, marginTop: 8, fontFamily: FONTS.ui, letterSpacing: 0.3, backgroundColor: "transparent", includeFontPadding: false },
-	scheduleViewSwitcher: { paddingHorizontal: 16, gap: 8, paddingVertical: 8, alignItems: "center" },
-	scheduleViewChip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(216,180,254,0.16)", backgroundColor: "rgba(255,255,255,0.08)" },
-	scheduleViewChipActive: { backgroundColor: "rgba(168,85,247,0.28)", borderColor: "rgba(245,208,254,0.42)" },
-	scheduleViewChipText: { fontSize: 15, color: THEME.textSubtle, fontWeight: "700", fontFamily: FONTS.ui },
-	scheduleViewChipTextActive: { color: THEME.text },
+	scheduleHeader: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 4 },
+	scheduleHeading: { fontSize: 24, fontWeight: "700", color: "#f0e8ff" },
+	scheduleSubheading: {
+		fontSize: 12,
+		color: "rgba(168,85,247,0.55)",
+		marginTop: 4,
+	},
+	scheduleViewSwitcher: { paddingHorizontal: 16, gap: 8, paddingVertical: 10 },
+	scheduleViewChip: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 6,
+		paddingHorizontal: 12,
+		paddingVertical: 8,
+		borderRadius: 20,
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.25)",
+		backgroundColor: "rgba(120,60,200,0.06)",
+	},
+	scheduleViewChipActive: {
+		backgroundColor: "rgba(124,58,237,0.22)",
+		borderColor: "rgba(168,85,247,0.45)",
+	},
+	scheduleViewChipText: {
+		fontSize: 11,
+		color: "rgba(168,85,247,0.5)",
+		fontWeight: "500",
+	},
+	scheduleViewChipTextActive: { color: "#e8d8ff" },
 	scheduleBody: { flex: 1 },
 	scheduleListContent: { paddingHorizontal: 16, paddingBottom: 120 },
 	scheduleGridContent: { paddingHorizontal: 16, paddingBottom: 120 },
 	scheduleGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-	gridCard: { width: "48%", flexGrow: 1, minWidth: 150, padding: 12, borderRadius: 24, borderWidth: 1, borderColor: THEME.border, backgroundColor: "rgba(255,255,255,0.06)" },
-	gridCardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 },
-	gridTime: { fontSize: 10, color: THEME.textSubtle, letterSpacing: 0.2, flex: 1, fontWeight: "700" },
-	gridName: { fontSize: 15, fontWeight: "900", color: THEME.text, marginBottom: 4 },
-	gridStage: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700" },
+	gridCard: {
+		width: "48%",
+		flexGrow: 1,
+		minWidth: 150,
+		padding: 12,
+		borderRadius: 14,
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.2)",
+		backgroundColor: "rgba(120,60,200,0.07)",
+	},
+	gridCardTop: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "flex-start",
+		marginBottom: 8,
+	},
+	gridTime: {
+		fontSize: 10,
+		color: "rgba(168,85,247,0.55)",
+		letterSpacing: 0.3,
+		flex: 1,
+	},
+	gridName: {
+		fontSize: 15,
+		fontWeight: "600",
+		color: "#e8d8ff",
+		marginBottom: 4,
+	},
+	gridStage: { fontSize: 11, color: "rgba(168,85,247,0.55)" },
 	gridFavoriteBtn: { padding: 2, marginLeft: 4 },
-	stageSectionHeader: { flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 10, paddingHorizontal: 4, marginBottom: 4, backgroundColor: THEME.bg },
-	stageSectionTitle: { fontSize: 13, fontWeight: "900", color: THEME.accent, letterSpacing: 0.2 },
+	stageSectionHeader: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
+		paddingVertical: 10,
+		paddingHorizontal: 4,
+		marginBottom: 4,
+		backgroundColor: "#06020f",
+	},
+	stageSectionTitle: {
+		fontSize: 13,
+		fontWeight: "600",
+		color: "#c084fc",
+		letterSpacing: 0.5,
+	},
 	timelineRow: { flexDirection: "row", marginBottom: 4 },
 	timelineTimeCol: { width: 48, paddingTop: 14 },
-	timelineTime: { fontSize: 13, fontWeight: "900", color: THEME.text },
-	timelineTimeEnd: { fontSize: 10, color: THEME.textSubtle, marginTop: 2, fontWeight: "700" },
+	timelineTime: { fontSize: 13, fontWeight: "600", color: "#e8d8ff" },
+	timelineTimeEnd: {
+		fontSize: 10,
+		color: "rgba(168,85,247,0.45)",
+		marginTop: 2,
+	},
 	timelineTrack: { width: 20, alignItems: "center", paddingTop: 18 },
-	timelineDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: THEME.accent, borderWidth: 2, borderColor: "rgba(167,139,250,0.35)" },
-	timelineLine: { flex: 1, width: 2, backgroundColor: THEME.border, marginTop: 4, marginBottom: -8 },
-	timelineCard: { flex: 1, marginLeft: 8, marginBottom: 12, borderRadius: 22, borderWidth: 1, borderColor: THEME.border, backgroundColor: "rgba(72,34,112,0.50)", overflow: "hidden", shadowColor: THEME.accent, shadowOpacity: 0.12, shadowRadius: 14, elevation: 4 },
+	timelineDot: {
+		width: 10,
+		height: 10,
+		borderRadius: 5,
+		backgroundColor: "#a855f7",
+		borderWidth: 2,
+		borderColor: "rgba(168,85,247,0.35)",
+	},
+	timelineLine: {
+		flex: 1,
+		width: 2,
+		backgroundColor: "rgba(120,60,200,0.25)",
+		marginTop: 4,
+		marginBottom: -8,
+	},
+	timelineCard: {
+		flex: 1,
+		marginLeft: 8,
+		marginBottom: 12,
+		borderRadius: 14,
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.2)",
+		backgroundColor: "rgba(120,60,200,0.07)",
+		overflow: "hidden",
+	},
 	timelineCardHeader: { flexDirection: "row", alignItems: "flex-start" },
-	timelineCardInfo: { flex: 1, paddingVertical: 14, paddingHorizontal: 14, backgroundColor: "transparent" },
-	timelineDescription: { fontSize: 11, color: THEME.textMuted, marginTop: 6, lineHeight: 16 },
+	timelineCardInfo: { flex: 1, paddingVertical: 14, paddingHorizontal: 14 },
+	timelineDescription: {
+		fontSize: 11,
+		color: "rgba(216,200,240,0.65)",
+		marginTop: 6,
+		lineHeight: 16,
+	},
 
 	// Performer kártya
 	listContent: { padding: 16, paddingBottom: 32 },
-	card: { flexDirection: "row", alignItems: "center", backgroundColor: "rgba(64,28,104,0.58)", borderWidth: 1, borderColor: "rgba(216,180,254,0.24)", borderRadius: 28, marginBottom: 14, overflow: "hidden", shadowColor: THEME.accent, shadowOpacity: 0.14, shadowRadius: 16, elevation: 5 },
-	cardConflict: { borderColor: "rgba(245,158,11,0.55)", backgroundColor: "rgba(245,158,11,0.07)" },
-	cardAccent: { width: 3, alignSelf: "stretch", backgroundColor: THEME.accent2, opacity: 0.8 },
+	card: {
+		flexDirection: "row",
+		alignItems: "center",
+		backgroundColor: "rgba(120,60,200,0.07)",
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.2)",
+		borderRadius: 14,
+		marginBottom: 10,
+		overflow: "hidden",
+	},
+	cardConflict: {
+		borderColor: "rgba(245,158,11,0.45)",
+		backgroundColor: "rgba(245,158,11,0.05)",
+	},
+	cardAccent: {
+		width: 3,
+		alignSelf: "stretch",
+		backgroundColor: "#7c3aed",
+		opacity: 0.8,
+	},
 	cardAccentConflict: { backgroundColor: "#f59e0b", opacity: 1 },
-	cardInfo: { flex: 1, paddingVertical: 16, paddingHorizontal: 16, backgroundColor: "rgba(84,44,130,0.20)" },
-	performerName: { color: THEME.text, fontSize: 22, fontWeight: "700", fontFamily: FONTS.heading, letterSpacing: -0.5, backgroundColor: "transparent", includeFontPadding: false },
-	performerDetails: { color: THEME.textSubtle, fontSize: 14, marginTop: 6, letterSpacing: 0.2, fontWeight: "700", fontFamily: FONTS.ui, backgroundColor: "transparent", includeFontPadding: false },
-	performerCardHint: { color: THEME.accent, fontSize: 15, marginTop: 8, fontWeight: "900", letterSpacing: 0.2, fontFamily: FONTS.ui, backgroundColor: "transparent", includeFontPadding: false },
-	performerModalBackdrop: { flex: 1, backgroundColor: "rgba(3,1,8,0.78)", justifyContent: "center", paddingHorizontal: 18 },
-	performerModalCard: { borderRadius: 28, overflow: "hidden", backgroundColor: "#10091c", borderWidth: 1, borderColor: THEME.borderStrong, shadowColor: THEME.accent, shadowOpacity: 0.22, shadowRadius: 26, elevation: 12, position: "relative" },
-	performerModalBackgroundImage: { ...StyleSheet.absoluteFillObject, opacity: 0.82 },
-	performerModalBackgroundScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(6,2,16,0.42)" },
-	performerModalHero: { height: 150, backgroundColor: "rgba(168,85,247,0.12)" },
-	performerModalContent: { padding: 20 },
-	performerModalTopRow: { flexDirection: "row", alignItems: "flex-start", gap: 12, marginBottom: 14 },
-	performerModalEyebrow: { color: THEME.accent, fontSize: 10, fontWeight: "900", letterSpacing: 1.8, marginBottom: 6 },
-	performerModalName: { color: THEME.text, fontSize: 26, fontWeight: "900", lineHeight: 31 },
-	performerModalCloseBtn: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.07)", borderWidth: 1, borderColor: THEME.border },
-	performerModalMetaRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 18 },
-	performerModalMetaChip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 12, backgroundColor: "rgba(168,85,247,0.12)", borderWidth: 1, borderColor: "rgba(168,85,247,0.22)" },
-	performerModalMetaText: { color: THEME.textMuted, fontSize: 12, fontWeight: "800" },
-	performerModalSectionTitle: { color: THEME.text, fontSize: 15, fontWeight: "900", marginBottom: 8 },
-	performerModalDescription: { color: THEME.textMuted, fontSize: 14, lineHeight: 22, marginBottom: 18, fontWeight: "600" },
-	performerModalFavBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 13, borderRadius: 24, backgroundColor: THEME.accent2 },
-	performerModalFavText: { color: "#fff", fontSize: 14, fontWeight: "900" },
-	conflictRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 6 },
+	cardInfo: { flex: 1, paddingVertical: 14, paddingHorizontal: 14 },
+	performerName: { color: "#e8d8ff", fontSize: 16, fontWeight: "600" },
+	performerDetails: {
+		color: "rgba(168,85,247,0.55)",
+		fontSize: 12,
+		marginTop: 4,
+		letterSpacing: 0.3,
+	},
+	conflictRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 5,
+		marginTop: 6,
+	},
 	conflictText: { fontSize: 11, color: "#f59e0b", flex: 1 },
 	conflictBadgeText: { color: "#f59e0b", fontSize: 12 },
 	favoriteBtn: { width: 56, alignItems: "center", justifyContent: "center", alignSelf: "stretch", backgroundColor: "rgba(84,44,130,0.16)" },
 
 	// Navigáció
-	navBar: { flexDirection: "row", backgroundColor: "rgba(5,1,14,0.97)", paddingBottom: 24, paddingTop: 12, borderTopWidth: 1, borderTopColor: "rgba(216,180,254,0.18)", shadowColor: THEME.accent, shadowOpacity: 0.24, shadowRadius: 22, elevation: 14 },
+	navBar: {
+		flexDirection: "row",
+		backgroundColor: "#0a0415",
+		paddingBottom: 24,
+		paddingTop: 10,
+		borderTopWidth: 0.5,
+		borderTopColor: "rgba(120,60,200,0.2)",
+	},
 	navItem: { flex: 1, alignItems: "center", gap: 4 },
-	navIconWrap: { width: 50, height: 42, borderRadius: 20, alignItems: "center", justifyContent: "center" },
-	navIconActive: { backgroundColor: "rgba(168,85,247,0.28)", borderWidth: 1, borderColor: "rgba(245,208,254,0.52)", shadowColor: THEME.accent, shadowOpacity: 0.56, shadowRadius: 16, elevation: 9 },
-	navText: { fontSize: 12.5, color: "rgba(255,255,255,0.42)", letterSpacing: 0.35, fontWeight: "800", fontFamily: FONTS.ui, backgroundColor: "transparent", includeFontPadding: false },
-	navTextActive: { color: THEME.accent },
-	navBadge: { position: "absolute", top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: THEME.accent, alignItems: "center", justifyContent: "center", paddingHorizontal: 3 },
+	navIconWrap: {
+		width: 40,
+		height: 36,
+		borderRadius: 12,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	navIconActive: {
+		backgroundColor: "rgba(124,58,237,0.18)",
+		borderWidth: 0.5,
+		borderColor: "rgba(124,58,237,0.35)",
+	},
+	navText: { fontSize: 10, color: "#444", letterSpacing: 0.5 },
+	navTextActive: { color: "#a855f7" },
+	navBadge: {
+		position: "absolute",
+		top: -4,
+		right: -4,
+		minWidth: 16,
+		height: 16,
+		borderRadius: 8,
+		backgroundColor: "#a855f7",
+		alignItems: "center",
+		justifyContent: "center",
+		paddingHorizontal: 3,
+	},
 	navBadgeText: { fontSize: 9, color: "#fff", fontWeight: "700" },
 
 	// Info & Sponsors
 	infoScreenContainer: { flex: 1, paddingTop: 16 },
-	contactCard: { backgroundColor: THEME.surface, borderWidth: 1, borderColor: THEME.border, borderRadius: 14, padding: 20, marginHorizontal: 24, marginBottom: 10 },
-	sectionTitle: { color: THEME.accent, fontSize: 16, fontWeight: "900", letterSpacing: 1.8, marginBottom: 14, fontFamily: FONTS.ui },
-	infoText: { color: THEME.textMuted, fontSize: 14, marginBottom: 8, letterSpacing: 0.2, fontWeight: "600" },
-	sponsorListContent: { paddingHorizontal: 16, paddingBottom: 120 },
+	contactCard: {
+		backgroundColor: "rgba(120,60,200,0.07)",
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.2)",
+		borderRadius: 14,
+		padding: 20,
+		marginHorizontal: 24,
+		marginBottom: 10,
+	},
+	sectionTitle: {
+		color: "#a855f7",
+		fontSize: 14,
+		fontWeight: "600",
+		letterSpacing: 2,
+		marginBottom: 12,
+	},
+	infoText: {
+		color: "#d8c8f0",
+		fontSize: 14,
+		marginBottom: 8,
+		letterSpacing: 0.5,
+	},
+	sponsorListContent: { paddingHorizontal: 16, paddingBottom: 32 },
 	sponsorColumnWrapper: { justifyContent: "space-between", marginBottom: 16 },
-	sponsorCard: { backgroundColor: "rgba(255,255,255,0.07)", borderWidth: 1, borderColor: THEME.borderStrong, borderRadius: 24, padding: 14, width: "48%", alignItems: "center", shadowColor: THEME.accent, shadowOpacity: 0.16, shadowRadius: 16, elevation: 6 },
-	sponsorCardSingle: { width: "100%", marginBottom: 16 },
-	sponsorLogoWrap: {
-		width: "100%",
-		height: 92,
-		borderRadius: 20,
-		backgroundColor: "transparent",
+	sponsorCard: {
+		backgroundColor: "#120a26",
+		borderWidth: 0.5,
+		borderColor: "rgba(168,85,247,0.15)",
+		borderRadius: 12,
+		padding: 16,
+		width: "48%",
 		alignItems: "center",
-		justifyContent: "center",
-		paddingHorizontal: 4,
-		paddingVertical: 4,
-		marginBottom: 12,
-		overflow: "hidden",
 	},
-	sponsorLogo: { width: "100%", height: "100%" },
-	sponsorLogoFallback: { fontSize: 20, fontWeight: "900", letterSpacing: 0, color: THEME.accent },
-	sponsorName: { color: THEME.text, fontSize: 14, fontWeight: "800", textAlign: "center", marginTop: 2, fontFamily: FONTS.ui },
-
-	// More képernyő
-	moreScreen: { flex: 1 },
-	moreList: { paddingHorizontal: 16, paddingTop: 8 },
-	moreRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 14,
-		paddingVertical: 16,
-		paddingHorizontal: 16,
-		borderRadius: 24,
-		borderWidth: 1,
-		borderColor: "rgba(216,180,254,0.16)",
-		backgroundColor: "rgba(255,255,255,0.06)",
-		marginBottom: 12,
-		shadowColor: THEME.accent,
-		shadowOpacity: 0.10,
-		shadowRadius: 14,
-		elevation: 4,
+	sponsorLogo: { width: 60, height: 40, marginBottom: 12 },
+	sponsorName: {
+		color: "rgba(232,216,255,0.8)",
+		fontSize: 12,
+		fontWeight: "500",
+		textAlign: "center",
 	},
-	moreRowIcon: {
-		width: 48,
-		height: 48,
-		borderRadius: 24,
-		backgroundColor: "rgba(168,85,247,0.18)",
-		borderWidth: 1,
-		borderColor: "rgba(216,180,254,0.24)",
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	moreRowText: { flex: 1 },
-	moreRowTitle: { fontSize: 15, fontWeight: "900", color: THEME.text },
-	moreRowSub: { fontSize: 12, color: THEME.textSubtle, marginTop: 4, fontWeight: "600" },
-	moreRowBadge: {
-		minWidth: 30,
-		height: 26,
-		paddingHorizontal: 8,
-		borderRadius: 13,
-		alignItems: "center",
-		justifyContent: "center",
-		backgroundColor: THEME.surface2,
-		borderWidth: 1,
-		borderColor: THEME.borderStrong,
-	},
-	moreRowBadgeText: { fontSize: 12, fontWeight: "900", color: THEME.text },
 
 	// Favorites képernyő
 	favScreen: { flex: 1 },
-	favEmptyContainer: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, gap: 12 },
-	favEmptyIconWrap: { width: 80, height: 80, borderRadius: 40, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface, alignItems: "center", justifyContent: "center", marginBottom: 8 },
-	favEmptyTitle: { fontSize: 18, fontWeight: "900", color: THEME.text, textAlign: "center" },
-	favEmptySubtitle: { fontSize: 13, color: THEME.textSubtle, textAlign: "center", lineHeight: 20, fontWeight: "600" },
-	favEmptyBtn: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8, paddingVertical: 12, paddingHorizontal: 22, borderRadius: 14, backgroundColor: THEME.surface2, borderWidth: 1, borderColor: THEME.borderStrong },
-	favEmptyBtnText: { fontSize: 14, fontWeight: "900", color: THEME.text },
+	favEmptyContainer: {
+		flex: 1,
+		alignItems: "center",
+		justifyContent: "center",
+		paddingHorizontal: 32,
+		gap: 12,
+	},
+	favEmptyIconWrap: {
+		width: 80,
+		height: 80,
+		borderRadius: 40,
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.25)",
+		backgroundColor: "rgba(120,60,200,0.07)",
+		alignItems: "center",
+		justifyContent: "center",
+		marginBottom: 8,
+	},
+	favEmptyTitle: {
+		fontSize: 18,
+		fontWeight: "600",
+		color: "#e8d8ff",
+		textAlign: "center",
+	},
+	favEmptySubtitle: {
+		fontSize: 13,
+		color: "rgba(168,85,247,0.5)",
+		textAlign: "center",
+		lineHeight: 20,
+	},
+	favEmptyBtn: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
+		marginTop: 8,
+		paddingVertical: 12,
+		paddingHorizontal: 22,
+		borderRadius: 14,
+		backgroundColor: "rgba(124,58,237,0.25)",
+		borderWidth: 0.5,
+		borderColor: "rgba(168,85,247,0.45)",
+	},
+	favEmptyBtnText: { fontSize: 14, fontWeight: "600", color: "#f0e8ff" },
 
 	// Nap szűrő
 	dayFilterRow: { paddingHorizontal: 16, gap: 8, paddingVertical: 10 },
 	dayFilterChip: {
 		paddingHorizontal: 14,
-		paddingVertical: 9,
+		paddingVertical: 8,
 		borderRadius: 20,
-		borderWidth: 0.8,
-		borderColor: THEME.border,
-		backgroundColor: THEME.surface,
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.25)",
+		backgroundColor: "rgba(120,60,200,0.06)",
 	},
-	dayFilterChipActive: { backgroundColor: THEME.surface2, borderColor: THEME.borderStrong },
-	dayFilterChipText: { fontSize: 12, color: THEME.textSubtle, fontWeight: "800" },
-	dayFilterChipTextActive: { color: THEME.text },
+	dayFilterChipActive: {
+		backgroundColor: "rgba(124,58,237,0.22)",
+		borderColor: "rgba(168,85,247,0.45)",
+	},
+	dayFilterChipText: {
+		fontSize: 12,
+		color: "rgba(168,85,247,0.5)",
+		fontWeight: "500",
+	},
+	dayFilterChipTextActive: { color: "#e8d8ff" },
 
 	// Gasztró képernyő
 	gastroScreen: { flex: 1 },
-	gastroHeroCard: { marginHorizontal: 16, marginBottom: 18, borderRadius: 34, borderWidth: 1, borderColor: "rgba(216,180,254,0.22)", backgroundColor: "rgba(255,255,255,0.06)", overflow: "hidden", shadowColor: THEME.accent, shadowOpacity: 0.22, shadowRadius: 22, elevation: 8 },
-	gastroHeroContent: { padding: 18 },
-	gastroHeroEyebrow: { fontSize: 11, color: THEME.accent, letterSpacing: 1.8, marginBottom: 8, fontWeight: "900", fontFamily: FONTS.ui },
-	gastroHeroTitle: { fontSize: 22, color: THEME.text, lineHeight: 28, marginBottom: 8, fontWeight: "700", fontFamily: FONTS.heading, letterSpacing: -0.5 },
-	gastroHeroText: { fontSize: 13, lineHeight: 21, color: THEME.textMuted, fontFamily: FONTS.body },
-	gastroCategoryGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", marginHorizontal: 16, marginBottom: 18 },
-	gastroCategoryTile: { width: "48%", minHeight: 104, paddingHorizontal: 14, paddingVertical: 14, borderRadius: 24, borderWidth: 1, borderColor: "rgba(216,180,254,0.14)", backgroundColor: "rgba(255,255,255,0.055)", marginBottom: 12, justifyContent: "center", shadowColor: THEME.accent, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
-	gastroCategoryTileActive: { backgroundColor: "rgba(168,85,247,0.20)", borderColor: "rgba(245,208,254,0.48)" },
-	gastroCategoryTileTopRow: { flexDirection: "row", alignItems: "center" },
-	gastroCategoryTextBlock: { flex: 1, paddingLeft: 12 },
-	gastroCategoryTileTitle: { fontSize: 17, color: THEME.text, fontWeight: "700", fontFamily: FONTS.heading, letterSpacing: -0.5 },
-	gastroCategoryTileTitleActive: { color: "#ffffff" },
-	gastroCategoryTileMeta: { fontSize: 12, color: THEME.textSubtle, marginTop: 4, fontFamily: FONTS.ui },
-	gastroCategoryTileMetaActive: { color: THEME.textMuted },
-	gastroList: { paddingBottom: 32 },
-	gastroCard: { backgroundColor: "rgba(255,255,255,0.055)", borderWidth: 1, borderColor: "rgba(216,180,254,0.14)", borderRadius: 30, marginHorizontal: 16, marginBottom: 18, overflow: "hidden", shadowColor: THEME.accent, shadowOpacity: 0.12, shadowRadius: 16, elevation: 5 },
-	gastroImageWrap: { height: 178, width: "100%", position: "relative", backgroundColor: "rgba(255,255,255,0.04)" },
-	gastroCardImage: { width: "100%", height: "100%" },
-	gastroImageTint: { ...StyleSheet.absoluteFillObject, opacity: 0.08 },
-	gastroCardAccent: { height: 4, width: "100%" },
-	gastroCardBody: { paddingHorizontal: 18, paddingTop: 14, paddingBottom: 18, backgroundColor: "rgba(14,7,26,0.78)" },
-	gastroCardHeader: { flexDirection: "row", alignItems: "flex-start", gap: 12, marginBottom: 8 },
-	gastroEmoji: { fontSize: 20, lineHeight: 24 },
+	gastroList: { paddingHorizontal: 16, paddingBottom: 32 },
+	gastroCard: {
+		flexDirection: "row",
+		backgroundColor: "rgba(120,60,200,0.07)",
+		borderWidth: 0.5,
+		borderColor: "rgba(120,60,200,0.2)",
+		borderRadius: 16,
+		marginBottom: 12,
+		overflow: "hidden",
+	},
+	gastroCardAccent: { width: 4 },
+	gastroCardBody: { flex: 1, padding: 14 },
+	gastroCardHeader: {
+		flexDirection: "row",
+		alignItems: "flex-start",
+		gap: 12,
+		marginBottom: 8,
+	},
+	gastroEmoji: { fontSize: 32, lineHeight: 38 },
 	gastroCardTitles: { flex: 1 },
-	gastroName: { fontSize: 25, fontWeight: "700", color: THEME.text, marginBottom: 7, fontFamily: FONTS.heading, letterSpacing: -0.5 },
+	gastroName: {
+		fontSize: 17,
+		fontWeight: "700",
+		color: "#f0e8ff",
+		marginBottom: 4,
+	},
 	gastroTagRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-	gastroCatBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, borderWidth: 1, backgroundColor: THEME.surface2, borderColor: THEME.border },
-	gastroCatText: { fontSize: 11, fontWeight: "900", letterSpacing: 0, fontFamily: FONTS.ui },
-	gastroArtist: { fontSize: 12, color: THEME.textSubtle, fontWeight: "700", fontFamily: FONTS.ui },
-	gastroDescription: { fontSize: 15, color: THEME.textMuted, lineHeight: 24, marginBottom: 16, fontWeight: "500", fontFamily: FONTS.body },
+	gastroCatBadge: {
+		paddingHorizontal: 8,
+		paddingVertical: 2,
+		borderRadius: 6,
+		borderWidth: 0.5,
+	},
+	gastroCatText: { fontSize: 10, fontWeight: "600", letterSpacing: 0.5 },
+	gastroArtist: { fontSize: 11, color: "rgba(168,85,247,0.55)" },
+	gastroDescription: {
+		fontSize: 13,
+		color: "rgba(216,200,240,0.8)",
+		lineHeight: 19,
+		marginBottom: 12,
+	},
 	gastroOffers: { gap: 6 },
-	gastroOffersLabel: { fontSize: 11, letterSpacing: 1.8, color: THEME.accent, marginBottom: 8, fontWeight: "900", fontFamily: FONTS.ui },
+	gastroOffersLabel: {
+		fontSize: 9,
+		letterSpacing: 2,
+		color: "rgba(168,85,247,0.45)",
+		marginBottom: 4,
+	},
 	gastroOfferRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
 	gastroOfferDot: { width: 6, height: 6, borderRadius: 3, marginTop: 5 },
-	gastroOfferText: { flex: 1, fontSize: 14, color: THEME.textMuted, lineHeight: 22, fontWeight: "500", fontFamily: FONTS.body },
-	backBtnHeader: { paddingHorizontal: 16, paddingTop: 6, paddingBottom: 2 },
-	backBtn: { flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "flex-start", paddingVertical: 8, paddingHorizontal: 10, borderRadius: 12, backgroundColor: THEME.surface, borderWidth: 1, borderColor: THEME.border },
-	backBtnText: { color: THEME.text, fontSize: 12, fontWeight: "800" },
-	gastroCategoryRow: {
-		paddingHorizontal: 16,
-		paddingTop: 12,
-		paddingBottom: 18,
-		gap: 14,
-		alignItems: "stretch",
+	gastroOfferText: {
+		flex: 1,
+		fontSize: 12,
+		color: "rgba(216,200,240,0.7)",
+		lineHeight: 18,
 	},
-	gastroCategoryChip: {
-		width: 124,
-		minHeight: 108,
-		alignItems: "center",
-		justifyContent: "flex-start",
-		paddingHorizontal: 12,
-		paddingTop: 16,
-		paddingBottom: 14,
-		borderRadius: 24,
-		borderWidth: 1.2,
-		borderColor: THEME.borderStrong,
-		backgroundColor: "rgba(255,255,255,0.06)",
-		shadowColor: THEME.accent,
-		shadowOpacity: 0.10,
-		shadowRadius: 12,
-		elevation: 4,
-	},
-	gastroCategoryChipActive: {
-		backgroundColor: "rgba(168,85,247,0.22)",
-		borderColor: "rgba(216,180,254,0.45)",
-	},
-	gastroCategoryIconCircle: {
-		width: 50,
-		height: 50,
-		borderRadius: 14,
+	// ─── SOS Funkció Stílusok ───
+	sosFloatingBtn: {
+		position: "absolute",
+		bottom: 24,
+		right: 20,
+		width: 64,
+		height: 64,
+		borderRadius: 32,
+		backgroundColor: "#ef4444", // Élénk piros
 		alignItems: "center",
 		justifyContent: "center",
-		backgroundColor: "rgba(168,85,247,0.08)",
-		borderWidth: 1,
-		borderColor: "rgba(168,85,247,0.22)",
+		shadowColor: "#ef4444",
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.5,
+		shadowRadius: 10,
+		elevation: 8,
+		borderWidth: 2,
+		borderColor: "#fca5a5",
 	},
-	gastroCategoryIconCircleActive: {
-		backgroundColor: "rgba(168,85,247,0.32)",
-		borderColor: "rgba(240,232,255,0.32)",
+	sosModalOverlay: {
+		flex: 1,
+		backgroundColor: "rgba(0,0,0,0.85)", // Sötét háttér a fókuszért
+		justifyContent: "flex-end", // Alulra igazítja a panelt
 	},
-	gastroCategoryChipText: {
+	sosModalContent: {
+		backgroundColor: "#1a0b2e",
+		borderTopLeftRadius: 24,
+		borderTopRightRadius: 24,
+		padding: 24,
+		paddingBottom: 40, // Kicsit több hely alul a swipe miatt
+		borderTopWidth: 1,
+		borderTopColor: "#ef4444",
+	},
+	sosHeader: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 12,
+		marginBottom: 8,
+	},
+	sosTitle: {
+		fontSize: 20,
+		fontWeight: "800",
+		color: "#ef4444",
+		letterSpacing: 1,
+	},
+	sosSubtitle: {
+		fontSize: 14,
+		color: "#d8c8f0",
+		marginBottom: 24,
+	},
+	sosActionBtn: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 12,
+		backgroundColor: "#ef4444",
+		paddingVertical: 18,
+		borderRadius: 16,
+		marginBottom: 12,
+	},
+	sosActionText: {
+		color: "#ffffff",
 		fontSize: 16,
-		lineHeight: 20,
-		color: THEME.textMuted,
-		fontWeight: "900",
-		letterSpacing: 0.2,
-		textAlign: "center",
-		includeFontPadding: false,
+		fontWeight: "700",
+		letterSpacing: 0.5,
 	},
-	gastroCategoryChipTextActive: { color: THEME.text },
-	gastroIconBox: { width: 52, height: 52, borderRadius: 16, alignItems: "center", justifyContent: "center", borderWidth: 1.2 },
-	performerImage: { width: 74, height: 74, borderRadius: 14, marginLeft: 14, marginVertical: 14, backgroundColor: "rgba(120,60,200,0.12)", borderWidth: 1, borderColor: "rgba(216,180,254,0.16)" },
-	timelineImage: { width: 58, height: 58, borderRadius: 12, margin: 12, marginRight: 0, backgroundColor: "rgba(120,60,200,0.12)", borderWidth: 1, borderColor: "rgba(216,180,254,0.14)" },
+	sosCancelBtn: {
+		paddingVertical: 16,
+		alignItems: "center",
+		marginTop: 8,
+	},
+	sosCancelText: {
+		color: "rgba(216,200,240,0.6)",
+		fontSize: 16,
+		fontWeight: "600",
+	},
+	sosSuccessContainer: {
+		alignItems: "center",
+		paddingVertical: 20,
+	},
+	sosSuccessTitle: {
+		fontSize: 22,
+		fontWeight: "800",
+		color: "#22c55e",
+		marginTop: 16,
+		marginBottom: 8,
+	},
+	sosSuccessText: {
+		fontSize: 15,
+		color: "#d8c8f0",
+		textAlign: "center",
+		lineHeight: 22,
+		paddingHorizontal: 20,
+	},
+	// Kép a sima listában
+	performerImage: {
+		width: 64,
+		height: 64,
+		borderRadius: 10,
+		marginLeft: 12,
+		marginVertical: 12,
+		backgroundColor: "rgba(120,60,200,0.1)",
+	},
+
+	// Kép a timeline nézetben
+	timelineImage: {
+		width: 52,
+		height: 52,
+		borderRadius: 8,
+		margin: 12,
+		marginRight: 0,
+		backgroundColor: "rgba(120,60,200,0.1)",
+	},
 });
