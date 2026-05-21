@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-	Alert,
 	Animated,
 	Dimensions,
 	Easing,
@@ -21,7 +20,6 @@ import {
 	View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useVideoPlayer, VideoView } from "expo-video";
 // Removed expo-google-fonts
 import Svg, {
 	Circle,
@@ -206,91 +204,6 @@ const translations = {
 		sponsors: "Sponsors",
 		sponsorsTitle: "OUR PROUD SPONSORS",
 		festivalInfo: "FESTIVAL INFO",
-		mapSelectedNotice: "Selected on map: ",
-		conflictDesc: "These performances overlap in time, so they cannot be purchased together:",
-		newPurchase: "New Purchase",
-		qtyPerPerformance: "Quantity / performance",
-		noFavOnDay: "No favorites on this day",
-		orderReview: "Order Review",
-		viewSchedule: "View Schedule",
-		homeHeroDesc: "Three nights, four stages, premium festival atmosphere.",
-		ticketsDesc: "Select the ticket type and performances, then check your cart. The total will separately show discounts and related fees.",
-		cartTitle: "CART",
-		homeHeroSubtitle: "LIVE MUSIC · NIGHT EXPERIENCE",
-		quickAccess: "Quick access to other sections",
-		ticketStep3: "3. Discount",
-		discountLabel: "Discount",
-		ticketCategoryDesc: "Entry category",
-		gastro: "Gastro",
-		more: "More",
-		timeConflict: "Time Conflict",
-		subtotal: "Subtotal",
-		buyTickets: "Buy Tickets",
-		conflictBadge: "conflict",
-		orderLabel: "ORDER",
-		refundPolicyTitle: "Cancellation & Refund",
-		countdownTitle: "TIME UNTIL NEXT PERFORMANCE",
-		feeDisclaimer: "Fees and discounts are demo logic. Handling fee is per item, service fee applies after discount.",
-		gastroDesc: "Premium gastro experience between stages",
-		mapDataNotAvailable: "Map data is not available.",
-		purchaseSuccess: "Successful Purchase!",
-		artistDetail: "ARTIST DETAIL",
-		mySchedule: "My Schedule",
-		scheduleLabel: "Schedule",
-		selectedPerformances: "Selected Performances",
-		jul: "JUL",
-		gastroSubDesc: "Visual event-app style cards, larger typography, and clearer categories.",
-		hours: "hours",
-		festivalBrand: "ECLIPSEFEST · 2026",
-		list: "List",
-		mapDesc: "Select a location from the list below, and we will show you where to find it on the map.",
-		handlingFee: "Handling Fee",
-		threeNights: "3 NIGHTS",
-		darknessFalls: "WHEN DARKNESS FALLS, MUSIC RISES",
-		openDetails: "Open details",
-		ticketStep2: "2. Performances",
-		discountDesc: "Sziget-style discounts",
-		totalPayable: "Total Payable with Fees",
-		days: "days",
-		serviceFee: "Service Fee",
-		noFavoritesYet: "No favorites yet",
-		refundRequested: "Refund requested",
-		curatedDining: "CURATED FESTIVAL DINING",
-		favDesc: "In the schedule view, you can favorite the artists you don't want to miss.",
-		popular: "POPULAR",
-		openInGoogleMaps: "Open in Google Maps",
-		favEmptySubtitle: "Select another day or add new artists.",
-		emailAddress: "Email Address",
-		minutes: "minutes",
-		checkout: "Checkout",
-		resolveConflictFirst: "Resolve time conflict first.",
-		eclipseFest: "EclipseFest",
-		confirmationSentTo: "Confirmation sent to:",
-		checkoutDisabledReason: "Select a ticket type and at least one performance to continue",
-		recommendedItems: "RECOMMENDED ITEMS",
-		ticketStep1: "1. Ticket Type",
-		payable: "Total Payable",
-		all: "All",
-		stage: "Stage",
-		foodDrink: "Food & Drink",
-		food: "Food",
-		stand: "Stand",
-		service: "Service",
-		serviceShort: "Serv.",
-		entrance: "Entrance",
-		camping: "Camping",
-		requestRefund: "Request refund",
-		refundExpired: "Refund deadline expired",
-		noneSelected: "none selected",
-		selected: "selected",
-		multipleSelectable: "Multiple selectable",
-		normalOnlinePrice: "Normal online price",
-		noDiscount: "No discount",
-		seasonalPromo: "Seasonal promo",
-		studentDiscount: "Student discount",
-		withIdAtEntry: "With ID at entry",
-		multiShowBundle: "Multi-show bundle",
-		whenChoosingPerformances: "fellépés választásakor",
 	},
 	hu: {
 		home: "Kezdőlap",
@@ -300,285 +213,7 @@ const translations = {
 		sponsors: "Támogatók",
 		sponsorsTitle: "BÜSZKE TÁMOGATÓINK",
 		festivalInfo: "FESZTIVÁL INFÓ",
-		mapSelectedNotice: "Kijelölve a térképen: ",
-		conflictDesc: "Ezek a fellépések átfedik egymást, ezért együtt nem vásárolhatók meg:",
-		newPurchase: "Új vásárlás",
-		qtyPerPerformance: "Mennyiség / fellépés",
-		noFavOnDay: "Ezen a napon nincs kedvenced",
-		orderReview: "Rendelés áttekintése",
-		viewSchedule: "Műsor megtekintése",
-		homeHeroDesc: "Három este, négy színpad, prémium fesztiválhangulat.",
-		ticketsDesc: "Válaszd ki a jegytípust és a fellépéseket, majd ellenőrizd a kosarat. A végösszegben külön látszanak a kedvezmények és a vásárláshoz kapcsolódó díjak.",
-		cartTitle: "KOSÁR",
-		homeHeroSubtitle: "LIVE MUSIC · NIGHT EXPERIENCE",
-		quickAccess: "Gyors elérés a többi szekcióhoz",
-		ticketStep3: "3. Kedvezmény",
-		discountLabel: "Kedvezmény",
-		ticketCategoryDesc: "Belépő kategória",
-		gastro: "Gasztró",
-		more: "Több",
-		timeConflict: "Időpontütközés",
-		subtotal: "Részösszeg",
-		buyTickets: "Jegyvásárlás",
-		conflictBadge: "ütközés",
-		orderLabel: "RENDELÉS",
-		refundPolicyTitle: "Visszamondás & visszatérítés",
-		countdownTitle: "KÖVETKEZŐ FELLÉPÉSIG HÁTRA VAN",
-		feeDisclaimer: "A díjak és kedvezmények demo logikák. A kezelési díj tételenként, a szolgáltatási díj a kedvezménnyel csökkentett összeg után számolódik.",
-		gastroDesc: "Prémium gasztro élmény a színpadok között",
-		mapDataNotAvailable: "A térkép adatai nem érhetők el.",
-		purchaseSuccess: "Sikeres vásárlás!",
-		artistDetail: "FELLÉPŐ ADATAI",
-		mySchedule: "Saját menetrend",
-		scheduleLabel: "Műsor",
-		selectedPerformances: "Kiválasztott fellépések",
-		jul: "JÚL",
-		gastroSubDesc: "Képes, event-app jellegű kártyák, nagyobb tipográfia és átláthatóbb kategóriák.",
-		hours: "óra",
-		festivalBrand: "ECLIPSEFEST · 2026",
-		list: "Lista",
-		mapDesc: "Válassz egy helyszínt az alábbi listából, és a részletek mellett a térképen is megmutatjuk, hol találod.",
-		handlingFee: "Kezelési díj",
-		threeNights: "3 ÉJSZAKA",
-		darknessFalls: "AMIKOR LESZÁLL AZ ÉJ, FELENDÜL A ZENE",
-		openDetails: "Részletek megnyitása",
-		ticketStep2: "2. Fellépések",
-		discountDesc: "Sziget-szerű árkedvezmények",
-		totalPayable: "Díjakkal együtt fizetendő",
-		days: "nap",
-		serviceFee: "Szolgáltatási díj",
-		noFavoritesYet: "Még nincsenek kedvenceid",
-		refundRequested: "Visszatérítési kérelem elküldve",
-		curatedDining: "VÁLOGATOTT FESZTIVÁL GASZTRONÓMIA",
-		favDesc: "A műsor nézetben szívecskével jelölheted az előadókat, akiket nem akarsz kihagyni.",
-		popular: "NÉPSZERŰ",
-		openInGoogleMaps: "Megnyitás Google Maps-ben",
-		favEmptySubtitle: "Válassz másik napot vagy jelölj be új előadókat.",
-		emailAddress: "E-mail cím",
-		minutes: "perc",
-		checkout: "Fizetés",
-		resolveConflictFirst: "Előbb oldd fel az időpontütközést.",
-		eclipseFest: "EclipseFest",
-		confirmationSentTo: "A visszaigazolást elküldjük erre a címre:",
-		checkoutDisabledReason: "Válassz jegytípust és legalább egy fellépést a folytatáshoz",
-		recommendedItems: "AJÁNLOTT TÉTELEK",
-		ticketStep1: "1. Jegytípus",
-		payable: "Fizetendő",
-		all: "Mind",
-		stage: "Színpad",
-		foodDrink: "Étel & ital",
-		food: "Étel",
-		stand: "Stand",
-		service: "Szolgáltatás",
-		serviceShort: "Szolg.",
-		entrance: "Bejárat",
-		camping: "Kemping",
-		requestRefund: "Visszatérítés kérése",
-		refundExpired: "A visszatérítési határidő lejárt",
-		noneSelected: "nincs kiválasztva",
-		selected: "kiválasztva",
-		multipleSelectable: "Több is választható",
-		normalOnlinePrice: "Normál online ár",
-		noDiscount: "Nincs kedvezmény",
-		seasonalPromo: "Időszakos promóció",
-		studentDiscount: "Diák kedvezmény",
-		withIdAtEntry: "Belépéskor igazolással",
-		multiShowBundle: "Multi-show csomag",
-		whenChoosingPerformances: "fellépés választásakor",
 	},
-};
-
-const MAP_POINTS_TRANSLATIONS: Record<string, Record<"en" | "hu", { name: string; description: string }>> = {
-	"main-stage": {
-		en: { name: "Main Stage", description: "Main stage – headliners and big shows." },
-		hu: { name: "Main Stage", description: "Főszínpad – headlinerek és nagy show-k." }
-	},
-	"electronic-stage": {
-		en: { name: "Electronic Stage", description: "Electronic and house genres." },
-		hu: { name: "Electronic Stage", description: "Elektronikus és house műfajok." }
-	},
-	"acoustic-stage": {
-		en: { name: "Acoustic Stage", description: "Acoustic and intimate performances." },
-		hu: { name: "Acoustic Stage", description: "Akusztikus és intim előadások." }
-	},
-	"sunrise-stage": {
-		en: { name: "Sunrise Stage", description: "Afterparty section until dawn." },
-		hu: { name: "Sunrise Stage", description: "Hajnalig tartó afterparty szekció." }
-	},
-	"entrance": {
-		en: { name: "Main Entrance", description: "Entry with ticket and wristband." },
-		hu: { name: "Főbejárat", description: "Belépés jeggyel és karszalaggal." }
-	},
-	"info-desk": {
-		en: { name: "Info Point", description: "Map, lost and found, assistance." },
-		hu: { name: "Infópont", description: "Térkép, elveszett tárgyak, segítség." }
-	},
-	"food-court": {
-		en: { name: "Food Court", description: "Food and drink stands in the middle of the plaza." },
-		hu: { name: "Food Court", description: "Étel- és italstandok a piactér közepén." }
-	},
-	"street-food": {
-		en: { name: "Street Food Lane", description: "Fast food, burgers, tacos, desserts." },
-		hu: { name: "Street Food sáv", description: "Gyors ételek, burger, taco, desszert." }
-	},
-	"bar-center": {
-		en: { name: "Bar Center", description: "Cocktails, beer, and soft drinks." },
-		hu: { name: "Bárközpont", description: "Koktélok, sör és üdítők." }
-	},
-	"merch-village": {
-		en: { name: "Merch Village", description: "Official t-shirts, caps, souvenirs." },
-		hu: { name: "Merch Village", description: "Hivatalos pólók, sapkák, emléktárgyak." }
-	},
-	"artist-merch": {
-		en: { name: "Artist Stand", description: "Tour merch and limited editions." },
-		hu: { name: "Előadói stand", description: "Turné merch és limitált kiadások." }
-	},
-	"photo-booth": {
-		en: { name: "Photo Booth", description: "Festival photography and instant prints." },
-		hu: { name: "Fotópont", description: "Fesztivál fotózás és azonnali nyomat." }
-	}
-};
-
-const TICKET_TRANSLATIONS: Record<string, Record<"en" | "hu", { name: string; description: string; badge: string; features: string[] }>> = {
-	"day-pass": {
-		en: {
-			name: "Day Pass",
-			description: "Full entry for one day to all 4 stages.",
-			badge: "1 day",
-			features: ["All stages", "18:00 – 02:00", "Mobile app access"]
-		},
-		hu: {
-			name: "Napijegy",
-			description: "Egy nap teljes belépés mind a 4 színpadra.",
-			badge: "1 nap",
-			features: ["Minden színpad", "18:00 – 02:00", "Mobil app hozzáférés"]
-		}
-	},
-	"weekend-pass": {
-		en: {
-			name: "Weekend Pass",
-			description: "Full weekend: July 18–20, all stages.",
-			badge: "3 days",
-			features: ["3 days entry", "Priority entrance", "Exclusive merch 10%"]
-		},
-		hu: {
-			name: "Bérlet",
-			description: "Teljes hétvége: július 18–20., minden színpad.",
-			badge: "3 nap",
-			features: ["3 nap belépés", "Prioritásos bejárat", "Exkluzív merch 10%"]
-		}
-	},
-	"vip-pass": {
-		en: {
-			name: "VIP Pass",
-			description: "Premium experience for the entire duration of the festival.",
-			badge: "VIP",
-			features: ["VIP lounge", "Separate restroom & bar", "Meet & greet opportunity"]
-		},
-		hu: {
-			name: "VIP Bérlet",
-			description: "Prémium élmény a teljes fesztivál idejére.",
-			badge: "VIP",
-			features: ["VIP lounge", "Külön mosdó & bár", "Meet & greet lehetőség"]
-		}
-	},
-	"camping-addon": {
-		en: {
-			name: "Camping Add-on",
-			description: "Campsite on the festival grounds, 3 nights.",
-			badge: "Add-on",
-			features: ["Shower & WC", "24-hour security", "Pass required"]
-		},
-		hu: {
-			name: "Kemping kiegészítő",
-			description: "Sátorhely a fesztivál területén, 3 éjszaka.",
-			badge: "Add-on",
-			features: ["Zuhanyzó & WC", "24 órás biztonság", "Csak bérlettel"]
-		}
-	}
-};
-
-const GASTRO_STANDS_TRANSLATIONS: Record<string, Record<"en" | "hu", { description: string; offers: string[] }>> = {
-	g1: {
-		en: {
-			description: "The Haus of Gaga's official cocktail bar. Bold flavors for brave souls.",
-			offers: ["Poker Face Paloma – grapefruit-tequila cocktail with salted rim", "Bad Romance Rosé – raspberry champagne cocktail with devil horns decoration"]
-		},
-		hu: {
-			description: "A Haus of Gaga hivatalos koktélbárja. Merész ízek bátor lelkeknek.",
-			offers: ["Poker Face Paloma – grapefruit-tequila koktél sós peremmel", "Bad Romance Rosé – málnás pezsgőkoktél ördögszarv dísszel"]
-		}
-	},
-	g2: {
-		en: {
-			description: "13 types of drinks, one for every era. Friendship bracelets with every sip.",
-			offers: ["Red Lemonade – strawberry lemonade with gold glitter dust", "Midnights Mojito – blue butterfly pea flower patterned mojito"]
-		},
-		hu: {
-			description: "13 féle ital, minden eráról egy. Friendship bracelets every sip.",
-			offers: ["Red Lemonade – epres limonádé arany csillámpárával", "Midnights Mojito – kék pillangóvirágos mintás mojito"]
-		}
-	},
-	g3: {
-		en: {
-			description: "Flame-grilled, heavily seasoned dishes. Are you a believer? Then stand the heat!",
-			offers: ["Thunder Burger – double beef patty with smoky BBQ sauce", "Demons Wings – hellishly spicy chicken wings in 3 intensity levels"]
-		},
-		hu: {
-			description: "Tűzön sült, erős fűszerezésű fogások. Believer vagy? Akkor bírd el!",
-			offers: ["Thunder Burger – dupla marhahús smoky BBQ szósszal", "Demons Wings – pokoli csípős csirkeszárny 3 erősségben"]
-		}
-	},
-	g4: {
-		en: {
-			description: "Dark, elegant, uncompromising. Personal Jesus level quality.",
-			offers: ["Policy of Truth Wrap – smoked chicken wrap with tahini in a black tortilla", "Master & Servant Platter – vegan sandwich selection"]
-		},
-		hu: {
-			description: "Sötét, elegáns, kompromisszummentes. Personal Jesus szintű minőség.",
-			offers: ["Policy of Truth Wrap – policy of truth wrap (füstölt csirke tahinis wrap fekete tortillában)", "Master & Servant Platter – vegán szendvicsválogatás"]
-		}
-	},
-	g5: {
-		en: {
-			description: "Local flavors in a festival atmosphere. Just like your mom's cooking, only louder.",
-			offers: ["Eclipse Lángos – festival-sized flatbread with sour cream and cheese", "Benci's Chimney Cake – cinnamon flavored, freshly baked"]
-		},
-		hu: {
-			description: "Hazai ízek fesztiválos hangulatban. Olyan mint anyukád főztje, csak hangosabb.",
-			offers: ["Eclipse Lángos – tejfölös-sajtos, fesztiválméretű", "Benci's Kürtőskalács – fahéjas, frissen sütve"]
-		}
-	},
-	g6: {
-		en: {
-			description: "Galactic ice creams and cold desserts. The sweet side of the solar eclipse.",
-			offers: ["Eclipse Sundae – black coconut ice cream with gold glitter dust", "Meteor Waffle – fresh waffle with blueberry topping"]
-		},
-		hu: {
-			description: "Galaktikus fagylaltok és hideg desszertek. A napfogyatkozás édes oldala.",
-			offers: ["Eclipse Sundae – fekete kókuszfagyi arany csillámpárával", "Meteor Waffle – friss gofri áfonyás öntettel"]
-		}
-	},
-	g7: {
-		en: {
-			description: "Official energy drink partner. Charge up for the next performance!",
-			offers: ["Monster Ultra – sugar-free versions in 6 flavors", "Eclipse Mix – Monster + fruit juice combinations"]
-		},
-		hu: {
-			description: "Hivatalos energiaital partner. Töltsd fel magad a következő fellépőre!",
-			offers: ["Monster Ultra – cukormentes változatok 6 ízben", "Eclipse Mix – Monster + gyümölcslé kombók"]
-		}
-	},
-	g8: {
-		en: {
-			description: "Late-night bites for those who don't want to miss anything.",
-			offers: ["Midnight Ramen – miso broth with toasted garlic", "Eclipse Pad Thai – peanut-chili, vegan option available"]
-		},
-		hu: {
-			description: "Északai falatkák azoknak akik nem akarnak kihagyni semmit.",
-			offers: ["Midnight Ramen – miso alaplé pirított fokhagymával", "Eclipse Pad Thai – mogyorós-chilis, vegán opció is"]
-		}
-	}
 };
 
 type TabKey = "Home" | "Schedule" | "Map" | "Favorites" | "Gastro" | "Tickets" | "Sponsors";
@@ -694,9 +329,8 @@ const FESTIVAL_DAYS = [
 	{ key: 20, label: "Júl. 20" },
 ];
 
-function formatPrice(amount: number, currency: string, lang: "en" | "hu" = "hu") {
-	const locale = lang === "en" ? "en-US" : "hu-HU";
-	return `${amount.toLocaleString(locale)} ${currency}`;
+function formatPrice(amount: number, currency: string) {
+	return `${amount.toLocaleString("hu-HU")} ${currency}`;
 }
 
 const FESTIVAL_YEAR = 2026;
@@ -711,10 +345,8 @@ function getRefundDeadline(performer: Performer) {
 	return new Date(getPerformanceDate(performer).getTime() - REFUND_DEADLINE_HOURS * 60 * 60 * 1000);
 }
 
-function formatPerformanceDate(performer: Performer, lang: "en" | "hu" = "hu") {
-	const month = lang === "en" ? "Jul." : "Júl.";
-	const daySep = lang === "en" ? "" : ".";
-	return `${month} ${performer.day}${daySep} · ${performer.startTime}–${performer.endTime}`;
+function formatPerformanceDate(performer: Performer) {
+	return `Júl. ${performer.day}. · ${performer.startTime}–${performer.endTime}`;
 }
 
 function formatCountdown(target: Date, now: Date) {
@@ -726,12 +358,9 @@ function formatCountdown(target: Date, now: Date) {
 	return { days, hours, minutes, expired: diff <= 0 };
 }
 
-function formatRefundDeadline(performer: Performer, lang: "en" | "hu" = "hu") {
+function formatRefundDeadline(performer: Performer) {
 	const deadline = getRefundDeadline(performer);
-	const month = lang === "en" ? "Jul." : "Júl.";
-	const daySep = lang === "en" ? "" : ".";
-	const timeLocale = lang === "en" ? "en-US" : "hu-HU";
-	return `${month} ${deadline.getDate()}${daySep} ${deadline.toLocaleTimeString(timeLocale, { hour: "2-digit", minute: "2-digit", hour12: lang === "en" })}`;
+	return `Júl. ${deadline.getDate()}. ${deadline.toLocaleTimeString("hu-HU", { hour: "2-digit", minute: "2-digit" })}`;
 }
 
 function isValidEmail(email: string) {
@@ -892,34 +521,28 @@ function EclipseAnimation() {
 }
 
 // ─── Jegy kártya ──────────────────────────────────────────────────────────────
-function TicketCard({ ticket, selected, onSelect, lang }: { ticket: Ticket; selected: boolean; onSelect: () => void; lang: "en" | "hu" }) {
-	const localized = TICKET_TRANSLATIONS[ticket.id]?.[lang] ?? {
-		name: ticket.name,
-		badge: ticket.badge,
-		description: ticket.description,
-		features: ticket.features,
-	};
+function TicketCard({ ticket, selected, onSelect }: { ticket: Ticket; selected: boolean; onSelect: () => void }) {
 	return (
 		<TouchableOpacity style={[styles.ticketCard, selected && styles.ticketCardSelected]} onPress={onSelect} activeOpacity={0.85}>
 			{ticket.popular && (
 				<View style={styles.popularBadge}>
-					<Text style={styles.popularBadgeText}>{lang === "en" ? "POPULAR" : "NÉPSZERŰ"}</Text>
+					<Text style={styles.popularBadgeText}>NÉPSZERŰ</Text>
 				</View>
 			)}
 			<View style={[styles.cardAccent, selected && styles.ticketAccentSelected]} />
 			<View style={styles.ticketCardBody}>
 				<View style={styles.ticketCardHeader}>
 					<View style={styles.ticketTitleRow}>
-						<Text style={styles.ticketName}>{localized.name}</Text>
+						<Text style={styles.ticketName}>{ticket.name}</Text>
 						<View style={styles.ticketBadge}>
-							<Text style={styles.ticketBadgeText}>{localized.badge}</Text>
+							<Text style={styles.ticketBadgeText}>{ticket.badge}</Text>
 						</View>
 					</View>
-					<Text style={styles.ticketPrice}>{formatPrice(ticket.price, ticket.currency, lang)}</Text>
+					<Text style={styles.ticketPrice}>{formatPrice(ticket.price, ticket.currency)}</Text>
 				</View>
-				<Text style={styles.ticketDescription}>{localized.description}</Text>
+				<Text style={styles.ticketDescription}>{ticket.description}</Text>
 				<View style={styles.ticketFeatures}>
-					{localized.features.map((feature) => (
+					{ticket.features.map((feature) => (
 						<View key={feature} style={styles.ticketFeatureRow}>
 							<Ionicons name="checkmark-circle" size={14} color="#a855f7" />
 							<Text style={styles.ticketFeatureText}>{feature}</Text>
@@ -960,12 +583,9 @@ function getEarliestRefundDeadline(selectedPerformances: Performer[]) {
 		.sort((a, b) => a.getTime() - b.getTime())[0];
 }
 
-function formatRefundDeadlineDate(deadline: Date | null, lang: "en" | "hu" = "hu") {
+function formatRefundDeadlineDate(deadline: Date | null) {
 	if (!deadline) return "-";
-	const month = lang === "en" ? "Jul." : "Júl.";
-	const daySep = lang === "en" ? "" : ".";
-	const timeLocale = lang === "en" ? "en-US" : "hu-HU";
-	return `${month} ${deadline.getDate()}${daySep} ${deadline.toLocaleTimeString(timeLocale, { hour: "2-digit", minute: "2-digit", hour12: lang === "en" })}`;
+	return `Júl. ${deadline.getDate()}. ${deadline.toLocaleTimeString("hu-HU", { hour: "2-digit", minute: "2-digit" })}`;
 }
 
 type DiscountKey = "none" | "early" | "student" | "bundle";
@@ -980,25 +600,14 @@ const DISCOUNT_OPTIONS: { key: DiscountKey; title: string; description: string; 
 	{ key: "bundle", title: "Multi-show csomag", description: "3+ fellépés választásakor · -8%", percent: 8, minPerformances: 3 },
 ];
 
+const DISCOUNT_POLICY_INFO = [
+	{ icon: "flash-outline" as const, title: "Early Bird", text: "A korai időszakban megvásárolt jegyekre jár. A promóció csak a meghirdetett készlet vagy határidő végéig él." },
+	{ icon: "school-outline" as const, title: "Diák kedvezmény", text: "Érvényes diákigazolvánnyal használható. Az igazolást a belépéskor ellenőrizhetik." },
+	{ icon: "albums-outline" as const, title: "Multi-show csomag", text: "Legalább 3 különböző, nem ütköző fellépés kiválasztása esetén aktiválódik automatikusan." },
+];
+
 function getDiscountOption(key: DiscountKey) {
 	return DISCOUNT_OPTIONS.find((option) => option.key === key) ?? DISCOUNT_OPTIONS[0];
-}
-
-function getLocalizedDiscountOption(key: DiscountKey, lang: "en" | "hu") {
-	const option = getDiscountOption(key);
-	if (lang === "en") {
-		switch (key) {
-			case "none":
-				return { ...option, title: "No discount", description: "Normal online price" };
-			case "early":
-				return { ...option, title: "Early Bird", description: "Seasonal promo · -10%" };
-			case "student":
-				return { ...option, title: "Student discount", description: "With ID at entry · -15%" };
-			case "bundle":
-				return { ...option, title: "Multi-show bundle", description: "When choosing 3+ performances · -8%" };
-		}
-	}
-	return option;
 }
 
 function isDiscountAvailable(key: DiscountKey, selectedPerformanceCount: number) {
@@ -1020,7 +629,7 @@ function calculateHandlingFee(cartItemCount: number) {
 	return cartItemCount > 0 ? cartItemCount * HANDLING_FEE_PER_CART_ITEM : 0;
 }
 
-function PerformanceTicketCard({ performer, selected, conflicted, onSelect, lang }: { performer: Performer; selected: boolean; conflicted?: boolean; onSelect: () => void; lang: "en" | "hu" }) {
+function PerformanceTicketCard({ performer, selected, conflicted, onSelect }: { performer: Performer; selected: boolean; conflicted?: boolean; onSelect: () => void }) {
 	return (
 		<TouchableOpacity
 			style={[
@@ -1031,7 +640,21 @@ function PerformanceTicketCard({ performer, selected, conflicted, onSelect, lang
 			onPress={onSelect}
 		>
 			<View style={styles.performanceTicketVisual}>
-				<Image source={getPerformerImage(performer.id)} style={styles.performanceTicketImage} resizeMode="cover" />
+				<Svg width="100%" height="100%" viewBox="0 0 90 70">
+					<Defs>
+						<RadialGradient id={`ticketGlow${performer.id}`} cx="50%" cy="35%" r="65%">
+							<Stop offset="0" stopColor={conflicted ? "#f97316" : "#c084fc"} stopOpacity="0.9" />
+							<Stop offset="1" stopColor="#0b041a" stopOpacity="1" />
+						</RadialGradient>
+					</Defs>
+					<Rect x="0" y="0" width="90" height="70" rx="14" fill={`url(#ticketGlow${performer.id})`} />
+					<Circle cx="45" cy="34" r="16" fill="rgba(34,18,58,0.35)" />
+					<Circle cx="45" cy="34" r="9" fill="rgba(255,255,255,0.85)" />
+					<Path d="M10 55 C25 42 35 49 45 38 C55 49 67 42 80 55" stroke="rgba(255,255,255,0.42)" strokeWidth="3" fill="none" />
+					{[12, 24, 36, 54, 66, 78].map((x, i) => (
+						<Rect key={i} x={x} y={58 - (i % 3) * 7} width="3" height={(i % 3) * 7 + 10} rx="1.5" fill="rgba(255,255,255,0.35)" />
+					))}
+				</Svg>
 			</View>
 			<View style={styles.performanceTicketInfo}>
 				<Text style={styles.performanceTicketName}>{performer.name}</Text>
@@ -1066,8 +689,6 @@ function TicketsScreen({
 	onPurchase,
 	onReset,
 	onRequestRefund,
-	lang,
-	t,
 }: {
 	tickets: Ticket[];
 	performers: Performer[];
@@ -1084,8 +705,6 @@ function TicketsScreen({
 	onPurchase: () => void;
 	onReset: () => void;
 	onRequestRefund: () => void;
-	lang: "en" | "hu";
-	t: typeof translations.en;
 }) {
 	const [now, setNow] = useState(() => new Date());
 	const [selectedDiscount, setSelectedDiscount] = useState<DiscountKey>("early");
@@ -1100,7 +719,7 @@ function TicketsScreen({
 	const performanceDays = [...new Set(sortedPerformers.map((p) => p.day))].sort((a, b) => a - b);
 	const performancesByDay = performanceDays.map((day) => ({
 		day,
-		label: lang === "en" ? `Jul. ${day}` : `Júl. ${day}.`,
+		label: `Júl. ${day}.`,
 		items: sortedPerformers.filter((p) => p.day === day),
 	}));
 	const selected = tickets.find((t) => t.id === selectedId) ?? null;
@@ -1139,70 +758,64 @@ function TicketsScreen({
 			<View style={styles.ticketsScreen}>
 				<ScrollView contentContainerStyle={styles.orderSuccessScroll} showsVerticalScrollIndicator={false}>
 					<View style={styles.orderSuccessIcon}>
-						<Ionicons name="checkmark-circle" size={56} color="#22c55e" />
+						<Ionicons name="checkmark-circle" size={56} color="#a855f7" />
 					</View>
-					<Text style={styles.orderSuccessTitle}>{t.purchaseSuccess}</Text>
-					<View style={styles.emailSentBadge}>
-						<Ionicons name="mail" size={16} color="#22c55e" style={{ marginRight: 6 }} />
-						<Text style={styles.emailSentText}>{lang === "en" ? "Confirmation email sent successfully!" : "Visszaigazoló e-mail sikeresen elküldve!"}</Text>
-					</View>
-					<Text style={styles.orderSuccessSub}>{t.confirmationSentTo}</Text>
+					<Text style={styles.orderSuccessTitle}>Sikeres vásárlás!</Text>
+					<Text style={styles.orderSuccessSub}>A visszaigazolást elküldjük erre a címre:</Text>
 					<Text style={styles.orderSuccessEmail}>{email.trim()}</Text>
 
 					<View style={styles.orderSummaryCard}>
-						<Text style={styles.orderSummaryLabel}>{t.orderLabel}</Text>
+						<Text style={styles.orderSummaryLabel}>RENDELÉS</Text>
 						<Text style={styles.orderSummaryName}>{selected.name}</Text>
-						<Text style={styles.orderSummaryDetail}>{quantity} {lang === "en" ? "pcs" : "db"} / {lang === "en" ? "performance" : "fellépés"} · {selectedPerformances.length} {lang === "en" ? "performances" : "fellépés"} · {lang === "en" ? "total" : "végösszeg"}: {formatPrice(total, selected.currency, lang)}</Text>
+						<Text style={styles.orderSummaryDetail}>{quantity} db / fellépés · {selectedPerformances.length} fellépés · végösszeg: {formatPrice(total, selected.currency)}</Text>
 						<View style={styles.orderDivider} />
 						{cartItems.map(({ performance, lineTotal }) => (
 							<View key={performance.id} style={styles.orderPerformanceRow}>
 								<Text style={styles.orderPerformerName}>{performance.name}</Text>
-								<Text style={styles.orderPerformerMeta}>{performance.stage} · {formatPerformanceDate(performance, lang)} · {formatPrice(lineTotal, selected.currency, lang)}</Text>
+								<Text style={styles.orderPerformerMeta}>{performance.stage} · {formatPerformanceDate(performance)} · {formatPrice(lineTotal, selected.currency)}</Text>
 							</View>
 						))}
 						<View style={styles.orderDivider} />
 						<View style={styles.cartTotalsCompact}>
-							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>{t.subtotal}</Text><Text style={styles.cartTotalValue}>{formatPrice(subtotal, selected.currency, lang)}</Text></View>
-							<View style={styles.cartTotalLine}><Text style={styles.cartDiscountLabel}>{t.discountLabel} · {getLocalizedDiscountOption(selectedDiscount, lang).title}</Text><Text style={styles.cartDiscountValue}>− {formatPrice(discountAmount, selected.currency, lang)}</Text></View>
-							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>{t.handlingFee}</Text><Text style={styles.cartTotalValue}>{formatPrice(handlingFee, selected.currency, lang)}</Text></View>
-							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>{t.serviceFee}</Text><Text style={styles.cartTotalValue}>{formatPrice(serviceFee, selected.currency, lang)}</Text></View>
-							<View style={styles.cartGrandTotalLine}><Text style={styles.cartGrandTotalLabel}>{t.payable}</Text><Text style={styles.cartGrandTotalValue}>{formatPrice(total, selected.currency, lang)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>Részösszeg</Text><Text style={styles.cartTotalValue}>{formatPrice(subtotal, selected.currency)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartDiscountLabel}>Kedvezmény · {selectedDiscountOption.title}</Text><Text style={styles.cartDiscountValue}>− {formatPrice(discountAmount, selected.currency)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>Kezelési díj</Text><Text style={styles.cartTotalValue}>{formatPrice(handlingFee, selected.currency)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>Szolgáltatási díj</Text><Text style={styles.cartTotalValue}>{formatPrice(serviceFee, selected.currency)}</Text></View>
+							<View style={styles.cartGrandTotalLine}><Text style={styles.cartGrandTotalLabel}>Fizetendő</Text><Text style={styles.cartGrandTotalValue}>{formatPrice(total, selected.currency)}</Text></View>
 						</View>
 					</View>
 
 					<View style={styles.countdownCard}>
-						<Text style={styles.countdownLabel}>{t.countdownTitle}</Text>
+						<Text style={styles.countdownLabel}>KÖVETKEZŐ FELLÉPÉSIG HÁTRA VAN</Text>
 						<Text style={styles.countdownTargetName}>{countdownTarget.name}</Text>
 						<View style={styles.countdownGrid}>
-							<View style={styles.countdownBox}><Text style={styles.countdownNumber}>{countdown.days}</Text><Text style={styles.countdownUnit}>{t.days}</Text></View>
-							<View style={styles.countdownBox}><Text style={styles.countdownNumber}>{countdown.hours}</Text><Text style={styles.countdownUnit}>{t.hours}</Text></View>
-							<View style={styles.countdownBox}><Text style={styles.countdownNumber}>{countdown.minutes}</Text><Text style={styles.countdownUnit}>{t.minutes}</Text></View>
+							<View style={styles.countdownBox}><Text style={styles.countdownNumber}>{countdown.days}</Text><Text style={styles.countdownUnit}>nap</Text></View>
+							<View style={styles.countdownBox}><Text style={styles.countdownNumber}>{countdown.hours}</Text><Text style={styles.countdownUnit}>óra</Text></View>
+							<View style={styles.countdownBox}><Text style={styles.countdownNumber}>{countdown.minutes}</Text><Text style={styles.countdownUnit}>perc</Text></View>
 						</View>
 					</View>
 
 					<View style={styles.refundPolicyCard}>
 						<View style={styles.refundPolicyHeader}>
 							<Ionicons name="shield-checkmark-outline" size={18} color={THEME.accent} />
-							<Text style={styles.refundPolicyTitle}>{t.refundPolicyTitle}</Text>
+							<Text style={styles.refundPolicyTitle}>Visszamondás & visszatérítés</Text>
 						</View>
 						<Text style={styles.refundPolicyText}>
-							{lang === "en"
-								? `Tickets are associated with the selected performances. Refund requests can be initiated at most ${REFUND_DEADLINE_HOURS} hours before the start of the performance. For multiple performances, the earliest deadline will be considered.`
-								: `A jegyek a kiválasztott fellépésekhez vannak társítva. Visszatérítési kérelmet legkésőbb ${REFUND_DEADLINE_HOURS} órával az érintett fellépés kezdése előtt lehet indítani. Több fellépésnél a legkorábbi határidőt vesszük figyelembe.`}
+							A jegyek a kiválasztott fellépésekhez vannak társítva. Visszatérítési kérelmet legkésőbb {REFUND_DEADLINE_HOURS} órával az érintett fellépés kezdése előtt lehet indítani. Több fellépésnél a legkorábbi határidőt vesszük figyelembe.
 						</Text>
-						<Text style={styles.refundDeadlineText}>{lang === "en" ? "Earliest deadline" : "Legkorábbi határidő"}: {formatRefundDeadlineDate(earliestRefundDeadline, lang)}</Text>
+						<Text style={styles.refundDeadlineText}>Legkorábbi határidő: {formatRefundDeadlineDate(earliestRefundDeadline)}</Text>
 						{refundRequested ? (
-							<View style={styles.refundRequestedBadge}><Text style={styles.refundRequestedText}>{t.refundRequested}</Text></View>
+							<View style={styles.refundRequestedBadge}><Text style={styles.refundRequestedText}>Visszatérítési kérelem elküldve</Text></View>
 						) : (
 							<TouchableOpacity style={[styles.refundBtn, !canRequestRefund && styles.refundBtnDisabled]} onPress={onRequestRefund} disabled={!canRequestRefund}>
 								<Ionicons name="return-up-back-outline" size={16} color={THEME.text} />
-								<Text style={styles.refundBtnText}>{canRequestRefund ? t.requestRefund : t.refundExpired}</Text>
+								<Text style={styles.refundBtnText}>{canRequestRefund ? "Visszatérítés kérése" : "A visszatérítési határidő lejárt"}</Text>
 							</TouchableOpacity>
 						)}
 					</View>
 
 					<TouchableOpacity style={styles.checkoutBtn} onPress={onReset}>
-						<Text style={styles.checkoutBtnText}>{t.newPurchase}</Text>
+						<Text style={styles.checkoutBtnText}>Új vásárlás</Text>
 					</TouchableOpacity>
 				</ScrollView>
 			</View>
@@ -1212,23 +825,19 @@ function TicketsScreen({
 	return (
 		<View style={styles.ticketsScreen}>
 			<ScrollView contentContainerStyle={styles.ticketsScroll} showsVerticalScrollIndicator={false}>
-				<Text style={styles.ticketsHeading}>{t.buyTickets}</Text>
-				<Text style={styles.ticketsSubheading}>{t.ticketsDesc}</Text>
+				<Text style={styles.ticketsHeading}>Jegyvásárlás</Text>
+				<Text style={styles.ticketsSubheading}>Válaszd ki a jegytípust és a fellépéseket, majd ellenőrizd a kosarat. A végösszegben külön látszanak a kedvezmények és a vásárláshoz kapcsolódó díjak.</Text>
 				<View style={styles.ticketSectionHeader}>
-					<Text style={styles.ticketSectionTitle}>{t.ticketStep1}</Text>
-					<Text style={styles.ticketSectionHint}>{t.ticketCategoryDesc}</Text>
+					<Text style={styles.ticketSectionTitle}>1. Jegytípus</Text>
+					<Text style={styles.ticketSectionHint}>Belépő kategória</Text>
 				</View>
 				{tickets.map((ticket) => (
-					<TicketCard key={ticket.id} ticket={ticket} selected={selectedId === ticket.id} onSelect={() => onSelect(ticket.id)} lang={lang} />
+					<TicketCard key={ticket.id} ticket={ticket} selected={selectedId === ticket.id} onSelect={() => onSelect(ticket.id)} />
 				))}
 
 				<View style={styles.ticketSectionHeader}>
-					<Text style={styles.ticketSectionTitle}>{t.ticketStep2}</Text>
-					<Text style={styles.ticketSectionHint}>
-						{selectedPerformances.length > 0 
-							? (lang === "en" ? `${selectedPerformances.length} selected` : `${selectedPerformances.length} kiválasztva`) 
-							: t.multipleSelectable}
-					</Text>
+					<Text style={styles.ticketSectionTitle}>2. Fellépések</Text>
+					<Text style={styles.ticketSectionHint}>{selectedPerformances.length > 0 ? `${selectedPerformances.length} kiválasztva` : "Több is választható"}</Text>
 				</View>
 				<View style={styles.performanceAccordionList}>
 					{performancesByDay.map(({ day, label, items }) => {
@@ -1244,13 +853,11 @@ function TicketsScreen({
 										</View>
 										<View>
 											<Text style={styles.performanceDayTitle}>{label}</Text>
-											<Text style={styles.performanceDaySubtitle}>
-												{items.length} {lang === "en" ? (items.length === 1 ? "performance" : "performances") : "fellépés"} · {selectedCountForDay > 0 ? (lang === "en" ? `${selectedCountForDay} selected` : `${selectedCountForDay} kiválasztva`) : t.noneSelected}
-											</Text>
+											<Text style={styles.performanceDaySubtitle}>{items.length} fellépés · {selectedCountForDay > 0 ? `${selectedCountForDay} kiválasztva` : "nincs kiválasztva"}</Text>
 										</View>
 									</View>
 									<View style={styles.performanceDayHeaderRight}>
-										{hasConflictOnDay && <View style={styles.performanceDayWarningBadge}><Ionicons name="warning-outline" size={13} color="#fed7aa" /><Text style={styles.performanceDayWarningText}>{t.conflictBadge}</Text></View>}
+										{hasConflictOnDay && <View style={styles.performanceDayWarningBadge}><Ionicons name="warning-outline" size={13} color="#fed7aa" /><Text style={styles.performanceDayWarningText}>ütközés</Text></View>}
 										<Ionicons name={expanded ? "chevron-up" : "chevron-down"} size={20} color={THEME.textMuted} />
 									</View>
 								</TouchableOpacity>
@@ -1263,7 +870,6 @@ function TicketsScreen({
 												selected={selectedPerformanceSet.has(performer.id)}
 												conflicted={conflictedIds.has(performer.id)}
 												onSelect={() => onTogglePerformance(performer.id)}
-												lang={lang}
 											/>
 										))}
 									</View>
@@ -1277,11 +883,11 @@ function TicketsScreen({
 					<View style={styles.performanceConflictPanel}>
 						<View style={styles.performanceConflictHeader}>
 							<Ionicons name="warning-outline" size={18} color="#fb923c" />
-							<Text style={styles.performanceConflictTitle}>{t.timeConflict}</Text>
+							<Text style={styles.performanceConflictTitle}>Időpontütközés</Text>
 						</View>
-						<Text style={styles.performanceConflictText}>{t.conflictDesc}</Text>
+						<Text style={styles.performanceConflictText}>Ezek a fellépések átfedik egymást, ezért együtt nem vásárolhatók meg:</Text>
 						{conflictPairs.map(({ a, b }) => (
-							<Text key={`${a.id}-${b.id}`} style={styles.performanceConflictItem}>• {a.name} ({a.startTime}–{a.endTime}) {lang === "en" ? "and" : "és"} {b.name} ({b.startTime}–{b.endTime})</Text>
+							<Text key={`${a.id}-${b.id}`} style={styles.performanceConflictItem}>• {a.name} ({a.startTime}–{a.endTime}) és {b.name} ({b.startTime}–{b.endTime})</Text>
 						))}
 					</View>
 				)}
@@ -1289,12 +895,31 @@ function TicketsScreen({
 				{selected && selectedPerformances.length > 0 && (
 					<View style={styles.discountSection}>
 						<View style={styles.ticketSectionHeader}>
-							<Text style={styles.ticketSectionTitle}>{t.ticketStep3}</Text>
-							<Text style={styles.ticketSectionHint}>{t.discountDesc}</Text>
+							<Text style={styles.ticketSectionTitle}>3. Kedvezmény</Text>
+							<Text style={styles.ticketSectionHint}>Mire jár kedvezmény?</Text>
+						</View>
+						<View style={styles.discountInfoPanel}>
+							<View style={styles.discountInfoHeader}>
+								<View style={styles.discountInfoIconWrap}>
+									<Ionicons name="pricetag-outline" size={18} color="#86efac" />
+								</View>
+								<View style={{ flex: 1 }}>
+									<Text style={styles.discountInfoTitle}>Kedvezmény tájékoztató</Text>
+									<Text style={styles.discountInfoLead}>Válassz kedvezményt, majd a kosárban külön soron látod a levonást.</Text>
+								</View>
+							</View>
+							{DISCOUNT_POLICY_INFO.map((item) => (
+								<View key={item.title} style={styles.discountInfoRow}>
+									<Ionicons name={item.icon} size={16} color="#86efac" />
+									<View style={{ flex: 1 }}>
+										<Text style={styles.discountInfoRowTitle}>{item.title}</Text>
+										<Text style={styles.discountInfoRowText}>{item.text}</Text>
+									</View>
+								</View>
+							))}
 						</View>
 						<View style={styles.discountGrid}>
 							{DISCOUNT_OPTIONS.map((option) => {
-								const localizedOption = getLocalizedDiscountOption(option.key, lang);
 								const active = selectedDiscount === option.key;
 								const disabled = !isDiscountAvailable(option.key, selectedPerformances.length);
 								return (
@@ -1305,14 +930,10 @@ function TicketsScreen({
 										disabled={disabled}
 									>
 										<View style={styles.discountChipHeader}>
-											<Text style={[styles.discountChipTitle, active && styles.discountChipTitleActive]}>{localizedOption.title}</Text>
+											<Text style={[styles.discountChipTitle, active && styles.discountChipTitleActive]}>{option.title}</Text>
 											{option.percent > 0 && <Text style={styles.discountChipPercent}>-{option.percent}%</Text>}
 										</View>
-										<Text style={styles.discountChipDescription}>
-											{disabled 
-												? (lang === "en" ? `Requires at least ${option.minPerformances} performances` : `Legalább ${option.minPerformances} fellépés kell hozzá`) 
-												: localizedOption.description}
-										</Text>
+										<Text style={styles.discountChipDescription}>{disabled ? `Legalább ${option.minPerformances} fellépés kell hozzá` : option.description}</Text>
 									</TouchableOpacity>
 								);
 							})}
@@ -1324,8 +945,8 @@ function TicketsScreen({
 					<View style={styles.cartCard}>
 						<View style={styles.cartHeaderRow}>
 							<View>
-								<Text style={styles.cartEyebrow}>{t.cartTitle}</Text>
-								<Text style={styles.cartTitle}>{t.orderReview}</Text>
+								<Text style={styles.cartEyebrow}>KOSÁR</Text>
+								<Text style={styles.cartTitle}>Rendelés áttekintése</Text>
 							</View>
 							<View style={styles.cartCountBadge}><Text style={styles.cartCountText}>{cartItems.length}</Text></View>
 						</View>
@@ -1333,41 +954,35 @@ function TicketsScreen({
 							<View key={performance.id} style={styles.cartItemRow}>
 								<View style={styles.cartItemInfo}>
 									<Text style={styles.cartItemName}>{performance.name}</Text>
-									<Text style={styles.cartItemMeta}>{selected.name} · {quantity} {lang === "en" ? "pcs" : "db"} · {formatPerformanceDate(performance, lang)}</Text>
+									<Text style={styles.cartItemMeta}>{selected.name} · {quantity} db · {formatPerformanceDate(performance)}</Text>
 								</View>
-								<Text style={styles.cartItemPrice}>{formatPrice(lineTotal, selected.currency, lang)}</Text>
+								<Text style={styles.cartItemPrice}>{formatPrice(lineTotal, selected.currency)}</Text>
 							</View>
 						))}
 						<View style={styles.cartTotals}>
-							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>{t.subtotal}</Text><Text style={styles.cartTotalValue}>{formatPrice(subtotal, selected.currency, lang)}</Text></View>
-							<View style={styles.cartTotalLine}><Text style={styles.cartDiscountLabel}>{t.discountLabel} · {getLocalizedDiscountOption(selectedDiscount, lang).title}</Text><Text style={styles.cartDiscountValue}>− {formatPrice(discountAmount, selected.currency, lang)}</Text></View>
-							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>{t.handlingFee}</Text><Text style={styles.cartTotalValue}>{formatPrice(handlingFee, selected.currency, lang)}</Text></View>
-							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>{t.serviceFee} ({Math.round(SERVICE_FEE_RATE * 1000) / 10}%)</Text><Text style={styles.cartTotalValue}>{formatPrice(serviceFee, selected.currency, lang)}</Text></View>
-							<View style={styles.cartGrandTotalLine}><Text style={styles.cartGrandTotalLabel}>{t.payable}</Text><Text style={styles.cartGrandTotalValue}>{formatPrice(total, selected.currency, lang)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>Részösszeg</Text><Text style={styles.cartTotalValue}>{formatPrice(subtotal, selected.currency)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartDiscountLabel}>Kedvezmény · {selectedDiscountOption.title}</Text><Text style={styles.cartDiscountValue}>− {formatPrice(discountAmount, selected.currency)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>Kezelési díj</Text><Text style={styles.cartTotalValue}>{formatPrice(handlingFee, selected.currency)}</Text></View>
+							<View style={styles.cartTotalLine}><Text style={styles.cartTotalLabel}>Szolgáltatási díj ({Math.round(SERVICE_FEE_RATE * 1000) / 10}%)</Text><Text style={styles.cartTotalValue}>{formatPrice(serviceFee, selected.currency)}</Text></View>
+							<View style={styles.cartGrandTotalLine}><Text style={styles.cartGrandTotalLabel}>Fizetendő</Text><Text style={styles.cartGrandTotalValue}>{formatPrice(total, selected.currency)}</Text></View>
 						</View>
-						<Text style={styles.cartLegalNote}>{t.feeDisclaimer}</Text>
+						<Text style={styles.cartLegalNote}>A díjak és kedvezmények demo logikák. A kezelési díj tételenként, a szolgáltatási díj a kedvezménnyel csökkentett összeg után számolódik.</Text>
 					</View>
 				)}
 
 				{selectedPerformances.length > 0 && countdownTarget && countdown && (
 					<View style={styles.selectedPerformancePanel}>
-						<Text style={styles.selectedPerformanceLabel}>{t.selectedPerformances}</Text>
+						<Text style={styles.selectedPerformanceLabel}>Kiválasztott fellépések</Text>
 						{selectedPerformances.map((performance) => (
 							<View key={performance.id} style={styles.selectedPerformanceLine}>
 								<Text style={styles.selectedPerformanceName}>{performance.name}</Text>
-								<Text style={styles.selectedPerformanceMeta}>{performance.stage} · {formatPerformanceDate(performance, lang)}</Text>
+								<Text style={styles.selectedPerformanceMeta}>{performance.stage} · {formatPerformanceDate(performance)}</Text>
 							</View>
 						))}
 						<View style={styles.miniCountdownRow}>
-							<Text style={styles.miniCountdownText}>
-								{lang === "en"
-									? `${countdownTarget.name}: ${countdown.days} days · ${countdown.hours} hours · ${countdown.minutes} minutes remaining`
-									: `${countdownTarget.name}: ${countdown.days} nap · ${countdown.hours} óra · ${countdown.minutes} perc van hátra`}
-							</Text>
+							<Text style={styles.miniCountdownText}>{countdownTarget.name}: {countdown.days} nap · {countdown.hours} óra · {countdown.minutes} perc van hátra</Text>
 						</View>
-						<Text style={styles.selectedRefundInfo}>
-							{lang === "en" ? "Earliest cancellation deadline: " : "Legkorábbi visszamondási határidő: "}{formatRefundDeadlineDate(earliestRefundDeadline, lang)}
-						</Text>
+						<Text style={styles.selectedRefundInfo}>Legkorábbi visszamondási határidő: {formatRefundDeadlineDate(earliestRefundDeadline)}</Text>
 					</View>
 				)}
 			</ScrollView>
@@ -1375,7 +990,7 @@ function TicketsScreen({
 				{selected ? (
 					<>
 						<View style={styles.quantityRow}>
-							<Text style={styles.quantityLabel}>{t.qtyPerPerformance}</Text>
+							<Text style={styles.quantityLabel}>Mennyiség / fellépés</Text>
 							<View style={styles.quantityControls}>
 								<TouchableOpacity style={[styles.quantityBtn, quantity <= 1 && styles.quantityBtnDisabled]} onPress={() => onChangeQuantity(-1)} disabled={quantity <= 1}>
 									<Ionicons name="remove" size={18} color="#e8d8ff" />
@@ -1387,7 +1002,7 @@ function TicketsScreen({
 							</View>
 						</View>
 						<View style={styles.emailField}>
-							<Text style={styles.emailLabel}>{t.emailAddress}</Text>
+							<Text style={styles.emailLabel}>E-mail cím</Text>
 							<TextInput
 								style={[styles.emailInput, showEmailError && styles.emailInputError]}
 								value={email}
@@ -1399,29 +1014,27 @@ function TicketsScreen({
 								autoCorrect={false}
 								autoComplete="email"
 							/>
-							{showEmailError && <Text style={styles.emailErrorText}>{lang === "en" ? "Please enter a valid email address" : "Érvényes e-mail címet adj meg"}</Text>}
+							{showEmailError && <Text style={styles.emailErrorText}>Érvényes e-mail címet adj meg</Text>}
 						</View>
 						<View style={styles.checkoutCartMini}>
 							<View style={styles.totalRow}>
-								<Text style={styles.totalLabel}>
-									{selectedPerformances.length || 0} {lang === "en" ? `performance${selectedPerformances.length !== 1 ? "s" : ""}` : "fellépés"} · {lang === "en" ? "subtotal" : "részösszeg"}
-								</Text>
-								<Text style={styles.totalValueSmall}>{formatPrice(subtotal, selected.currency, lang)}</Text>
+								<Text style={styles.totalLabel}>{selectedPerformances.length || 0} fellépés · részösszeg</Text>
+								<Text style={styles.totalValueSmall}>{formatPrice(subtotal, selected.currency)}</Text>
 							</View>
-							{discountAmount > 0 && <View style={styles.totalRow}><Text style={styles.totalLabel}>{t.discountLabel}</Text><Text style={styles.totalDiscountValue}>− {formatPrice(discountAmount, selected.currency, lang)}</Text></View>}
+							{discountAmount > 0 && <View style={styles.totalRow}><Text style={styles.totalLabel}>Kedvezmény</Text><Text style={styles.totalDiscountValue}>− {formatPrice(discountAmount, selected.currency)}</Text></View>}
 							<View style={styles.totalRow}>
-								<Text style={styles.totalLabel}>{t.totalPayable}</Text>
-								<Text style={styles.totalValue}>{formatPrice(total, selected.currency, lang)}</Text>
+								<Text style={styles.totalLabel}>Díjakkal együtt fizetendő</Text>
+								<Text style={styles.totalValue}>{formatPrice(total, selected.currency)}</Text>
 							</View>
 						</View>
 					</>
 				) : (
-					<Text style={styles.checkoutHint}>{t.checkoutDisabledReason}</Text>
+					<Text style={styles.checkoutHint}>Válassz jegytípust és legalább egy fellépést a folytatáshoz</Text>
 				)}
-				{hasConflicts && <Text style={styles.checkoutWarningText}>{t.resolveConflictFirst}</Text>}
+				{hasConflicts && <Text style={styles.checkoutWarningText}>Előbb oldd fel az időpontütközést.</Text>}
 				<TouchableOpacity style={[styles.checkoutBtn, !canCheckout && styles.checkoutBtnDisabled]} onPress={onPurchase} disabled={!canCheckout}>
 					<Ionicons name="card-outline" size={18} color="#f0e8ff" />
-					<Text style={styles.checkoutBtnText}>{t.checkout}</Text>
+					<Text style={styles.checkoutBtnText}>Fizetés</Text>
 				</TouchableOpacity>
 			</View>
 		</View>
@@ -1561,33 +1174,7 @@ function MapTent({ x, y, color = COLORS.campTeal }: { x: number; y: number; colo
 }
 
 // ─── Fő MapScreen ─────────────────────────────────────────────────────────────
-function getMapCategoryLabel(cat: MapCategory, lang: "en" | "hu") {
-	switch (cat) {
-		case "stage": return lang === "en" ? "Stage" : "Színpad";
-		case "food": return lang === "en" ? "Food & Drink" : "Étel & ital";
-		case "merch": return lang === "en" ? "Stand" : "Stand";
-		case "service": return lang === "en" ? "Service" : "Szolgáltatás";
-		case "entrance": return lang === "en" ? "Entrance" : "Bejárat";
-		case "camping": return lang === "en" ? "Camping" : "Kemping";
-		default: return cat;
-	}
-}
-
-function getMapFilterLabel(filterKey: MapFilter, lang: "en" | "hu") {
-	switch (filterKey) {
-		case "all": return lang === "en" ? "All" : "Mind";
-		case "stage": return lang === "en" ? "Stage" : "Színpad";
-		case "food": return lang === "en" ? "Food" : "Étel";
-		case "merch": return lang === "en" ? "Stand" : "Stand";
-		case "service": return lang === "en" ? "Serv." : "Szolg.";
-		case "entrance": return lang === "en" ? "Entrance" : "Bejárat";
-		case "camping": return lang === "en" ? "Camping" : "Kemping";
-		default: return filterKey;
-	}
-}
-
-// ─── Fő MapScreen ─────────────────────────────────────────────────────────────
-function MapScreen({ map, lang, t }: { map: FestivalMap; lang: "en" | "hu"; t: typeof translations.en }) {
+function MapScreen({ map }: { map: FestivalMap }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mapView, setMapView] = useState<"map" | "list">("map");
   const [filter, setFilter] = useState<MapFilter>("all");
@@ -1621,16 +1208,7 @@ function MapScreen({ map, lang, t }: { map: FestivalMap; lang: "en" | "hu"; t: t
     })
   ).current;
 
-  const localizedPoints = map.points.map((p) => {
-    const trans = MAP_POINTS_TRANSLATIONS[p.id]?.[lang];
-    return {
-      ...p,
-      name: trans?.name ?? p.name,
-      description: trans?.description ?? p.description,
-    };
-  });
-
-  const selected = localizedPoints.find((p) => p.id === selectedId) ?? null;
+  const selected = map.points.find((p) => p.id === selectedId) ?? null;
   const selectedMarker = selected ? MAP_IMAGE_MARKERS[selected.id] : null;
 
   const handleSelectMapPoint = (id: string) => {
@@ -1645,14 +1223,14 @@ function MapScreen({ map, lang, t }: { map: FestivalMap; lang: "en" | "hu"; t: t
         <View style={styles.mapDetailHeader}>
           <Text style={styles.mapDetailName}>{point.name}</Text>
           <View style={styles.mapDetailBadge}>
-            <Text style={styles.mapDetailBadgeText}>{getMapCategoryLabel(point.category, lang)}</Text>
+            <Text style={styles.mapDetailBadgeText}>{MAP_CATEGORY_META[point.category].label}</Text>
           </View>
         </View>
         <Text style={styles.mapDetailDescription}>{point.description}</Text>
         {Platform.OS !== "web" && (
           <TouchableOpacity style={styles.mapOpenExternalBtn} onPress={() => openInGoogleMaps(point)}>
             <Ionicons name="open-outline" size={14} color="#c084fc" />
-            <Text style={styles.mapOpenExternalText}>{t.openInGoogleMaps}</Text>
+            <Text style={styles.mapOpenExternalText}>Megnyitás Google Maps-ben</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -1666,7 +1244,7 @@ function MapScreen({ map, lang, t }: { map: FestivalMap; lang: "en" | "hu"; t: t
     <View style={styles.mapScreen}>
       {/* Fejléc */}
       <View style={styles.mapHeader}>
-        <Text style={styles.mapHeading}>{lang === "en" ? "Map" : "Térkép"}</Text>
+        <Text style={styles.mapHeading}>Térkép</Text>
         <Text style={styles.mapVenue}>{map.venueName}</Text>
       </View>
 
@@ -1677,14 +1255,14 @@ function MapScreen({ map, lang, t }: { map: FestivalMap; lang: "en" | "hu"; t: t
           onPress={() => setMapView("map")}
         >
           <Ionicons name="map-outline" size={14} color={mapView === "map" ? "#a855f7" : "rgba(168,85,247,0.45)"} />
-          <Text style={[styles.mapViewToggleText, mapView === "map" && styles.mapViewToggleTextActive]}>{lang === "en" ? "Map" : "Térkép"}</Text>
+          <Text style={[styles.mapViewToggleText, mapView === "map" && styles.mapViewToggleTextActive]}>Térkép</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.mapViewToggleBtn, mapView === "list" && styles.mapViewToggleBtnActive]}
           onPress={() => setMapView("list")}
         >
           <Ionicons name="list-outline" size={14} color={mapView === "list" ? "#a855f7" : "rgba(168,85,247,0.45)"} />
-          <Text style={[styles.mapViewToggleText, mapView === "list" && styles.mapViewToggleTextActive]}>{t.list}</Text>
+          <Text style={[styles.mapViewToggleText, mapView === "list" && styles.mapViewToggleTextActive]}>Lista</Text>
         </TouchableOpacity>
       </View>
 
@@ -1724,13 +1302,13 @@ function MapScreen({ map, lang, t }: { map: FestivalMap; lang: "en" | "hu"; t: t
             <View style={styles.mapSelectedNotice}>
               <Ionicons name="locate" size={15} color={MAP_CATEGORY_META[selected.category].color} />
               <Text style={styles.mapSelectedNoticeText}>
-                {t.mapSelectedNotice}<Text style={styles.mapSelectedNoticeName}>{selected.name}</Text>
+                Kijelölve a térképen: <Text style={styles.mapSelectedNoticeName}>{selected.name}</Text>
               </Text>
             </View>
           )}
 
           <Text style={styles.mapImageHint}>
-            {t.mapDesc}
+            Válassz egy helyszínt az alábbi listából, és a részletek mellett a térképen is megmutatjuk, hol találod.
           </Text>
 
           {/* Jelmagyarázat */}
@@ -1740,7 +1318,7 @@ function MapScreen({ map, lang, t }: { map: FestivalMap; lang: "en" | "hu"; t: t
                 onPress={() => setFilter(filter === cat ? "all" : cat)}>
                 <View style={[styles.mapLegendDot, { backgroundColor: MAP_CATEGORY_META[cat].color }]} />
                 <Text style={[styles.mapLegendText, filter === cat && { color: MAP_CATEGORY_META[cat].color }]}>
-                  {getMapCategoryLabel(cat, lang)}
+                  {MAP_CATEGORY_META[cat].label}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -1748,7 +1326,7 @@ function MapScreen({ map, lang, t }: { map: FestivalMap; lang: "en" | "hu"; t: t
 
           {/* Kompakt lista a térkép alatt */}
           <View style={{ marginTop: 4 }}>
-            {localizedPoints
+            {map.points
               .filter(p => filter === "all" || p.category === filter)
               .map((item) => (
               <React.Fragment key={item.id}>
@@ -1762,7 +1340,7 @@ function MapScreen({ map, lang, t }: { map: FestivalMap; lang: "en" | "hu"; t: t
                   </View>
                   <View style={styles.mapPointItemText}>
                     <Text style={styles.mapPointItemName}>{item.name}</Text>
-                    <Text style={styles.mapPointItemCategory}>{getMapCategoryLabel(item.category, lang)}</Text>
+                    <Text style={styles.mapPointItemCategory}>{MAP_CATEGORY_META[item.category].label}</Text>
                   </View>
                   <Ionicons name={selectedId === item.id ? "chevron-up" : "chevron-down"}
                     size={16} color="rgba(168,85,247,0.4)" />
@@ -1789,12 +1367,12 @@ function MapScreen({ map, lang, t }: { map: FestivalMap; lang: "en" | "hu"; t: t
                     <Ionicons name={MAP_CATEGORY_META[item.key as MapCategory]?.icon as keyof typeof Ionicons.glyphMap}
                       size={11} color={active ? MAP_CATEGORY_META[item.key as MapCategory]?.color : "rgba(168,85,247,0.45)"} />
                   )}
-                  <Text style={[styles.mapFilterChipText, active && styles.mapFilterChipTextActive]}>{getMapFilterLabel(item.key, lang)}</Text>
+                  <Text style={[styles.mapFilterChipText, active && styles.mapFilterChipTextActive]}>{item.label}</Text>
                 </TouchableOpacity>
               );
             })}
           </ScrollView>
-          {localizedPoints
+          {map.points
             .filter(p => filter === "all" || p.category === filter)
             .map((item) => (
             <React.Fragment key={item.id}>
@@ -1807,7 +1385,7 @@ function MapScreen({ map, lang, t }: { map: FestivalMap; lang: "en" | "hu"; t: t
                 </View>
                 <View style={styles.mapPointItemText}>
                   <Text style={styles.mapPointItemName}>{item.name}</Text>
-                  <Text style={styles.mapPointItemCategory}>{getMapCategoryLabel(item.category, lang)}</Text>
+                  <Text style={styles.mapPointItemCategory}>{MAP_CATEGORY_META[item.category].label}</Text>
                 </View>
                 <Ionicons name={selectedId === item.id ? "chevron-up" : "chevron-down"}
                   size={16} color="rgba(168,85,247,0.4)" />
@@ -1823,19 +1401,11 @@ function MapScreen({ map, lang, t }: { map: FestivalMap; lang: "en" | "hu"; t: t
 }
 
 // ─── Home képernyő ────────────────────────────────────────────────────────────
-function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, t }: {
+function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers }: {
 	onGoToTickets: () => void;
 	onGoToFavorites: () => void;
 	favoritePerformers: Performer[];
-	lang: "en" | "hu";
-	t: typeof translations.en;
 }) {
-	const player = useVideoPlayer(require("./assets/video/projektvideo.mp4"), (playerInstance) => {
-		playerInstance.loop = true;
-		playerInstance.muted = true;
-		playerInstance.play();
-	});
-
 	const stars = useRef(
 		Array.from({ length: 42 }, (_, i) => ({
 			id: i,
@@ -1851,14 +1421,6 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, 
 
 	return (
 		<View style={styles.homeScreen}>
-			<VideoView
-				style={StyleSheet.absoluteFill}
-				player={player}
-				contentFit="cover"
-				nativeControls={false}
-				allowsFullscreen={false}
-			/>
-			<View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(10, 4, 16, 0.72)" }]} />
 			{stars.map((s) => (
 				<Star key={s.id} style={{ top: s.top, left: s.left, width: s.size, height: s.size }} />
 			))}
@@ -1869,15 +1431,15 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, 
 				<EclipseAnimation />
 				<View style={styles.titleZone}>
 					<Text style={styles.festName}>EclipseFest</Text>
-					<Text style={styles.tagline}>{t.darknessFalls}</Text>
+					<Text style={styles.tagline}>WHEN DARKNESS FALLS, MUSIC RISES</Text>
 				</View>
 
 				<View style={styles.homeHeroCard}>
 					<Image source={HOME_HERO_IMAGE} style={styles.homeHeroImage} resizeMode="cover" />
 					<View style={styles.homeHeroImageShade} />
 					<View style={styles.homeHeroOverlay}>
-						<Text style={styles.homeHeroEyebrow}>{t.homeHeroSubtitle}</Text>
-						<Text style={styles.homeHeroTitle}>{t.homeHeroDesc}</Text>
+						<Text style={styles.homeHeroEyebrow}>LIVE MUSIC · NIGHT EXPERIENCE</Text>
+						<Text style={styles.homeHeroTitle}>Három este, négy színpad, prémium fesztiválhangulat.</Text>
 					</View>
 				</View>
 
@@ -1886,10 +1448,10 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, 
 					<TouchableOpacity style={styles.nextFavChip} onPress={onGoToFavorites}>
 						<Ionicons name="heart" size={14} color="#a855f7" />
 						<Text style={styles.nextFavText}>
-							{lang === "en" ? "Next favorite: " : "Következő kedvenced: "}<Text style={styles.nextFavName}>{nextFav.name}</Text>
+							Következő kedvenced: <Text style={styles.nextFavName}>{nextFav.name}</Text>
 						</Text>
 						<Text style={styles.nextFavTime}>
-							{minsUntil < 60 ? (lang === "en" ? `in ${minsUntil} minutes` : `${minsUntil} perc múlva`) : `${nextFav.startTime}`}
+							{minsUntil < 60 ? `${minsUntil} perc múlva` : `${nextFav.startTime}`}
 						</Text>
 					</TouchableOpacity>
 				)}
@@ -1897,36 +1459,36 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, 
 				<View style={styles.dateStrip}>
 					<View style={styles.dateItem}>
 						<Text style={styles.dateNum}>18</Text>
-						<Text style={styles.dateSub}>{t.jul}</Text>
+						<Text style={styles.dateSub}>JUL</Text>
 					</View>
 					<View style={styles.dateSep} />
 					<View style={styles.dateItem}>
 						<Text style={styles.dateNum}>19</Text>
-						<Text style={styles.dateSub}>{t.jul}</Text>
+						<Text style={styles.dateSub}>JUL</Text>
 					</View>
 					<View style={styles.dateSep} />
 					<View style={styles.dateItem}>
 						<Text style={styles.dateNum}>20</Text>
-						<Text style={styles.dateSub}>{t.jul}</Text>
+						<Text style={styles.dateSub}>JUL</Text>
 					</View>
 					<View style={{ flex: 1 }} />
 					<View style={styles.dateRight}>
 						<Text style={styles.dateYear}>2026</Text>
-						<Text style={styles.dateSub}>{t.threeNights}</Text>
+						<Text style={styles.dateSub}>3 NIGHTS</Text>
 					</View>
 				</View>
 
 				<TouchableOpacity style={styles.ticketCta} onPress={onGoToTickets}>
 					<Ionicons name="ticket" size={18} color="#f0e8ff" />
-					<Text style={styles.ticketCtaText}>{t.buyTickets}</Text>
+					<Text style={styles.ticketCtaText}>Jegyvásárlás</Text>
 					<Ionicons name="chevron-forward" size={16} color="rgba(168,85,247,0.6)" />
 				</TouchableOpacity>
 
 				<View style={styles.infoRow}>
 					{[
-						{ label: lang === "en" ? "LOCATION" : "HELYSZÍN", value: "Budapest" },
-						{ label: lang === "en" ? "STAGES" : "SZÍNPADOK", value: lang === "en" ? "4 stages" : "4 színpad" },
-						{ label: lang === "en" ? "ARTISTS" : "FELLÉPŐK", value: "60+" },
+						{ label: "LOCATION", value: "Budapest" },
+						{ label: "STAGES", value: "4 stages" },
+						{ label: "ARTISTS", value: "60+" },
 					].map((chip) => (
 						<View key={chip.label} style={styles.infoChip}>
 							<Text style={styles.chipLabel}>{chip.label}</Text>
@@ -1936,7 +1498,7 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, 
 				</View>
 
 				<View style={styles.homeSectionHeader}>
-					<Text style={styles.homeSectionTitle}>{lang === "en" ? "Featured Artists" : "Kiemelt fellépők"}</Text>
+					<Text style={styles.homeSectionTitle}>Kiemelt fellépők</Text>
 					<Text style={styles.homeSectionLink}>Festival highlights</Text>
 				</View>
 				<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featuredScroll}>
@@ -1952,7 +1514,7 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, 
 										<Text style={[styles.featuredStagePillText, { color: accent }]}>{artist.stage}</Text>
 									</View>
 									<Text style={styles.featuredCardName}>{artist.name}</Text>
-									<Text style={styles.featuredCardMeta}>{artist.startTime}–{artist.endTime} · {lang === "en" ? `Day ${artist.day}` : `${artist.day}. nap`}</Text>
+									<Text style={styles.featuredCardMeta}>{artist.startTime}–{artist.endTime} · {artist.day}. nap</Text>
 								</View>
 							</View>
 						);
@@ -1988,23 +1550,6 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 		data: sorted.filter((p) => p.stage === stage),
 	}));
 
-	const getScheduleViewLabel = (key: ScheduleViewMode) => {
-		if (lang === "en") {
-			switch (key) {
-				case "list": return "List";
-				case "timeline": return "Timeline";
-				case "stage": return "Stage";
-				case "grid": return "Grid";
-			}
-		}
-		switch (key) {
-			case "list": return "Lista";
-			case "timeline": return "Idővonal";
-			case "stage": return "Színpad";
-			case "grid": return "Rács";
-		}
-	};
-
 	const renderFavoriteBtn = (id: string, compact = false) => {
 		const isFavorite = favorites.includes(id);
 		return (
@@ -2026,7 +1571,7 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 				return (
 					<TouchableOpacity key={view.key} style={[styles.scheduleViewChip, active && styles.scheduleViewChipActive]} onPress={() => setViewMode(view.key)}>
 						<Ionicons name={view.icon} size={13} color={active ? THEME.accent : "rgba(168,85,247,0.45)"} />
-						<Text style={[styles.scheduleViewChipText, active && styles.scheduleViewChipTextActive]}>{getScheduleViewLabel(view.key)}</Text>
+						<Text style={[styles.scheduleViewChipText, active && styles.scheduleViewChipTextActive]}>{view.label}</Text>
 					</TouchableOpacity>
 				);
 			})}
@@ -2040,7 +1585,7 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 			contentContainerStyle={styles.scheduleListContent}
 			showsVerticalScrollIndicator={false}
 			renderItem={({ item }) => (
-				<PerformerCard item={item} isFavorite={favorites.includes(item.id)} onToggle={() => onToggleFavorite(item.id)} onPress={() => setSelectedPerformer(item)} lang={lang} />
+				<PerformerCard item={item} isFavorite={favorites.includes(item.id)} onToggle={() => onToggleFavorite(item.id)} onPress={() => setSelectedPerformer(item)} />
 			)}
 		/>
 	);
@@ -2064,7 +1609,7 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 								<Text style={styles.performerName}>{item.name}</Text>
 								<Text style={styles.performerDetails}>{item.stage}</Text>
 								<Text style={styles.timelineDescription} numberOfLines={2}>
-									{(lang === "en" ? item.description_en : item.description_hu) || item.description_hu || item.description_en || (lang === "en" ? "Description not available." : "Leírás nem érhető el.")}
+									{(lang === "en" ? item.description_en : item.description_hu) || item.description_hu || item.description_en || "Leírás nem érhető el."}
 								</Text>
 							</View>
 							{renderFavoriteBtn(item.id)}
@@ -2089,7 +1634,7 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 				</View>
 			)}
 			renderItem={({ item }) => (
-				<PerformerCard item={item} isFavorite={favorites.includes(item.id)} onToggle={() => onToggleFavorite(item.id)} onPress={() => setSelectedPerformer(item)} lang={lang} />
+				<PerformerCard item={item} isFavorite={favorites.includes(item.id)} onToggle={() => onToggleFavorite(item.id)} onPress={() => setSelectedPerformer(item)} />
 			)}
 		/>
 	);
@@ -2114,12 +1659,8 @@ function ScheduleScreen({ performers, favorites, onToggleFavorite, lang }: {
 	return (
 		<View style={styles.scheduleScreen}>
 			<View style={styles.scheduleHeader}>
-				<Text style={styles.scheduleHeading}>{lang === "en" ? "Schedule" : "Műsor"}</Text>
-				<Text style={styles.scheduleSubheading}>
-					{lang === "en" 
-						? `${sorted.length} performances · select view` 
-						: `${sorted.length} előadás · válassz nézetet`}
-				</Text>
+				<Text style={styles.scheduleHeading}>Műsor</Text>
+				<Text style={styles.scheduleSubheading}>{sorted.length} előadás · válassz nézetet</Text>
 			</View>
 			{renderViewSwitcher()}
 			<View style={styles.scheduleBody}>
@@ -2151,8 +1692,7 @@ function PerformerDetailModal({ performer, lang, isFavorite, onClose, onToggleFa
 	onToggleFavorite: () => void;
 }) {
 	if (!performer) return null;
-	const t = translations[lang];
-	const description = (lang === "en" ? performer.description_en : performer.description_hu) || performer.description_hu || performer.description_en || (lang === "en" ? "Description not available for this artist." : "Leírás nem érhető el ehhez az előadóhoz.");
+	const description = (lang === "en" ? performer.description_en : performer.description_hu) || performer.description_hu || performer.description_en || "Leírás nem érhető el ehhez az előadóhoz.";
 	return (
 		<Modal visible={!!performer} transparent animationType="fade" onRequestClose={onClose}>
 			<View style={styles.performerModalBackdrop}>
@@ -2176,7 +1716,7 @@ function PerformerDetailModal({ performer, lang, isFavorite, onClose, onToggleFa
 					<View style={styles.performerModalContent}>
 						<View style={styles.performerModalTopRow}>
 							<View style={{ flex: 1 }}>
-								<Text style={styles.performerModalEyebrow}>{t.artistDetail}</Text>
+								<Text style={styles.performerModalEyebrow}>ARTIST DETAIL</Text>
 								<Text style={styles.performerModalName}>{performer.name}</Text>
 							</View>
 							<TouchableOpacity style={styles.performerModalCloseBtn} onPress={onClose}>
@@ -2200,11 +1740,7 @@ function PerformerDetailModal({ performer, lang, isFavorite, onClose, onToggleFa
 
 						<TouchableOpacity style={styles.performerModalFavBtn} onPress={onToggleFavorite}>
 							<Ionicons name={isFavorite ? "heart" : "heart-outline"} size={18} color="#fff" />
-							<Text style={styles.performerModalFavText}>
-								{isFavorite 
-									? (lang === "en" ? "Remove from favorites" : "Kedvencekből törlés") 
-									: (lang === "en" ? "Add to favorites" : "Hozzáadás a kedvencekhez")}
-							</Text>
+							<Text style={styles.performerModalFavText}>{isFavorite ? "Kedvencekből törlés" : "Hozzáadás a kedvencekhez"}</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -2214,13 +1750,12 @@ function PerformerDetailModal({ performer, lang, isFavorite, onClose, onToggleFa
 }
 
 // ─── Performer kártya ─────────────────────────────────────────────────────────
-function PerformerCard({ item, isFavorite, onToggle, conflictNames, onPress, lang = "hu" }: {
+function PerformerCard({ item, isFavorite, onToggle, conflictNames, onPress }: {
 	item: Performer;
 	isFavorite: boolean;
 	onToggle: () => void;
 	conflictNames?: string[];
 	onPress?: () => void;
-	lang?: "en" | "hu";
 }) {
 	return (
 		<TouchableOpacity activeOpacity={0.86} onPress={onPress} style={[styles.card, conflictNames && conflictNames.length > 0 && styles.cardConflict]}>
@@ -2231,12 +1766,12 @@ function PerformerCard({ item, isFavorite, onToggle, conflictNames, onPress, lan
 				<Text style={styles.performerDetails}>
 					{item.stage}{"  ·  "}{item.startTime} – {item.endTime}
 				</Text>
-				<Text style={styles.performerCardHint}>{lang === "en" ? "Open details" : "Részletek megnyitása"}</Text>
+				<Text style={styles.performerCardHint}>Részletek megnyitása</Text>
 				{conflictNames && conflictNames.length > 0 && (
 					<View style={styles.conflictRow}>
 						<Ionicons name="warning-outline" size={12} color="#f59e0b" />
 						<Text style={styles.conflictText}>
-							{lang === "en" ? "Conflict: " : "Ütközés: "}{conflictNames.join(", ")}
+							Ütközés: {conflictNames.join(", ")}
 						</Text>
 					</View>
 				)}
@@ -2249,14 +1784,12 @@ function PerformerCard({ item, isFavorite, onToggle, conflictNames, onPress, lan
 }
 
 // ─── Favorites képernyő ───────────────────────────────────────────────────────
-function FavoritesScreen({ performers, favorites, onToggleFavorite, onGoToSchedule, onBack, lang, t }: {
+function FavoritesScreen({ performers, favorites, onToggleFavorite, onGoToSchedule, onBack }: {
 	performers: Performer[];
 	favorites: string[];
 	onToggleFavorite: (id: string) => void;
 	onGoToSchedule: () => void;
 	onBack: () => void;
-	lang: "en" | "hu";
-	t: typeof translations.en;
 }) {
 	const [dayFilter, setDayFilter] = useState<"all" | 18 | 19 | 20>("all");
 
@@ -2276,15 +1809,6 @@ function FavoritesScreen({ performers, favorites, onToggleFavorite, onGoToSchedu
 		(p) => getConflictsForPerformer(p, favoritePerformers).length > 0
 	).length;
 
-	const getDayLabel = (key: string | number) => {
-		if (lang === "en") {
-			if (key === "all") return "All";
-			return `July ${key}`;
-		}
-		if (key === "all") return "Mind";
-		return `Júl. ${key}`;
-	};
-
 	return (
 		<View style={styles.favScreen}>
 
@@ -2293,25 +1817,23 @@ function FavoritesScreen({ performers, favorites, onToggleFavorite, onGoToSchedu
 					<View style={styles.favEmptyIconWrap}>
 						<Ionicons name="heart-outline" size={36} color="rgba(168,85,247,0.35)" />
 					</View>
-					<Text style={styles.favEmptyTitle}>{t.noFavoritesYet}</Text>
-					<Text style={styles.favEmptySubtitle}>{t.favDesc}</Text>
+					<Text style={styles.favEmptyTitle}>Még nincsenek kedvenceid</Text>
+					<Text style={styles.favEmptySubtitle}>
+						A műsor nézetben szívecskével jelölheted az előadókat, akiket nem akarsz kihagyni.
+					</Text>
 					<TouchableOpacity style={styles.favEmptyBtn} onPress={onGoToSchedule}>
 						<Ionicons name="calendar-outline" size={16} color="#f0e8ff" />
-						<Text style={styles.favEmptyBtnText}>{t.viewSchedule}</Text>
+						<Text style={styles.favEmptyBtnText}>Műsor megtekintése</Text>
 					</TouchableOpacity>
 				</View>
 			) : (
 				<>
 					<View style={styles.scheduleHeader}>
-						<Text style={styles.scheduleHeading}>{t.mySchedule}</Text>
+						<Text style={styles.scheduleHeading}>Saját menetrend</Text>
 						<Text style={styles.scheduleSubheading}>
-							{lang === "en"
-								? `${favoritePerformers.length} favorite ${favoritePerformers.length === 1 ? "artist" : "artists"}`
-								: `${favoritePerformers.length} kedvenc előadó`}
+							{favoritePerformers.length} kedvenc előadó
 							{conflictCount > 0 && (
-								<Text style={styles.conflictBadgeText}>
-									{"  ⚠ "}{conflictCount}{" "}{lang === "en" ? (conflictCount === 1 ? "conflict" : "conflicts") : "ütközés"}
-								</Text>
+								<Text style={styles.conflictBadgeText}>  ⚠ {conflictCount} ütközés</Text>
 							)}
 						</Text>
 					</View>
@@ -2327,7 +1849,7 @@ function FavoritesScreen({ performers, favorites, onToggleFavorite, onGoToSchedu
 									onPress={() => setDayFilter(d.key as "all" | 18 | 19 | 20)}
 								>
 									<Text style={[styles.dayFilterChipText, active && styles.dayFilterChipTextActive]}>
-										{getDayLabel(d.key)}
+										{d.label}
 									</Text>
 								</TouchableOpacity>
 							);
@@ -2337,8 +1859,8 @@ function FavoritesScreen({ performers, favorites, onToggleFavorite, onGoToSchedu
 					{filtered.length === 0 ? (
 						<View style={styles.favEmptyContainer}>
 							<Ionicons name="calendar-outline" size={36} color="rgba(168,85,247,0.3)" />
-							<Text style={styles.favEmptyTitle}>{t.noFavOnDay}</Text>
-							<Text style={styles.favEmptySubtitle}>{t.favEmptySubtitle}</Text>
+							<Text style={styles.favEmptyTitle}>Ezen a napon nincs kedvenced</Text>
+							<Text style={styles.favEmptySubtitle}>Válassz másik napot vagy jelölj be új előadókat.</Text>
 						</View>
 					) : (
 						<FlatList
@@ -2352,7 +1874,6 @@ function FavoritesScreen({ performers, favorites, onToggleFavorite, onGoToSchedu
 									isFavorite={true}
 									onToggle={() => onToggleFavorite(item.id)}
 									conflictNames={getConflicts(item)}
-									lang={lang}
 								/>
 							)}
 						/>
@@ -2529,46 +2050,18 @@ const GASTRO_CATEGORY_META: Record<
 };
 
 // ─── Gasztró képernyő ─────────────────────────────────────────────────────────
-function GastroScreen({ onBack, lang, t }: { onBack: () => void; lang: "en" | "hu"; t: typeof translations.en }) {
+function GastroScreen({ onBack }: { onBack: () => void }) {
 	const [activeCategory, setActiveCategory] = useState<GastroCategory | "Mind">("Mind");
 
-	const localizedStands = GASTRO_STANDS.map((s) => {
-		const trans = GASTRO_STANDS_TRANSLATIONS[s.id]?.[lang];
-		return {
-			...s,
-			description: trans?.description ?? s.description,
-			offers: trans?.offers ?? s.offers,
-		};
-	});
-
 	const filtered = activeCategory === "Mind"
-		? localizedStands
-		: localizedStands.filter((s) => s.category === activeCategory);
+		? GASTRO_STANDS
+		: GASTRO_STANDS.filter((s) => s.category === activeCategory);
 
 	const counts: Record<GastroCategory, number> = {
-		Mind: localizedStands.length,
-		Étel: localizedStands.filter((s) => s.category === "Étel").length,
-		Ital: localizedStands.filter((s) => s.category === "Ital").length,
-		Desszert: localizedStands.filter((s) => s.category === "Desszert").length,
-	};
-
-	const getGastroCategoryLabel = (cat: GastroCategory, currentLang: "en" | "hu") => {
-		if (currentLang === "en") {
-			switch (cat) {
-				case "Mind": return "All";
-				case "Étel": return "Food";
-				case "Ital": return "Drink";
-				case "Desszert": return "Dessert";
-			}
-		}
-		return cat;
-	};
-
-	const getStandCountLabel = (count: number, currentLang: "en" | "hu") => {
-		if (currentLang === "en") {
-			return `${count} ${count === 1 ? "stand" : "stands"}`;
-		}
-		return `${count} stand`;
+		Mind: GASTRO_STANDS.length,
+		Étel: GASTRO_STANDS.filter((s) => s.category === "Étel").length,
+		Ital: GASTRO_STANDS.filter((s) => s.category === "Ital").length,
+		Desszert: GASTRO_STANDS.filter((s) => s.category === "Desszert").length,
 	};
 
 	return (
@@ -2581,20 +2074,20 @@ function GastroScreen({ onBack, lang, t }: { onBack: () => void; lang: "en" | "h
 				ListHeaderComponent={(
 					<>
 						<View style={styles.scheduleHeader}>
-							<Text style={styles.scheduleHeading}>{t.gastro}</Text>
+							<Text style={styles.scheduleHeading}>Gasztró</Text>
 							<Text style={styles.scheduleSubheading}>
-								{lang === "en"
-									? `${localizedStands.length} stands · premium dining selection`
-									: `${localizedStands.length} stand · letisztult gasztro kínálat`}
+								{GASTRO_STANDS.length} stand · letisztult gasztro kínálat
 							</Text>
 						</View>
 
 						<View style={styles.gastroHeroCard}>
 							<EventVisual accent={THEME.accent} />
 							<View style={styles.gastroHeroContent}>
-								<Text style={styles.gastroHeroEyebrow}>{t.curatedDining}</Text>
-								<Text style={styles.gastroHeroTitle}>{t.gastroDesc}</Text>
-								<Text style={styles.gastroHeroText}>{t.gastroSubDesc}</Text>
+								<Text style={styles.gastroHeroEyebrow}>CURATED FESTIVAL DINING</Text>
+								<Text style={styles.gastroHeroTitle}>Prémium gasztro élmény a színpadok között</Text>
+								<Text style={styles.gastroHeroText}>
+									Képes, event-app jellegű kártyák, nagyobb tipográfia és átláthatóbb kategóriák.
+								</Text>
 							</View>
 						</View>
 
@@ -2617,12 +2110,8 @@ function GastroScreen({ onBack, lang, t }: { onBack: () => void; lang: "en" | "h
 												/>
 											</View>
 											<View style={styles.gastroCategoryTextBlock}>
-												<Text style={[styles.gastroCategoryTileTitle, active && styles.gastroCategoryTileTitleActive]}>
-													{getGastroCategoryLabel(cat, lang)}
-												</Text>
-												<Text style={[styles.gastroCategoryTileMeta, active && styles.gastroCategoryTileMetaActive]}>
-													{getStandCountLabel(counts[cat], lang)}
-												</Text>
+												<Text style={[styles.gastroCategoryTileTitle, active && styles.gastroCategoryTileTitleActive]}>{meta.label}</Text>
+												<Text style={[styles.gastroCategoryTileMeta, active && styles.gastroCategoryTileMetaActive]}>{counts[cat]} stand</Text>
 											</View>
 										</View>
 									</TouchableOpacity>
@@ -2651,9 +2140,7 @@ function GastroScreen({ onBack, lang, t }: { onBack: () => void; lang: "en" | "h
 									<Text style={styles.gastroName}>{item.name}</Text>
 									<View style={styles.gastroTagRow}>
 										<View style={[styles.gastroCatBadge, { backgroundColor: `${item.color}18`, borderColor: `${item.color}40` }]}> 
-											<Text style={[styles.gastroCatText, { color: item.color }]}>
-												{getGastroCategoryLabel(item.category, lang)}
-											</Text>
+											<Text style={[styles.gastroCatText, { color: item.color }]}>{item.category}</Text>
 										</View>
 										<Text style={styles.gastroArtist}>{item.artist}</Text>
 									</View>
@@ -2663,7 +2150,7 @@ function GastroScreen({ onBack, lang, t }: { onBack: () => void; lang: "en" | "h
 							<Text style={styles.gastroDescription}>{item.description}</Text>
 
 							<View style={styles.gastroOffers}>
-								<Text style={styles.gastroOffersLabel}>{t.recommendedItems}</Text>
+								<Text style={styles.gastroOffersLabel}>AJÁNLOTT TÉTELEK</Text>
 								{item.offers.map((offer, i) => (
 									<View key={i} style={styles.gastroOfferRow}>
 										<View style={[styles.gastroOfferDot, { backgroundColor: item.color }]} />
@@ -2759,36 +2246,32 @@ function MoreScreen({
 	onGoToGastro,
 	onGoToSponsors,
 	favoritesCount,
-	lang,
-	t,
 }: {
 	onGoToFavorites: () => void;
 	onGoToGastro: () => void;
 	onGoToSponsors: () => void;
 	favoritesCount: number;
-	lang: "en" | "hu";
-	t: typeof translations.en;
 }) {
 	const items: { key: string; title: string; subtitle: string; icon: keyof typeof Ionicons.glyphMap; onPress: () => void; right?: string }[] = [
 		{
 			key: "favorites",
-			title: lang === "en" ? "Favorites" : "Kedvencek",
-			subtitle: lang === "en" ? "My schedule and conflicts" : "Saját menetrend és ütközések",
+			title: "Kedvencek",
+			subtitle: "Saját menetrend és ütközések",
 			icon: "heart",
 			onPress: onGoToFavorites,
 			right: favoritesCount > 0 ? String(favoritesCount) : undefined,
 		},
 		{
 			key: "gastro",
-			title: lang === "en" ? "Gastro" : "Gasztró",
-			subtitle: lang === "en" ? "Stands, offers, and categories" : "Standok, ajánlatok, kategóriák",
+			title: "Gasztró",
+			subtitle: "Standok, ajánlatok, kategóriák",
 			icon: "restaurant",
 			onPress: onGoToGastro,
 		},
 		{
 			key: "sponsors",
-			title: lang === "en" ? "Sponsors" : "Támogatók",
-			subtitle: lang === "en" ? "Our partners and logos" : "Partnereink és logók",
+			title: "Támogatók",
+			subtitle: "Partnereink és logók",
 			icon: "star",
 			onPress: onGoToSponsors,
 		},
@@ -2797,8 +2280,8 @@ function MoreScreen({
 	return (
 		<View style={styles.moreScreen}>
 			<View style={styles.scheduleHeader}>
-				<Text style={styles.scheduleHeading}>{t.more}</Text>
-				<Text style={styles.scheduleSubheading}>{t.quickAccess}</Text>
+				<Text style={styles.scheduleHeading}>Több</Text>
+				<Text style={styles.scheduleSubheading}>Gyors elérés a többi szekcióhoz</Text>
 			</View>
 
 			<View style={styles.moreList}>
@@ -2831,7 +2314,7 @@ export default function App() {
 
 	const [activeTab, setActiveTab] = useState<TabKey | "More">("Home");
 	const [favorites, setFavorites] = useState<string[]>([]);
-	const [lang, setLang] = useState<"en" | "hu">("hu");
+	const [lang, setLang] = useState<"en" | "hu">("en");
 	const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
 	const [selectedPerformanceIds, setSelectedPerformanceIds] = useState<string[]>([]);
 	const [ticketQuantity, setTicketQuantity] = useState(1);
@@ -2882,23 +2365,16 @@ export default function App() {
 	const handlePurchase = () => {
 		const selectedPerformancesForCheckout = performers.filter((p) => selectedPerformanceIds.includes(p.id));
 		const noTimeConflicts = getPerformanceConflictPairs(selectedPerformancesForCheckout).length === 0;
-		if (selectedTicketId && selectedPerformanceIds.length > 0 && noTimeConflicts && isValidEmail(buyerEmail)) {
-			setOrderComplete(true);
-			const title = lang === "en" ? "Successful Purchase!" : "Sikeres vásárlás!";
-			const message = lang === "en"
-				? `The confirmation email has been sent to ${buyerEmail.trim()}!`
-				: `A visszaigazoló e-mailt elküldtük a(z) ${buyerEmail.trim()} e-mail címre!`;
-			Alert.alert(title, message);
-		}
+		if (selectedTicketId && selectedPerformanceIds.length > 0 && noTimeConflicts && isValidEmail(buyerEmail)) setOrderComplete(true);
 	};
 	const handleResetOrder = () => { setOrderComplete(false); setRefundRequested(false); setSelectedTicketId(null); setSelectedPerformanceIds([]); setTicketQuantity(1); setBuyerEmail(""); };
 	const handleRequestRefund = () => { setRefundRequested(true); };
 
 	const navTabs: { key: TabKey | "More"; icon: string; label: string }[] = [
-		{ key: "Home", icon: "home", label: "Kezdőlap" },
-		{ key: "Schedule", icon: "calendar", label: "Program" },
-		{ key: "Map", icon: "map", label: "Térkép" },
-		{ key: "Tickets", icon: "ticket", label: "Jegyek" },
+		{ key: "Home", icon: "home", label: t.home },
+		{ key: "Schedule", icon: "calendar", label: t.schedule },
+		{ key: "Map", icon: "map", label: t.map },
+		{ key: "Tickets", icon: "ticket", label: t.tickets },
 		{ key: "More", icon: "grid", label: "Több" },
 	];
 
@@ -2927,7 +2403,7 @@ export default function App() {
 				</View>
 				<TouchableOpacity style={styles.langSwitch} onPress={() => setLang(lang === "en" ? "hu" : "en")}>
 					<Text style={styles.langSwitchText}>
-						{lang === "en" ? "HU" : "EN"}
+						{lang === "en" ? "EN" : "HU"}
 					</Text>
 				</TouchableOpacity>
 			</View>
@@ -2938,18 +2414,16 @@ export default function App() {
 						onGoToTickets={() => navigateTo("Tickets")}
 						onGoToFavorites={() => navigateTo("Favorites")}
 						favoritePerformers={favoritePerformers}
-						lang={lang}
-						t={t}
 					/>
 				)}
 				{activeTab === "Schedule" && (
 					<ScheduleScreen performers={performers} favorites={favorites} onToggleFavorite={toggleFavorite} lang={lang} />
 				)}
 				{activeTab === "Map" && (
-					festivalMap ? <MapScreen map={festivalMap} lang={lang} t={t} /> : (
+					festivalMap ? <MapScreen map={festivalMap} /> : (
 						<View style={styles.mapScreen}>
-							<Text style={styles.mapHeading}>{t.map}</Text>
-							<Text style={styles.mapVenue}>{t.mapDataNotAvailable}</Text>
+							<Text style={styles.mapHeading}>Térkép</Text>
+							<Text style={styles.mapVenue}>A térkép adatai nem érhetők el.</Text>
 						</View>
 					)
 				)}
@@ -2959,12 +2433,10 @@ export default function App() {
 						favorites={favorites}
 						onToggleFavorite={toggleFavorite}
 						onGoToSchedule={() => navigateTo("Schedule")}
-						onBack={goBack}
-						lang={lang}
-						t={t}
+					onBack={goBack}
 					/>
 				)}
-				{activeTab === "Gastro" && <GastroScreen onBack={goBack} lang={lang} t={t} />}
+				{activeTab === "Gastro" && <GastroScreen onBack={goBack} />}
 				{activeTab === "Tickets" && (
 					<TicketsScreen
 						tickets={tickets}
@@ -2982,8 +2454,6 @@ export default function App() {
 						onPurchase={handlePurchase}
 						onReset={handleResetOrder}
 						onRequestRefund={handleRequestRefund}
-						lang={lang}
-						t={t}
 					/>
 				)}
 				{activeTab === "Sponsors" && <SponsorsScreen t={t} onBack={goBack} />}
@@ -2993,8 +2463,6 @@ export default function App() {
 						onGoToGastro={() => navigateTo("Gastro")}
 						onGoToSponsors={() => navigateTo("Sponsors")}
 						favoritesCount={favorites.length}
-						lang={lang}
-						t={t}
 					/>
 				)}
 			</View>
@@ -3160,23 +2628,6 @@ const styles = StyleSheet.create({
 	orderSuccessTitle: { fontSize: 22, fontWeight: "900", color: THEME.text, marginBottom: 8 },
 	orderSuccessSub: { fontSize: 13, color: THEME.textSubtle, textAlign: "center", lineHeight: 20, marginBottom: 8 },
 	orderSuccessEmail: { fontSize: 15, fontWeight: "900", color: THEME.text, textAlign: "center", marginBottom: 24 },
-	emailSentBadge: {
-		flexDirection: "row",
-		alignItems: "center",
-		backgroundColor: "rgba(34,197,94,0.12)",
-		borderWidth: 1,
-		borderColor: "rgba(34,197,94,0.35)",
-		borderRadius: 12,
-		paddingVertical: 8,
-		paddingHorizontal: 16,
-		marginBottom: 16,
-	},
-	emailSentText: {
-		color: "#22c55e",
-		fontSize: 13,
-		fontWeight: "800",
-		fontFamily: FONTS.ui,
-	},
 	orderSummaryCard: { width: "100%", padding: 20, borderRadius: 24, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface, marginBottom: 24, alignItems: "center" },
 	orderSummaryLabel: { fontSize: 9, letterSpacing: 1.2, color: THEME.textSubtle, marginBottom: 8, fontWeight: "800" },
 	orderSummaryName: { fontSize: 18, fontWeight: "900", color: THEME.text, marginBottom: 4 },
@@ -3207,7 +2658,6 @@ const styles = StyleSheet.create({
 	performanceTicketCardSelected: { borderColor: "rgba(245,208,254,0.52)", backgroundColor: "rgba(148,92,234,0.24)" },
 	performanceTicketCardConflicted: { borderColor: "rgba(251,146,60,0.7)", backgroundColor: "rgba(249,115,22,0.10)" },
 	performanceTicketVisual: { width: 78, height: 64, borderRadius: 24, overflow: "hidden", backgroundColor: "rgba(168,85,247,0.18)", borderWidth: 1, borderColor: "rgba(255,255,255,0.10)" },
-	performanceTicketImage: { width: "100%", height: "100%", borderRadius: 24 },
 	performanceTicketInfo: { flex: 1 },
 	performanceTicketName: { fontSize: 17, color: THEME.text, fontWeight: "700", marginBottom: 4, fontFamily: FONTS.heading, letterSpacing: -0.5 },
 	performanceTicketMeta: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700", marginBottom: 6 },
@@ -3246,6 +2696,14 @@ const styles = StyleSheet.create({
 	refundRequestedBadge: { paddingVertical: 12, borderRadius: 14, backgroundColor: "rgba(34,197,94,0.12)", borderWidth: 1, borderColor: "rgba(34,197,94,0.35)", alignItems: "center" },
 	refundRequestedText: { color: "#86efac", fontSize: 13, fontWeight: "900" },
 	discountSection: { marginBottom: 18 },
+	discountInfoPanel: { padding: 15, borderRadius: 24, borderWidth: 1, borderColor: "rgba(134,239,172,0.22)", backgroundColor: "rgba(22,163,74,0.08)", marginBottom: 12, gap: 12 },
+	discountInfoHeader: { flexDirection: "row", gap: 12, alignItems: "flex-start" },
+	discountInfoIconWrap: { width: 38, height: 38, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(134,239,172,0.12)", borderWidth: 1, borderColor: "rgba(134,239,172,0.26)" },
+	discountInfoTitle: { fontSize: 15, color: THEME.text, fontWeight: "900", fontFamily: FONTS.ui, marginBottom: 3 },
+	discountInfoLead: { fontSize: 12, color: THEME.textMuted, lineHeight: 17, fontWeight: "600", fontFamily: FONTS.body },
+	discountInfoRow: { flexDirection: "row", gap: 10, alignItems: "flex-start", paddingTop: 10, borderTopWidth: 1, borderTopColor: "rgba(134,239,172,0.12)" },
+	discountInfoRowTitle: { fontSize: 12.5, color: "#bbf7d0", fontWeight: "900", fontFamily: FONTS.ui, marginBottom: 2 },
+	discountInfoRowText: { fontSize: 12, color: THEME.textSubtle, lineHeight: 17, fontWeight: "700", fontFamily: FONTS.body },
 	discountGrid: { gap: 10, marginBottom: 4 },
 	discountChip: { padding: 16, borderRadius: 22, borderWidth: 1, borderColor: "rgba(216,180,254,0.14)", backgroundColor: "rgba(255,255,255,0.055)" },
 	discountChipActive: { borderColor: "rgba(134,239,172,0.48)", backgroundColor: "rgba(22,163,74,0.10)" },
@@ -3567,15 +3025,16 @@ const styles = StyleSheet.create({
 	sponsorCardSingle: { width: "100%", marginBottom: 16 },
 	sponsorLogoWrap: {
 		width: "100%",
-		height: 92,
-		borderRadius: 20,
-		backgroundColor: "transparent",
+		height: 78,
+		borderRadius: 24,
+		backgroundColor: "rgba(255,255,255,0.96)",
+		borderWidth: 1,
+		borderColor: "rgba(255,255,255,0.75)",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingHorizontal: 4,
-		paddingVertical: 4,
+		paddingHorizontal: 10,
+		paddingVertical: 8,
 		marginBottom: 12,
-		overflow: "hidden",
 	},
 	sponsorLogo: { width: "100%", height: "100%" },
 	sponsorLogoFallback: { fontSize: 20, fontWeight: "900", letterSpacing: 0, color: THEME.accent },
