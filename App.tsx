@@ -3851,6 +3851,7 @@ function FavoritesScreen({
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={{ flexGrow: 0, maxHeight: 52, marginBottom: 4 }}
             contentContainerStyle={styles.dayFilterRow}
           >
             {FESTIVAL_DAYS.map((d) => {
