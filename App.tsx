@@ -3631,7 +3631,7 @@ function FavoritesScreen({
   lang: "en" | "hu";
   t: typeof translations.en;
 }) {
-  const [dayFilter, setDayFilter] = useState<"all" | 18 | 19 | 20>("all");
+  const [dayFilter, setDayFilter] = useState<"all" | 18 | 19 | 20 | 21>("all"); // <-- 21 hozzáadva
 
   const favoritePerformers = sortPerformersByTime(
     performers.filter((p) => favorites.includes(p.id)),
@@ -3703,6 +3703,7 @@ function FavoritesScreen({
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={{ flexGrow: 0, maxHeight: 44, marginBottom: 6 }} // <-- Ez kényszeríti rá, hogy ne nyúljon le
             contentContainerStyle={styles.dayFilterRow}
           >
             {FESTIVAL_DAYS.map((d) => {
