@@ -37,6 +37,8 @@ import Svg, {
 } from "react-native-svg";
 import festivalData from "./assets/data/eclipsefest_data.json";
 
+const HOME_HERO_IMAGE = require("./assets/festival.png");
+
 const performerImages: Record<string, any> = {
 	"1": require("./assets/performers/performer_1.jpg"),
 	"2": require("./assets/performers/performer_2.jpg"),
@@ -1407,7 +1409,8 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers }: {
 				</View>
 
 				<View style={styles.homeHeroCard}>
-					<EventVisual accent={THEME.accent} />
+					<Image source={HOME_HERO_IMAGE} style={styles.homeHeroImage} resizeMode="cover" />
+					<View style={styles.homeHeroImageShade} />
 					<View style={styles.homeHeroOverlay}>
 						<Text style={styles.homeHeroEyebrow}>LIVE MUSIC · NIGHT EXPERIENCE</Text>
 						<Text style={styles.homeHeroTitle}>Három este, négy színpad, prémium fesztiválhangulat.</Text>
@@ -1478,7 +1481,8 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers }: {
 						const accent = accentColors[index % accentColors.length];
 						return (
 							<View key={artist.id} style={styles.featuredCard}>
-								<EventVisual accent={accent} compact />
+								<Image source={getPerformerImage(artist.id)} style={styles.featuredCardImage} resizeMode="cover" />
+								<View style={styles.featuredCardImageShade} />
 								<View style={styles.featuredCardOverlay}>
 									<View style={[styles.featuredStagePill, { borderColor: `${accent}99`, backgroundColor: `${accent}22` }]}>
 										<Text style={[styles.featuredStagePillText, { color: accent }]}>{artist.stage}</Text>
@@ -2480,8 +2484,10 @@ const styles = StyleSheet.create({
 	// Home
 	homeScreen: { flex: 1, backgroundColor: "transparent", position: "relative", overflow: "hidden" },
 	homeScroll: { alignItems: "center", paddingBottom: 32, paddingTop: 8 },
-	homeHeroCard: { width: "100%", maxWidth: 430, marginHorizontal: 20, marginTop: 18, borderRadius: 34, overflow: "hidden", borderWidth: 1, borderColor: "rgba(216,180,254,0.26)", backgroundColor: "rgba(255,255,255,0.07)", shadowColor: THEME.accent, shadowOpacity: 0.38, shadowRadius: 28, elevation: 12 },
-	homeHeroOverlay: { position: "absolute", left: 16, right: 16, bottom: 16, padding: 14, borderRadius: 22, backgroundColor: "rgba(5,2,14,0.46)", borderWidth: 1, borderColor: "rgba(255,255,255,0.08)" },
+	homeHeroCard: { width: "100%", maxWidth: 430, height: 225, marginHorizontal: 20, marginTop: 18, borderRadius: 34, overflow: "hidden", borderWidth: 1, borderColor: "rgba(216,180,254,0.26)", backgroundColor: "rgba(255,255,255,0.07)", shadowColor: THEME.accent, shadowOpacity: 0.38, shadowRadius: 28, elevation: 12 },
+	homeHeroImage: { width: "100%", height: "100%" },
+	homeHeroImageShade: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(4,1,12,0.22)" },
+	homeHeroOverlay: { position: "absolute", left: 16, right: 16, bottom: 16, padding: 14, borderRadius: 22, backgroundColor: "rgba(5,2,14,0.50)", borderWidth: 1, borderColor: "rgba(255,255,255,0.08)" },
 	homeHeroEyebrow: { color: "rgba(245,208,254,0.92)", fontSize: 11, letterSpacing: 2.4, fontWeight: "900", fontFamily: FONTS.ui, marginBottom: 8 },
 	homeHeroTitle: { color: "#fff", fontSize: 26, lineHeight: 31, fontWeight: "700", fontFamily: FONTS.heading },
 	eventVisualFrame: { width: "100%", height: 210, overflow: "hidden", backgroundColor: "#111827" },
@@ -2538,8 +2544,10 @@ const styles = StyleSheet.create({
 	homeSectionTitle: { color: THEME.text, fontSize: 24, fontFamily: FONTS.heading, fontWeight: "700" },
 	homeSectionLink: { color: THEME.textSubtle, fontSize: 12, letterSpacing: 1.2, fontFamily: FONTS.ui },
 	featuredScroll: { paddingLeft: 24, paddingRight: 12, paddingBottom: 6, gap: 14 },
-	featuredCard: { width: 220, borderRadius: 28, overflow: "hidden", borderWidth: 1, borderColor: "rgba(216,180,254,0.22)", backgroundColor: "rgba(255,255,255,0.06)", shadowColor: THEME.accent, shadowOpacity: 0.18, shadowRadius: 18, elevation: 6 },
-	featuredCardOverlay: { position: "absolute", left: 12, right: 12, bottom: 12, padding: 12, borderRadius: 18, backgroundColor: "rgba(5,2,14,0.52)", borderWidth: 1, borderColor: "rgba(255,255,255,0.08)" },
+	featuredCard: { width: 220, height: 155, borderRadius: 28, overflow: "hidden", borderWidth: 1, borderColor: "rgba(216,180,254,0.22)", backgroundColor: "rgba(255,255,255,0.06)", shadowColor: THEME.accent, shadowOpacity: 0.18, shadowRadius: 18, elevation: 6 },
+	featuredCardImage: { width: "100%", height: "100%" },
+	featuredCardImageShade: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(5,2,14,0.28)" },
+	featuredCardOverlay: { position: "absolute", left: 12, right: 12, bottom: 12, padding: 12, borderRadius: 18, backgroundColor: "rgba(5,2,14,0.56)", borderWidth: 1, borderColor: "rgba(255,255,255,0.08)" },
 	featuredStagePill: { alignSelf: "flex-start", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, borderWidth: 1, marginBottom: 8 },
 	featuredStagePillText: { fontSize: 10.5, fontFamily: FONTS.ui, fontWeight: "900", letterSpacing: 0.6 },
 	featuredCardName: { color: THEME.text, fontSize: 20, lineHeight: 22, fontFamily: FONTS.heading, fontWeight: "700" },
