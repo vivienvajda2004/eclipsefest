@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+	Alert,
 	Animated,
 	Dimensions,
 	Easing,
@@ -632,21 +633,7 @@ function PerformanceTicketCard({ performer, selected, conflicted, onSelect }: { 
 			onPress={onSelect}
 		>
 			<View style={styles.performanceTicketVisual}>
-				<Svg width="100%" height="100%" viewBox="0 0 90 70">
-					<Defs>
-						<RadialGradient id={`ticketGlow${performer.id}`} cx="50%" cy="35%" r="65%">
-							<Stop offset="0" stopColor={conflicted ? "#f97316" : "#c084fc"} stopOpacity="0.9" />
-							<Stop offset="1" stopColor="#0b041a" stopOpacity="1" />
-						</RadialGradient>
-					</Defs>
-					<Rect x="0" y="0" width="90" height="70" rx="14" fill={`url(#ticketGlow${performer.id})`} />
-					<Circle cx="45" cy="34" r="16" fill="rgba(34,18,58,0.35)" />
-					<Circle cx="45" cy="34" r="9" fill="rgba(255,255,255,0.85)" />
-					<Path d="M10 55 C25 42 35 49 45 38 C55 49 67 42 80 55" stroke="rgba(255,255,255,0.42)" strokeWidth="3" fill="none" />
-					{[12, 24, 36, 54, 66, 78].map((x, i) => (
-						<Rect key={i} x={x} y={58 - (i % 3) * 7} width="3" height={(i % 3) * 7 + 10} rx="1.5" fill="rgba(255,255,255,0.35)" />
-					))}
-				</Svg>
+				<Image source={getPerformerImage(performer.id)} style={styles.performanceTicketImage} resizeMode="cover" />
 			</View>
 			<View style={styles.performanceTicketInfo}>
 				<Text style={styles.performanceTicketName}>{performer.name}</Text>
@@ -750,10 +737,14 @@ function TicketsScreen({
 			<View style={styles.ticketsScreen}>
 				<ScrollView contentContainerStyle={styles.orderSuccessScroll} showsVerticalScrollIndicator={false}>
 					<View style={styles.orderSuccessIcon}>
-						<Ionicons name="checkmark-circle" size={56} color="#a855f7" />
+						<Ionicons name="checkmark-circle" size={56} color="#22c55e" />
 					</View>
 					<Text style={styles.orderSuccessTitle}>Sikeres vásárlás!</Text>
-					<Text style={styles.orderSuccessSub}>A visszaigazolást elküldjük erre a címre:</Text>
+					<View style={styles.emailSentBadge}>
+						<Ionicons name="mail" size={16} color="#22c55e" style={{ marginRight: 6 }} />
+						<Text style={styles.emailSentText}>Visszaigazoló e-mail sikeresen elküldve!</Text>
+					</View>
+					<Text style={styles.orderSuccessSub}>A visszaigazoló e-mailt elküldtük a következő címre:</Text>
 					<Text style={styles.orderSuccessEmail}>{email.trim()}</Text>
 
 					<View style={styles.orderSummaryCard}>
@@ -2335,7 +2326,13 @@ export default function App() {
 	const handlePurchase = () => {
 		const selectedPerformancesForCheckout = performers.filter((p) => selectedPerformanceIds.includes(p.id));
 		const noTimeConflicts = getPerformanceConflictPairs(selectedPerformancesForCheckout).length === 0;
-		if (selectedTicketId && selectedPerformanceIds.length > 0 && noTimeConflicts && isValidEmail(buyerEmail)) setOrderComplete(true);
+		if (selectedTicketId && selectedPerformanceIds.length > 0 && noTimeConflicts && isValidEmail(buyerEmail)) {
+			setOrderComplete(true);
+			Alert.alert(
+				"Sikeres vásárlás!",
+				`A visszaigazoló e-mailt elküldtük a(z) ${buyerEmail.trim()} e-mail címre!`
+			);
+		}
 	};
 	const handleResetOrder = () => { setOrderComplete(false); setRefundRequested(false); setSelectedTicketId(null); setSelectedPerformanceIds([]); setTicketQuantity(1); setBuyerEmail(""); };
 	const handleRequestRefund = () => { setRefundRequested(true); };
@@ -2594,6 +2591,23 @@ const styles = StyleSheet.create({
 	orderSuccessTitle: { fontSize: 22, fontWeight: "900", color: THEME.text, marginBottom: 8 },
 	orderSuccessSub: { fontSize: 13, color: THEME.textSubtle, textAlign: "center", lineHeight: 20, marginBottom: 8 },
 	orderSuccessEmail: { fontSize: 15, fontWeight: "900", color: THEME.text, textAlign: "center", marginBottom: 24 },
+	emailSentBadge: {
+		flexDirection: "row",
+		alignItems: "center",
+		backgroundColor: "rgba(34,197,94,0.12)",
+		borderWidth: 1,
+		borderColor: "rgba(34,197,94,0.35)",
+		borderRadius: 12,
+		paddingVertical: 8,
+		paddingHorizontal: 16,
+		marginBottom: 16,
+	},
+	emailSentText: {
+		color: "#22c55e",
+		fontSize: 13,
+		fontWeight: "800",
+		fontFamily: FONTS.ui,
+	},
 	orderSummaryCard: { width: "100%", padding: 20, borderRadius: 24, borderWidth: 1, borderColor: THEME.border, backgroundColor: THEME.surface, marginBottom: 24, alignItems: "center" },
 	orderSummaryLabel: { fontSize: 9, letterSpacing: 1.2, color: THEME.textSubtle, marginBottom: 8, fontWeight: "800" },
 	orderSummaryName: { fontSize: 18, fontWeight: "900", color: THEME.text, marginBottom: 4 },
@@ -2624,6 +2638,7 @@ const styles = StyleSheet.create({
 	performanceTicketCardSelected: { borderColor: "rgba(245,208,254,0.52)", backgroundColor: "rgba(148,92,234,0.24)" },
 	performanceTicketCardConflicted: { borderColor: "rgba(251,146,60,0.7)", backgroundColor: "rgba(249,115,22,0.10)" },
 	performanceTicketVisual: { width: 78, height: 64, borderRadius: 24, overflow: "hidden", backgroundColor: "rgba(168,85,247,0.18)", borderWidth: 1, borderColor: "rgba(255,255,255,0.10)" },
+	performanceTicketImage: { width: "100%", height: "100%", borderRadius: 24 },
 	performanceTicketInfo: { flex: 1 },
 	performanceTicketName: { fontSize: 17, color: THEME.text, fontWeight: "700", marginBottom: 4, fontFamily: FONTS.heading, letterSpacing: -0.5 },
 	performanceTicketMeta: { fontSize: 11, color: THEME.textSubtle, fontWeight: "700", marginBottom: 6 },
