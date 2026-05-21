@@ -3264,13 +3264,26 @@ function ScheduleScreen({
   const [selectedPerformer, setSelectedPerformer] = useState<Performer | null>(
     null,
   );
+  const [dayFilter, setDayFilter] = useState<"all" | 18 | 19 | 20>("all");
   const sorted = sortPerformersByTime(performers);
 
-  const stageSections = [...new Set(sorted.map((p) => p.stage))]
+  const filteredPerformers =
+    dayFilter === "all" ? sorted : sorted.filter((p) => p.day === dayFilter);
+
+  const getDayLabel = (key: string | number) => {
+    if (lang === "en") {
+      if (key === "all") return "All";
+      return `July ${key}`;
+    }
+    if (key === "all") return "Mind";
+    return `Júl. ${key}.`;
+  };
+
+  const stageSections = [...new Set(filteredPerformers.map((p) => p.stage))]
     .sort()
     .map((stage) => ({
       title: stage,
-      data: sorted.filter((p) => p.stage === stage),
+      data: filteredPerformers.filter((p) => p.stage === stage),
     }));
 
   const getScheduleViewLabel = (key: ScheduleViewMode) => {
@@ -3353,7 +3366,7 @@ function ScheduleScreen({
 
   const renderListView = () => (
     <FlatList
-      data={sorted}
+      data={filteredPerformers}
       keyExtractor={(item) => item.id}
       contentContainerStyle={styles.scheduleListContent}
       showsVerticalScrollIndicator={false}
@@ -3374,7 +3387,7 @@ function ScheduleScreen({
       contentContainerStyle={styles.scheduleListContent}
       showsVerticalScrollIndicator={false}
     >
-      {sorted.map((item, index) => (
+      {filteredPerformers.map((item, index) => (
         <View key={item.id} style={styles.timelineRow}>
           <View style={styles.timelineTimeCol}>
             <Text style={styles.timelineTime}>{item.startTime}</Text>
@@ -3382,7 +3395,7 @@ function ScheduleScreen({
           </View>
           <View style={styles.timelineTrack}>
             <View style={styles.timelineDot} />
-            {index < sorted.length - 1 && <View style={styles.timelineLine} />}
+            {index < filteredPerformers.length - 1 && <View style={styles.timelineLine} />}
           </View>
           <TouchableOpacity
             style={styles.timelineCard}
@@ -3448,7 +3461,7 @@ function ScheduleScreen({
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.scheduleGrid}>
-        {sorted.map((item) => (
+        {filteredPerformers.map((item) => (
           <TouchableOpacity
             key={item.id}
             style={styles.gridCard}
@@ -3481,10 +3494,42 @@ function ScheduleScreen({
         </Text>
         <Text style={styles.scheduleSubheading}>
           {lang === "en"
-            ? `${sorted.length} performances · select view`
-            : `${sorted.length} előadás · válassz nézetet`}
+            ? `${filteredPerformers.length} performances · select view`
+            : `${filteredPerformers.length} előadás · válassz nézetet`}
         </Text>
       </View>
+
+      {/* Nap szerinti szűrő */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={{ flexGrow: 0, maxHeight: 52, marginBottom: 4 }}
+        contentContainerStyle={styles.dayFilterRow}
+      >
+        {FESTIVAL_DAYS.map((d) => {
+          const active = dayFilter === d.key;
+          return (
+            <TouchableOpacity
+              key={String(d.key)}
+              style={[
+                styles.dayFilterChip,
+                active && styles.dayFilterChipActive,
+              ]}
+              onPress={() => setDayFilter(d.key as "all" | 18 | 19 | 20)}
+            >
+              <Text
+                style={[
+                  styles.dayFilterChipText,
+                  active && styles.dayFilterChipTextActive,
+                ]}
+              >
+                {getDayLabel(d.key)}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
       {renderViewSwitcher()}
       <View style={styles.scheduleBody}>
         {viewMode === "list" && renderListView()}
@@ -7326,23 +7371,27 @@ const styles = StyleSheet.create({
   favEmptyBtnText: { fontSize: 14, fontWeight: "900", color: THEME.text },
 
   // Nap szűrő
-  dayFilterRow: { paddingHorizontal: 16, gap: 8, paddingVertical: 10 },
+  dayFilterRow: { paddingHorizontal: 16, gap: 8, paddingVertical: 6, alignItems: "center" },
   dayFilterChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 9,
+    paddingHorizontal: 16,
+    paddingVertical: 7,
     borderRadius: 20,
-    borderWidth: 0.8,
+    borderWidth: 1,
     borderColor: THEME.border,
     backgroundColor: THEME.surface,
+    justifyContent: "center",
+    alignItems: "center",
   },
   dayFilterChipActive: {
     backgroundColor: THEME.surface2,
     borderColor: THEME.borderStrong,
   },
   dayFilterChipText: {
-    fontSize: 12,
+    fontSize: 13,
     color: THEME.textSubtle,
-    fontWeight: "800",
+    fontWeight: "700",
+    lineHeight: 18,
+    includeFontPadding: false,
   },
   dayFilterChipTextActive: { color: THEME.text },
 
