@@ -2479,6 +2479,7 @@ function MapScreen({
   const lastTX = useRef(0);
   const lastTY = useRef(0);
   const [transform, setTransform] = useState({ scale: 1, tx: 0, ty: 0 });
+  const mapScrollViewRef = useRef<ScrollView>(null);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -2519,6 +2520,9 @@ function MapScreen({
   const handleSelectMapPoint = (id: string) => {
     setSelectedId((current) => (current === id ? null : id));
     setMapView("map");
+    setTimeout(() => {
+      mapScrollViewRef.current?.scrollTo({ y: 0, animated: true });
+    }, 100);
   };
 
   const renderDetailCard = (point: MapPoint) => (
@@ -2539,15 +2543,6 @@ function MapScreen({
           </View>
         </View>
         <Text style={styles.mapDetailDescription}>{point.description}</Text>
-        {Platform.OS !== "web" && (
-          <TouchableOpacity
-            style={styles.mapOpenExternalBtn}
-            onPress={() => openInGoogleMaps(point)}
-          >
-            <Ionicons name="open-outline" size={14} color="#c084fc" />
-            <Text style={styles.mapOpenExternalText}>{t.openInGoogleMaps}</Text>
-          </TouchableOpacity>
-        )}
       </View>
       <TouchableOpacity
         style={styles.mapDetailClose}
@@ -2617,6 +2612,7 @@ function MapScreen({
       {/* ILLUSZTRÁLT TÉRKÉP NÉZET */}
       {mapView === "map" && (
         <ScrollView
+          ref={mapScrollViewRef}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 120 }}
         >
