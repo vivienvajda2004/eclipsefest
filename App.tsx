@@ -21,6 +21,7 @@ import {
 	View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useVideoPlayer, VideoView } from "expo-video";
 // Removed expo-google-fonts
 import Svg, {
 	Circle,
@@ -1827,6 +1828,12 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, 
 	lang: "en" | "hu";
 	t: typeof translations.en;
 }) {
+	const player = useVideoPlayer(require("./assets/video/projektvideo.mp4"), (playerInstance) => {
+		playerInstance.loop = true;
+		playerInstance.muted = true;
+		playerInstance.play();
+	});
+
 	const stars = useRef(
 		Array.from({ length: 42 }, (_, i) => ({
 			id: i,
@@ -1842,6 +1849,14 @@ function HomeScreen({ onGoToTickets, onGoToFavorites, favoritePerformers, lang, 
 
 	return (
 		<View style={styles.homeScreen}>
+			<VideoView
+				style={StyleSheet.absoluteFill}
+				player={player}
+				contentFit="cover"
+				nativeControls={false}
+				allowsFullscreen={false}
+			/>
+			<View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(10, 4, 16, 0.72)" }]} />
 			{stars.map((s) => (
 				<Star key={s.id} style={{ top: s.top, left: s.left, width: s.size, height: s.size }} />
 			))}
