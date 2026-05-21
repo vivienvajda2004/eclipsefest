@@ -4846,7 +4846,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.25,
     shadowRadius: 14,
-    elevation: 6,
   },
   headerBackBtnHidden: { opacity: 0 },
   headerBrandWrap: {
@@ -4888,7 +4887,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.25,
     shadowRadius: 14,
-    elevation: 6,
   },
   langSwitchText: {
     color: THEME.accent,
@@ -4934,7 +4932,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.38,
     shadowRadius: 28,
-    elevation: 12,
   },
   homeHeroOverlay: {
     position: "absolute",
@@ -5118,7 +5115,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.18,
     shadowRadius: 18,
-    elevation: 6,
   },
   dateItem: { alignItems: "center", paddingHorizontal: 12 },
   dateNum: {
@@ -5156,7 +5152,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.1,
     shadowRadius: 10,
-    elevation: 3,
   },
   chipLabel: {
     fontSize: 9,
@@ -5204,7 +5199,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.18,
     shadowRadius: 18,
-    elevation: 6,
   },
   featuredCardOverlay: {
     position: "absolute",
@@ -5263,7 +5257,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.42,
     shadowRadius: 20,
-    elevation: 10,
   },
   ticketCtaText: {
     fontSize: 15,
@@ -5303,7 +5296,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.16,
     shadowRadius: 18,
-    elevation: 6,
   },
   ticketCardSelected: {
     borderColor: "rgba(245,208,254,0.58)",
@@ -5476,7 +5468,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.35,
     shadowRadius: 18,
-    elevation: 8,
   },
   checkoutBtnDisabled: { opacity: 0.4 },
   checkoutBtnText: {
@@ -5611,7 +5602,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.1,
     shadowRadius: 14,
-    elevation: 4,
   },
   performanceDayGroupWarning: {
     borderColor: "rgba(251,146,60,0.48)",
@@ -5966,7 +5956,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.18,
     shadowRadius: 18,
-    elevation: 8,
   },
   cartHeaderRow: {
     flexDirection: "row",
@@ -6182,7 +6171,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.08,
     shadowRadius: 12,
-    elevation: 3,
   },
   mapPointItemSelected: {
     backgroundColor: "rgba(168,85,247,0.12)",
@@ -6228,7 +6216,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.18,
     shadowRadius: 18,
-    elevation: 8,
     position: "relative",
   },
   festivalMapImage: {
@@ -6264,7 +6251,6 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.35,
     shadowRadius: 8,
-    elevation: 8,
   },
   mapImageMarkerLabel: {
     position: "absolute",
@@ -6751,7 +6737,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.12,
     shadowRadius: 14,
-    elevation: 4,
   },
   timelineCardHeader: { flexDirection: "row", alignItems: "flex-start" },
   timelineCardInfo: {
@@ -6781,7 +6766,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.14,
     shadowRadius: 16,
-    elevation: 5,
   },
   cardConflict: {
     borderColor: "rgba(245,158,11,0.55)",
@@ -6844,7 +6828,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.22,
     shadowRadius: 26,
-    elevation: 12,
     position: "relative",
   },
   performerModalBackgroundImage: {
@@ -6975,7 +6958,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.56,
     shadowRadius: 16,
-    elevation: 9,
   },
   navText: {
     fontSize: 12.5,
@@ -7040,7 +7022,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.16,
     shadowRadius: 16,
-    elevation: 6,
   },
   sponsorCardSingle: { width: "100%", marginBottom: 16 },
   sponsorLogoWrap: {
@@ -7089,7 +7070,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.1,
     shadowRadius: 14,
-    elevation: 4,
   },
   moreRowIcon: {
     width: 48,
@@ -7203,7 +7183,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.22,
     shadowRadius: 22,
-    elevation: 8,
   },
   gastroHeroContent: { padding: 18 },
   gastroHeroEyebrow: {
@@ -7250,7 +7229,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.08,
     shadowRadius: 12,
-    elevation: 3,
   },
   gastroCategoryTileActive: {
     backgroundColor: "rgba(168,85,247,0.20)",
@@ -7285,7 +7263,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.12,
     shadowRadius: 16,
-    elevation: 5,
   },
   gastroImageWrap: {
     height: 178,
@@ -7402,7 +7379,6 @@ const styles = StyleSheet.create({
     shadowColor: THEME.accent,
     shadowOpacity: 0.1,
     shadowRadius: 12,
-    elevation: 4,
   },
   gastroCategoryChipActive: {
     backgroundColor: "rgba(168,85,247,0.22)",
