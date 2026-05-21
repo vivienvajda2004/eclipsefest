@@ -928,6 +928,7 @@ const FESTIVAL_DAYS = [
   { key: 18, label: "Júl. 18" },
   { key: 19, label: "Júl. 19" },
   { key: 20, label: "Júl. 20" },
+  { key: 21, label: "Júl. 21" },
 ];
 
 function formatPrice(
@@ -3264,7 +3265,7 @@ function ScheduleScreen({
   const [selectedPerformer, setSelectedPerformer] = useState<Performer | null>(
     null,
   );
-  const [dayFilter, setDayFilter] = useState<"all" | 18 | 19 | 20>("all");
+  const [dayFilter, setDayFilter] = useState<"all" | 18 | 19 | 20 | 21>("all");
   const sorted = sortPerformersByTime(performers);
 
   const filteredPerformers =
@@ -3515,7 +3516,7 @@ function ScheduleScreen({
                 styles.dayFilterChip,
                 active && styles.dayFilterChipActive,
               ]}
-              onPress={() => setDayFilter(d.key as "all" | 18 | 19 | 20)}
+              onPress={() => setDayFilter(d.key as "all" | 18 | 19 | 20 | 21)}
             >
               <Text
                 style={[
@@ -3730,6 +3731,8 @@ function PerformerCard({
       <View style={styles.cardInfo}>
         <Text style={styles.performerName}>{item.name}</Text>
         <Text style={styles.performerDetails}>
+          {lang === "en" ? `July ${item.day}` : `Júl. ${item.day}.`}
+          {"  ·  "}
           {item.stage}
           {"  ·  "}
           {item.startTime} – {item.endTime}
@@ -3776,7 +3779,7 @@ function FavoritesScreen({
   lang: "en" | "hu";
   t: typeof translations.en;
 }) {
-  const [dayFilter, setDayFilter] = useState<"all" | 18 | 19 | 20>("all");
+  const [dayFilter, setDayFilter] = useState<"all" | 18 | 19 | 20 | 21>("all");
 
   const favoritePerformers = sortPerformersByTime(
     performers.filter((p) => favorites.includes(p.id)),
@@ -3859,7 +3862,7 @@ function FavoritesScreen({
                     styles.dayFilterChip,
                     active && styles.dayFilterChipActive,
                   ]}
-                  onPress={() => setDayFilter(d.key as "all" | 18 | 19 | 20)}
+                  onPress={() => setDayFilter(d.key as "all" | 18 | 19 | 20 | 21)}
                 >
                   <Text
                     style={[
