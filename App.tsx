@@ -317,6 +317,14 @@ const translations = {
     withIdAtEntry: "With ID at entry",
     multiShowBundle: "Multi-show bundle",
     whenChoosingPerformances: "fellépés választásakor",
+    discountInfoTitle: "Discount Guide",
+    discountInfoLead: "Choose a discount, and you will see the deduction on a separate line in the cart.",
+    earlyBirdTitle: "Early Bird",
+    earlyBirdText: "Applicable to tickets purchased during the early phase. Promo is active only until the announced stock or deadline.",
+    studentDiscountTitle: "Student Discount",
+    studentDiscountText: "Can be used with a valid student ID. The ID may be checked at the entrance.",
+    multiShowTitle: "Multi-show Bundle",
+    multiShowText: "Automatically activated when choosing at least 3 different, non-overlapping performances.",
   },
   hu: {
     home: "Kezdőlap",
@@ -418,6 +426,14 @@ const translations = {
     withIdAtEntry: "Belépéskor igazolással",
     multiShowBundle: "Multi-show csomag",
     whenChoosingPerformances: "fellépés választásakor",
+    discountInfoTitle: "Kedvezmény tájékoztató",
+    discountInfoLead: "Válassz kedvezményt, majd a kosárban külön soron látod a levonást.",
+    earlyBirdTitle: "Early Bird",
+    earlyBirdText: "A korai időszakban megvásárolt jegyekre jár. A promóció csak a meghirdetett készlet vagy határidő végéig él.",
+    studentDiscountTitle: "Diák kedvezmény",
+    studentDiscountText: "Érvényes diákigazolvánnyal használható. Az igazolást a belépéskor ellenőrizhetik.",
+    multiShowTitle: "Multi-show csomag",
+    multiShowText: "Legalább 3 különböző, nem ütköző fellépés kiválasztása esetén aktiválódik automatikusan.",
   },
 };
 
@@ -1875,6 +1891,30 @@ function TicketsScreen({
             <View style={styles.ticketSectionHeader}>
               <Text style={styles.ticketSectionTitle}>{t.ticketStep3}</Text>
               <Text style={styles.ticketSectionHint}>{t.discountDesc}</Text>
+            </View>
+            <View style={styles.discountInfoPanel}>
+              <View style={styles.discountInfoHeader}>
+                <View style={styles.discountInfoIconWrap}>
+                  <Ionicons name="pricetag-outline" size={18} color="#86efac" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.discountInfoTitle}>{t.discountInfoTitle}</Text>
+                  <Text style={styles.discountInfoLead}>{t.discountInfoLead}</Text>
+                </View>
+              </View>
+              {[
+                { icon: "flash-outline" as const, title: t.earlyBirdTitle, text: t.earlyBirdText },
+                { icon: "school-outline" as const, title: t.studentDiscountTitle, text: t.studentDiscountText },
+                { icon: "albums-outline" as const, title: t.multiShowTitle, text: t.multiShowText },
+              ].map((item) => (
+                <View key={item.title} style={styles.discountInfoRow}>
+                  <Ionicons name={item.icon} size={16} color="#86efac" />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.discountInfoRowTitle}>{item.title}</Text>
+                    <Text style={styles.discountInfoRowText}>{item.text}</Text>
+                  </View>
+                </View>
+              ))}
             </View>
             <View style={styles.discountGrid}>
               {DISCOUNT_OPTIONS.map((option) => {
@@ -4798,9 +4838,9 @@ const styles = StyleSheet.create({
     bottom: 16,
     padding: 14,
     borderRadius: 22,
-    backgroundColor: "rgba(5,2,14,0.46)",
+    backgroundColor: "rgba(92,36,150,0.18)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
+    borderColor: "rgba(255,255,255,0.12)",
   },
   homeHeroEyebrow: {
     color: "rgba(245,208,254,0.92)",
@@ -5052,9 +5092,9 @@ const styles = StyleSheet.create({
     bottom: 12,
     padding: 12,
     borderRadius: 18,
-    backgroundColor: "rgba(5,2,14,0.52)",
+    backgroundColor: "rgba(92,36,150,0.20)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
+    borderColor: "rgba(255,255,255,0.12)",
   },
   featuredStagePill: {
     alignSelf: "flex-start",
@@ -5759,6 +5799,14 @@ const styles = StyleSheet.create({
   },
   refundRequestedText: { color: "#86efac", fontSize: 13, fontWeight: "900" },
   discountSection: { marginBottom: 18 },
+  discountInfoPanel: { padding: 15, borderRadius: 24, borderWidth: 1, borderColor: "rgba(134,239,172,0.22)", backgroundColor: "rgba(22,163,74,0.08)", marginBottom: 12, gap: 12 },
+  discountInfoHeader: { flexDirection: "row", gap: 12, alignItems: "flex-start" },
+  discountInfoIconWrap: { width: 38, height: 38, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(134,239,172,0.12)", borderWidth: 1, borderColor: "rgba(134,239,172,0.26)" },
+  discountInfoTitle: { fontSize: 15, color: THEME.text, fontWeight: "900", fontFamily: FONTS.ui, marginBottom: 3 },
+  discountInfoLead: { fontSize: 12, color: THEME.textMuted, lineHeight: 17, fontWeight: "600", fontFamily: FONTS.body },
+  discountInfoRow: { flexDirection: "row", gap: 10, alignItems: "flex-start", paddingTop: 10, borderTopWidth: 1, borderTopColor: "rgba(134,239,172,0.12)" },
+  discountInfoRowTitle: { fontSize: 12.5, color: "#bbf7d0", fontWeight: "900", fontFamily: FONTS.ui, marginBottom: 2 },
+  discountInfoRowText: { fontSize: 12, color: THEME.textSubtle, lineHeight: 17, fontWeight: "700", fontFamily: FONTS.body },
   discountGrid: { gap: 10, marginBottom: 4 },
   discountChip: {
     padding: 16,
@@ -5956,7 +6004,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: THEME.borderStrong,
-    backgroundColor: "rgba(15,7,32,0.96)",
+    backgroundColor: "rgba(92,36,150,0.18)",
     overflow: "hidden",
   },
   mapDetailAccent: { width: 3 },
@@ -6055,7 +6103,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1.5,
     borderColor: "rgba(216,180,254,0.28)",
-    backgroundColor: "rgba(8,3,18,0.84)",
+    backgroundColor: "rgba(92,36,150,0.10)",
     shadowColor: THEME.accent,
     shadowOpacity: 0.18,
     shadowRadius: 18,
@@ -6105,7 +6153,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: "rgba(8,3,18,0.88)",
+    backgroundColor: "rgba(92,36,150,0.42)",
     borderWidth: 1,
     borderColor: "rgba(245,208,254,0.38)",
   },
@@ -6629,7 +6677,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 16,
     paddingHorizontal: 16,
-    backgroundColor: "rgba(84,44,130,0.20)",
+    backgroundColor: "transparent",
   },
   performerName: {
     color: THEME.text,
@@ -6669,7 +6717,7 @@ const styles = StyleSheet.create({
   performerModalCard: {
     borderRadius: 28,
     overflow: "hidden",
-    backgroundColor: "#10091c",
+    backgroundColor: "rgba(46,18,78,0.92)",
     borderWidth: 1,
     borderColor: THEME.borderStrong,
     shadowColor: THEME.accent,
@@ -6684,7 +6732,7 @@ const styles = StyleSheet.create({
   },
   performerModalBackgroundScrim: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(6,2,16,0.42)",
+    backgroundColor: "rgba(92,36,150,0.16)",
   },
   performerModalHero: { height: 150, backgroundColor: "rgba(168,85,247,0.12)" },
   performerModalContent: { padding: 20 },
@@ -6775,7 +6823,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "stretch",
-    backgroundColor: "rgba(84,44,130,0.16)",
+    backgroundColor: "transparent",
   },
 
   // Navigáció
@@ -6876,15 +6924,16 @@ const styles = StyleSheet.create({
   sponsorCardSingle: { width: "100%", marginBottom: 16 },
   sponsorLogoWrap: {
     width: "100%",
-    height: 92,
-    borderRadius: 20,
-    backgroundColor: "transparent",
+    height: 78,
+    borderRadius: 24,
+    backgroundColor: "rgba(255,255,255,0.96)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.75)",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 4,
-    paddingVertical: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     marginBottom: 12,
-    overflow: "hidden",
   },
   sponsorLogo: { width: "100%", height: "100%" },
   sponsorLogoFallback: {
@@ -7130,7 +7179,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingTop: 14,
     paddingBottom: 18,
-    backgroundColor: "rgba(14,7,26,0.78)",
+    backgroundColor: "rgba(92,36,150,0.12)",
   },
   gastroCardHeader: {
     flexDirection: "row",
