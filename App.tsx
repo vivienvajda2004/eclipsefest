@@ -39,6 +39,8 @@ import Svg, {
 } from "react-native-svg";
 import festivalData from "./assets/data/eclipsefest_data.json";
 
+const HOME_HERO_IMAGE = require("./assets/festival.png");
+
 const performerImages: Record<string, any> = {
   "1": require("./assets/performers/performer_1.jpg"),
   "2": require("./assets/performers/performer_2.jpg"),
@@ -325,6 +327,13 @@ const translations = {
     studentDiscountText: "Can be used with a valid student ID. The ID may be checked at the entrance.",
     multiShowTitle: "Multi-show Bundle",
     multiShowText: "Automatically activated when choosing at least 3 different, non-overlapping performances.",
+    sosTitle: "EMERGENCY ASSISTANCE",
+    sosSubtitle: "What kind of help do you need?",
+    sosINeedHelp: "I NEED HELP",
+    sosSomeoneElseNeedsHelp: "SOMEONE ELSE NEEDS HELP",
+    sosHelpOnTheWay: "HELP IS ON THE WAY",
+    sosHelpDetails: "Medical staff has received your location (Main Stage area). Stay where you are.",
+    cancel: "Cancel",
   },
   hu: {
     home: "Kezdőlap",
@@ -434,6 +443,13 @@ const translations = {
     studentDiscountText: "Érvényes diákigazolvánnyal használható. Az igazolást a belépéskor ellenőrizhetik.",
     multiShowTitle: "Multi-show csomag",
     multiShowText: "Legalább 3 különböző, nem ütköző fellépés kiválasztása esetén aktiválódik automatikusan.",
+    sosTitle: "SOS SEGÍTSÉGKÉRÉS",
+    sosSubtitle: "Milyen segítségre van szükséged?",
+    sosINeedHelp: "NEKEM KELL SEGÍTSÉG",
+    sosSomeoneElseNeedsHelp: "MÁSNAK KELL SEGÍTSÉG",
+    sosHelpOnTheWay: "ÚTON VAN A SEGÍTSÉG",
+    sosHelpDetails: "Az egészségügyi személyzet megkapta a pozíciódat (Nagyszínpad környéke). Maradj ott, ahol vagy.",
+    cancel: "Mégse",
   },
 };
 
@@ -2511,6 +2527,10 @@ function MapScreen({
   const [mapView, setMapView] = useState<"map" | "list">("map");
   const [filter, setFilter] = useState<MapFilter>("all");
 
+  // SOS state variables
+  const [sosVisible, setSosVisible] = useState(false);
+  const [sosSent, setSosSent] = useState(false);
+
   // Pan & Zoom state
   const scale = useRef(1);
   const translateX = useRef(0);
@@ -2520,6 +2540,14 @@ function MapScreen({
   const lastTY = useRef(0);
   const [transform, setTransform] = useState({ scale: 1, tx: 0, ty: 0 });
   const mapScrollViewRef = useRef<ScrollView>(null);
+
+  const handleSendSOS = () => {
+    setSosSent(true);
+    setTimeout(() => {
+      setSosVisible(false);
+      setSosSent(false);
+    }, 3000);
+  };
 
   const panResponder = useRef(
     PanResponder.create({
@@ -2908,6 +2936,73 @@ function MapScreen({
             ))}
         </ScrollView>
       )}
+
+      {/* ─── SOS LEBEGŐ GOMB ─── */}
+      <TouchableOpacity
+        style={styles.sosFloatingBtn}
+        onPress={() => setSosVisible(true)}
+        activeOpacity={0.8}
+      >
+        <Ionicons name="medkit" size={28} color="#ffffff" />
+      </TouchableOpacity>
+
+      {/* ─── SOS FELUGRÓ ABLAK (MODAL) ─── */}
+      <Modal
+        visible={sosVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setSosVisible(false)}
+      >
+        <View style={styles.sosModalOverlay}>
+          <View style={styles.sosModalContent}>
+            {sosSent ? (
+              <View style={styles.sosSuccessContainer}>
+                <Ionicons name="checkmark-circle" size={64} color="#22c55e" />
+                <Text style={styles.sosSuccessTitle}>{t.sosHelpOnTheWay}</Text>
+                <Text style={styles.sosSuccessText}>
+                  {t.sosHelpDetails}
+                </Text>
+              </View>
+            ) : (
+              <>
+                <View style={styles.sosHeader}>
+                  <Ionicons name="warning" size={32} color="#ef4444" />
+                  <Text style={styles.sosTitle}>{t.sosTitle}</Text>
+                </View>
+
+                <Text style={styles.sosSubtitle}>
+                  {t.sosSubtitle}
+                </Text>
+
+                <TouchableOpacity
+                  style={styles.sosActionBtn}
+                  onPress={handleSendSOS}
+                >
+                  <Ionicons name="person-outline" size={24} color="#ffffff" />
+                  <Text style={styles.sosActionText}>{t.sosINeedHelp}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.sosActionBtn}
+                  onPress={handleSendSOS}
+                >
+                  <Ionicons name="people-outline" size={24} color="#ffffff" />
+                  <Text style={styles.sosActionText}>
+                    {t.sosSomeoneElseNeedsHelp}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.sosCancelBtn}
+                  onPress={() => setSosVisible(false)}
+                >
+                  <Text style={styles.sosCancelText}>{t.cancel}</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -2982,7 +3077,12 @@ function HomeScreen({
         </View>
 
         <View style={styles.homeHeroCard}>
-          <EventVisual accent={THEME.accent} />
+          <Image
+            source={HOME_HERO_IMAGE}
+            style={styles.homeHeroImage}
+            resizeMode="cover"
+          />
+          <View style={styles.homeHeroImageShade} />
           <View style={styles.homeHeroOverlay}>
             <Text style={styles.homeHeroEyebrow}>{t.homeHeroSubtitle}</Text>
             <Text style={styles.homeHeroTitle}>{t.homeHeroDesc}</Text>
@@ -3083,7 +3183,12 @@ function HomeScreen({
             const accent = accentColors[index % accentColors.length];
             return (
               <View key={artist.id} style={styles.featuredCard}>
-                <EventVisual accent={accent} compact />
+                <Image
+                  source={getPerformerImage(artist.id)}
+                  style={styles.featuredCardImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.featuredCardImageShade} />
                 <View style={styles.featuredCardOverlay}>
                   <View
                     style={[
@@ -4856,6 +4961,22 @@ const styles = StyleSheet.create({
     lineHeight: 31,
     fontWeight: "700",
     fontFamily: FONTS.heading,
+  },
+  homeHeroImage: {
+    width: "100%",
+    height: 210,
+  },
+  homeHeroImageShade: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(92,36,150,0.10)",
+  },
+  featuredCardImage: {
+    width: "100%",
+    height: 138,
+  },
+  featuredCardImageShade: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(92,36,150,0.08)",
   },
   eventVisualFrame: {
     width: "100%",
@@ -7339,4 +7460,99 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(216,180,254,0.14)",
   },
+  // ─── SOS Funkció Stílusok ───
+  sosFloatingBtn: {
+    position: "absolute",
+    bottom: 24,
+    right: 20,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#ef4444",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#ef4444",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 8,
+    borderWidth: 2,
+    borderColor: "#fca5a5",
+  },
+  sosModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.85)",
+    justifyContent: "flex-end",
+  },
+  sosModalContent: {
+    backgroundColor: "#1a0b2e",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 40,
+    borderTopWidth: 1,
+    borderTopColor: "#ef4444",
+  },
+  sosHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 8,
+  },
+  sosTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#ef4444",
+    letterSpacing: 1,
+  },
+  sosSubtitle: {
+    fontSize: 14,
+    color: "#d8c8f0",
+    marginBottom: 24,
+  },
+  sosActionBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    backgroundColor: "#ef4444",
+    paddingVertical: 18,
+    borderRadius: 16,
+    marginBottom: 12,
+  },
+  sosActionText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
+  sosCancelBtn: {
+    paddingVertical: 16,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  sosCancelText: {
+    color: "rgba(216,200,240,0.6)",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  sosSuccessContainer: {
+    alignItems: "center",
+    paddingVertical: 20,
+  },
+  sosSuccessTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#22c55e",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  sosSuccessText: {
+    fontSize: 15,
+    color: "#d8c8f0",
+    textAlign: "center",
+    lineHeight: 22,
+    paddingHorizontal: 20,
+  },
 });
+
